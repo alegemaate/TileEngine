@@ -1,0 +1,44 @@
+# depslib dependency file v1.0
+1396673537 source:e:\allans programming\games indev\tile engine\src\defenitions.cpp
+	"defenitions.h"
+
+1394744601 source:e:\allans programming\games indev\tile engine\src\player.cpp
+	"player.h"
+
+1390847889 source:e:\allans programming\games indev\tile engine\src\tile.cpp
+	"tile.h"
+
+1390788039 source:e:\allans programming\games indev\tile engine\src\tilemap.cpp
+	"tileMap.h"
+
+1396673551 e:\allans programming\games indev\tile engine\include\defenitions.h
+	<allegro.h>
+	<time.h>
+	<fstream>
+	<string>
+	<sstream>
+	<vector>
+	<iostream>
+	"fmod/fmod.h"
+	"fmod/fmod_errors.h"
+
+1394744594 e:\allans programming\games indev\tile engine\include\player.h
+	"defenitions.h"
+	"tileMap.h"
+	"projectile.h"
+
+1379170086 e:\allans programming\games indev\tile engine\include\tilemap.h
+	"defenitions.h"
+	"tile.h"
+
+1378672400 e:\allans programming\games indev\tile engine\include\tile.h
+	"defenitions.h"
+
+1378693156 e:\allans programming\games indev\tile engine\include\projectile.h
+	"defenitions.h"
+	"tileMap.h"
+
+1396674481 source:e:\allans programming\games indev\tile engine\src\editor.cpp
+	"tileMap.h"
+	"defenitions.h"
+
