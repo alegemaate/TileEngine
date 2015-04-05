@@ -14,6 +14,11 @@
 #define interactive 5
 #define item 6
 #define spawn 7
+#define half_block_top 8
+#define half_block_bottom 9
+#define quarter_block_top 10
+#define quarter_block_bottom 11
+#define light 12
 
 //Character directions
 // 0-3 left, 4-7 right, 8-11 up
@@ -38,8 +43,8 @@
 #define tile_red_light 12
 #define tile_id 13
 #define tile_old_vorticon 14
-
 #define tile_happy 15
+#define tile_finish 16
 
 //Background Tiles
 #define tile_back_grey 100
@@ -68,7 +73,7 @@
 #define enemy_robot 1
 #define enemy_danny 2
 
-extern BITMAP* tileSprites[400][4];
+extern BITMAP* tileSprites[400][8];
 extern BITMAP* projectileSprites[10][3];
 
 // Set next state
@@ -91,9 +96,11 @@ extern int frames_done;
 
 // Resdiv
 extern int resDiv;
+extern bool single_player;
 
 //State variables
 extern int stateID;
 extern int nextState;
+extern int levelOn;
 
 #endif

@@ -8,6 +8,11 @@
 #include <string>
 #include <vector>
 
+#include "fmod/fmod.h"
+#include "fmod/fmod_errors.h"
+
+#include "tilemap.h"
+
 #include "globals.h"
 #include "tools.h"
 
@@ -15,15 +20,28 @@ class Menu : public GameState
 {
   private:
     // Menu/GUI
-    BITMAP *buffer, *levelSelectLeft, *levelSelectRight, *levelSelectNumber, *cursor[2], *menuselect, *menu, *menu_edit, *help;
+    BITMAP *buffer, *levelSelectLeft, *levelSelectRight, *levelSelectNumber, *cursor[2], *menuselect, *menu, *help, *copyright, *credits;
 
-    SAMPLE* click;
+    SAMPLE *click, *intro;
+
+    int selectorHovering;
+    int step;
+
+    int old_mouse_x;
+    int old_mouse_y;
+
+    bool mouse_control;
+
+    // Live background
+    int animationFrame;
+    tileMap *tile_map;
+    string scrollDirection;
 
     // Menu
     int selectorY, selectorX, newSelectorY, selected_object;
     int cursor_x, cursor_y;
     int menu_view_x, menu_view_y;
-    bool menuOpen, editMode;
+    bool menuOpen;
   protected:
   public:
     //Main loop functions

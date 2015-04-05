@@ -5,7 +5,9 @@ player::player(){
   x = 128;
   y = 128;
 
-  canFall = true;
+  deathcount = 0;
+
+  canFall = false;
   jumping = false;
   jumping_animation_done = true;
   dead = false;
@@ -15,44 +17,57 @@ player::player(){
   walking_animation_sequence = 0;
   jumping_animation_sequence = 0;
 
-  jump_height = 0;
   characterDir = 0;
+  jump_height = 0;
   yVelocity = 0;
+
+  upKey = 0;
+  downKey = 0;
+  leftKey = 0;
+  rightKey = 0;
+  jumpKey = 0;
+  sprintSpeed = 8;
+
+  newMap = new tileMap("blank");
 }
 
 // 0-3 left, 4-7 right, 8-11 up
-void player::load_images(){
-  player_images[0] = load_bitmap ( "images/character/left_1.png", NULL);
-  player_images[1] = load_bitmap ( "images/character/left_2.png", NULL);
-  player_images[2] = load_bitmap ( "images/character/left_3.png", NULL);
-  player_images[3] = load_bitmap ( "images/character/left_4.png", NULL);
+void player::load_images( int newType){
+  if( newType == 1){
+    player_images[0] = load_bitmap ( "images/character/left_1.png", NULL);
+    player_images[1] = load_bitmap ( "images/character/left_2.png", NULL);
+    player_images[2] = load_bitmap ( "images/character/left_3.png", NULL);
+    player_images[3] = load_bitmap ( "images/character/left_4.png", NULL);
 
-  player_images[4] = load_bitmap ( "images/character/right_1.png", NULL);
-  player_images[5] = load_bitmap ( "images/character/right_2.png", NULL);
-  player_images[6] = load_bitmap ( "images/character/right_3.png", NULL);
-  player_images[7] = load_bitmap ( "images/character/right_4.png", NULL);
+    player_images[4] = load_bitmap ( "images/character/right_1.png", NULL);
+    player_images[5] = load_bitmap ( "images/character/right_2.png", NULL);
+    player_images[6] = load_bitmap ( "images/character/right_3.png", NULL);
+    player_images[7] = load_bitmap ( "images/character/right_4.png", NULL);
 
-  player_images[8] = load_bitmap ( "images/character/up_1.png", NULL);
-  player_images[9] = load_bitmap ( "images/character/up_2.png", NULL);
-  player_images[10] = load_bitmap ( "images/character/up_3.png", NULL);
-  player_images[11] = load_bitmap ( "images/character/up_4.png", NULL);
+    player_images[8] = load_bitmap ( "images/character/up_1.png", NULL);
+    player_images[9] = load_bitmap ( "images/character/up_2.png", NULL);
+    player_images[10] = load_bitmap ( "images/character/up_3.png", NULL);
+    player_images[11] = load_bitmap ( "images/character/up_4.png", NULL);
 
-  player_images[12] = load_bitmap ( "images/character/jump_left_1.png", NULL);
-  player_images[13] = load_bitmap ( "images/character/jump_left_2.png", NULL);
-  player_images[14] = load_bitmap ( "images/character/jump_left_3.png", NULL);
-  player_images[15] = load_bitmap ( "images/character/jump_left_4.png", NULL);
-  player_images[16] = load_bitmap ( "images/character/jump_left_5.png", NULL);
-  player_images[17] = load_bitmap ( "images/character/jump_left_6.png", NULL);
+    player_images[12] = load_bitmap ( "images/character/jump_left_1.png", NULL);
+    player_images[13] = load_bitmap ( "images/character/jump_left_2.png", NULL);
+    player_images[14] = load_bitmap ( "images/character/jump_left_3.png", NULL);
+    player_images[15] = load_bitmap ( "images/character/jump_left_4.png", NULL);
+    player_images[16] = load_bitmap ( "images/character/jump_left_5.png", NULL);
+    player_images[17] = load_bitmap ( "images/character/jump_left_6.png", NULL);
 
-  player_images[18] = load_bitmap ( "images/character/jump_right_1.png", NULL);
-  player_images[19] = load_bitmap ( "images/character/jump_right_2.png", NULL);
-  player_images[20] = load_bitmap ( "images/character/jump_right_3.png", NULL);
-  player_images[21] = load_bitmap ( "images/character/jump_right_4.png", NULL);
-  player_images[22] = load_bitmap ( "images/character/jump_right_5.png", NULL);
-  player_images[23] = load_bitmap ( "images/character/jump_right_6.png", NULL);
+    player_images[18] = load_bitmap ( "images/character/jump_right_1.png", NULL);
+    player_images[19] = load_bitmap ( "images/character/jump_right_2.png", NULL);
+    player_images[20] = load_bitmap ( "images/character/jump_right_3.png", NULL);
+    player_images[21] = load_bitmap ( "images/character/jump_right_4.png", NULL);
+    player_images[22] = load_bitmap ( "images/character/jump_right_5.png", NULL);
+    player_images[23] = load_bitmap ( "images/character/jump_right_6.png", NULL);
 
-  player_images[24] = load_bitmap ( "images/character/shoot_left.png", NULL);
-  player_images[25] = load_bitmap ( "images/character/shoot_right.png", NULL);
+    player_images[24] = load_bitmap ( "images/character/shoot_left.png", NULL);
+    player_images[25] = load_bitmap ( "images/character/shoot_right.png", NULL);
+  }
+  else if( newType == 2){
+  }
 
   projectileSprites[0][0] = load_bitmap("images/laser.png", NULL);
   projectileSprites[0][1] = load_bitmap("images/laser.png", NULL);
@@ -61,12 +76,43 @@ void player::load_images(){
 
 // Load sounds
 void player::load_sounds(){
-  walk1 = load_sample("sounds/keen_walk_1.wav");
-  walk2 = load_sample("sounds/keen_walk_2.wav");
-  jump = load_sample("sounds/keen_jump.wav");
-  die = load_sample("sounds/keen_die.wav");
-  getItem = load_sample("sounds/get_item.wav");
-  getBonus = load_sample("sounds/get_bonus.wav");
+  if(!(walk1 = load_sample("sounds/keen_walk_1.wav"))){
+    abort_on_error( "Cannot find sound sounds/walk_1.wav \n Please check your files and try again");
+  }
+  if(!(walk2 = load_sample("sounds/keen_walk_2.wav"))){
+    abort_on_error( "Cannot find sound sounds/walk_2.wav \n Please check your files and try again");
+  }
+  if(!(jump = load_sample("sounds/keen_jump.wav"))){
+    abort_on_error( "Cannot find sound sounds/jump.wav \n Please check your files and try again");
+  }
+  if(!(die = load_sample("sounds/keen_die.wav"))){
+    abort_on_error( "Cannot find sound sounds/die.wav \n Please check your files and try again");
+  }
+  if(!(getItem = load_sample("sounds/get_item.wav"))){
+    abort_on_error( "Cannot find sound sounds/getItem.wav \n Please check your files and try again");
+  }
+  if(!(getBonus = load_sample("sounds/get_bonus.wav"))){
+    abort_on_error( "Cannot find sound sounds/getBonus.wav \n Please check your files and try again");
+  }
+  if(!(win = load_sample("sounds/get_bonus.wav"))){
+    abort_on_error( "Cannot find sound sounds/getBonus.wav \n Please check your files and try again");
+  }
+}
+
+// Set keys
+void player::set_keys( int up, int down, int left, int right, int jump, int shoot, int newJoyNumber){
+  // Differentiate controls
+  upKey = up;
+  downKey = down;
+  leftKey = left;
+  rightKey = right;
+  jumpKey = jump;
+  joyNumber = newJoyNumber;
+  shootKey = shoot;
+}
+
+int player::getDeathcount(){
+  return deathcount;
 }
 
 // Return X
@@ -77,6 +123,11 @@ int player::getX(){
 // Return Y
 int player::getY(){
   return y;
+}
+
+// Get finished
+bool player::getFinished(){
+  return finished;
 }
 
 // Dead?
@@ -93,6 +144,14 @@ vector<projectile> player::getBullets(){
   return bullets;
 }
 
+// Set finished
+void player::setFinished( bool newFinished){
+    finished = newFinished;
+}
+//Set deathcount
+void player::setDeathcount(int newDeathcount){
+  deathcount = newDeathcount;
+}
 //Set dead
 void player::setDead(bool newDead){
   dead = newDead;
@@ -101,30 +160,40 @@ void player::setDead(bool newDead){
 //Draw character
 void player::draw(BITMAP* temp, int tile_map_x, int tile_map_y){
   if( !shooting){
+    // Jumping
     if(!jumping_animation_done){
+      // Left
       if(characterDir == LEFT){
         draw_sprite( temp, player_images[12 + jumping_animation_sequence/2], x - tile_map_x, y - tile_map_y);
       }
+      // Right
       else{
         draw_sprite( temp, player_images[18 + jumping_animation_sequence/2], x - tile_map_x, y - tile_map_y);
       }
     }
+    // Falling
     else if(jumping || canFall){
+      // Left
       if(characterDir == LEFT){
         draw_sprite( temp, player_images[17], x - tile_map_x, y - tile_map_y);
       }
+      // Right
       else{
         draw_sprite( temp, player_images[23], x - tile_map_x, y - tile_map_y);
       }
     }
+    // Walking
     else{
       draw_sprite( temp, player_images[characterDir + walking_animation_sequence/ANIMATION_SPEED], x - tile_map_x, y - tile_map_y);
     }
   }
+  // Shooting
   else{
+    // Left
     if(characterDir == LEFT){
       draw_sprite( temp, player_images[24], x - tile_map_x, y - tile_map_y);
     }
+    // Right
     else{
       draw_sprite( temp, player_images[25], x - tile_map_x, y - tile_map_y);
     }
@@ -137,17 +206,18 @@ void player::draw(BITMAP* temp, int tile_map_x, int tile_map_y){
 }
 
 // Spawn
-void player::spawncommand(tileMap *newMap){
-  for(int i = 0; i < newMap -> mapTiles.size(); i++){
-    if(newMap -> mapTiles.at(i).getType() == 199){
-      x = newMap -> mapTiles.at(i).getX();
-      y = newMap -> mapTiles.at(i).getY();
+void player::spawncommand(tileMap *fullMap){
+  for(int i = 0; i < fullMap -> mapTiles.size(); i++){
+    if(fullMap -> mapTiles.at(i).getType() == 199){
+      x = fullMap -> mapTiles.at(i).getX();
+      y = fullMap -> mapTiles.at(i).getY();
     }
   }
+
 }
 
 //Movement
-void player::update(tileMap *newMap){
+void player::update(tileMap *fullMap){
   //Collision stuff
   bool canMoveLeft = true;
   bool canMoveRight = true;
@@ -159,85 +229,118 @@ void player::update(tileMap *newMap){
   bool canJumpUp = true;
   bool inLiquid = false;
 
+
+  newMap -> mapTiles.clear();
+  newMap -> width = fullMap -> width;
+  newMap -> height = fullMap -> height;
+
+  // Add close elements
+  for(int i = 0; i < fullMap -> mapTiles.size(); i++){
+    if(collisionAny(x - 140, x + 140, fullMap -> mapTiles.at(i).getX(), fullMap -> mapTiles.at(i).getX() +  fullMap -> mapTiles.at(i).getWidth(), y - 140, y + 140, fullMap -> mapTiles.at(i).getY(), fullMap -> mapTiles.at(i).getY() + fullMap -> mapTiles.at(i).getHeight())){
+      newMap -> mapTiles.push_back( fullMap -> mapTiles.at(i));
+    }
+  }
+
   //Check for collision
   for(int i = 0; i < newMap -> mapTiles.size(); i++){
-    if(collisionAny(x - 64*2, x + 64*2, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y - 128*2, y + 128*2, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64)){
-      if(newMap -> mapTiles.at(i).getAttribute() == solid){
-        if(collisionAny(x - 4, x + 60, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y, y + 128, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64) &&
-           collisionLeft(x - 4, x + 60, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64)){
-          canMoveLeft = false;
-        }
+    // Check moving LEFT
+    if(newMap -> mapTiles.at(i).containsAttribute(solid)){
+      if(collisionAny(x - 4, x + 60, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + newMap -> mapTiles.at(i).getWidth(), y, y + 128, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() +  newMap -> mapTiles.at(i).getHeight()) &&
+         collisionLeft(x - 4, x + 60, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64)){
+        canMoveLeft = false;
       }
-      if(newMap -> mapTiles.at(i).getAttribute() == solid){
-        if(collisionAny(x + 4, x + 68, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y, y + 128, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64) &&
-           collisionRight(x + 4, x + 68, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64)){
-          canMoveRight = false;
-        }
+    }
+
+    // Check moving RIGHT
+    if(newMap -> mapTiles.at(i).containsAttribute(solid)){
+      if(collisionAny(x + 4, x + 68, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + newMap -> mapTiles.at(i).getWidth(), y, y + 128, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() +  newMap -> mapTiles.at(i).getHeight()) &&
+         collisionRight(x + 4, x + 68, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64)){
+        canMoveRight = false;
       }
-      if(newMap -> mapTiles.at(i).getAttribute() == climb){
-        if(collisionAny(x + 16, x + 48, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y, y + 128, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64)){
-          canClimbUp2 = true;
-        }
+    }
+    // Check 2 for climbing up
+    if(newMap -> mapTiles.at(i).containsAttribute(climb)){
+      if(collisionAny(x + 16, x + 48, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + newMap -> mapTiles.at(i).getWidth(), y, y + 128, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() +  newMap -> mapTiles.at(i).getHeight())){
+        canClimbUp2 = true;
       }
-      if(newMap -> mapTiles.at(i).getAttribute() == climb){
-        if(collisionAny(x + 16, x + 48, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y, y + 144, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64)){
-          canClimbDown2 = true;
-        }
+    }
+    // Check 2 for climbing down
+    if(newMap -> mapTiles.at(i).containsAttribute(climb)){
+      if(collisionAny(x + 16, x + 48, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + newMap -> mapTiles.at(i).getWidth(), y, y + 144, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() +  newMap -> mapTiles.at(i).getHeight())){
+        canClimbDown2 = true;
       }
-      if(newMap -> mapTiles.at(i).getAttribute() == solid){
-        if(collisionAny(x + 16, x + 48, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y - 16, y, newMap -> mapTiles.at(i).getY(),newMap -> mapTiles.at(i).getY() + 64)){
-          canClimbUp = false;
-        }
+    }
+    // Check 1 for climbing up
+    if(newMap -> mapTiles.at(i).containsAttribute(solid)){
+      if(collisionAny(x + 16, x + 48, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + newMap -> mapTiles.at(i).getWidth(), y - 16, y, newMap -> mapTiles.at(i).getY(),newMap -> mapTiles.at(i).getY() +  newMap -> mapTiles.at(i).getHeight())){
+        canClimbUp = false;
       }
-      if(newMap -> mapTiles.at(i).getAttribute() == solid){
-        if(collisionAny(x + 16, x + 48, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y, y + 144, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64)){
-          canClimbDown = false;
-        }
+    }
+    // Check 2 for climbing down
+    if(newMap -> mapTiles.at(i).containsAttribute(solid)){
+      if(collisionAny(x + 16, x + 48, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + newMap -> mapTiles.at(i).getWidth(), y, y + 144, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() +  newMap -> mapTiles.at(i).getHeight())){
+        canClimbDown = false;
       }
-      if(newMap -> mapTiles.at(i).getAttribute() != gas && newMap -> mapTiles.at(i).getAttribute() != liquid){
-        if(collisionAny(x + 16, x + 48, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y, y + 128, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64)){
-          canJump = false;
-        }
+    }
+    // Check jump
+    if(!(newMap -> mapTiles.at(i).containsAttribute(gas)) && newMap -> mapTiles.at(i).containsAttribute(liquid)){
+      if(collisionAny(x + 16, x + 48, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + newMap -> mapTiles.at(i).getWidth(), y, y + 128, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() +  newMap -> mapTiles.at(i).getHeight())){
+        canJump = false;
       }
-      if(newMap -> mapTiles.at(i).getAttribute() != gas && newMap -> mapTiles.at(i).getAttribute() != liquid){
-        if(collisionAny(x + 16, x + 48, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64, y, y + 144) &&
-        collisionTop(newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 128, y + yVelocity, y + 144 + yVelocity)){
-          canJumpUp = false;
-        }
+    }
+    // Can if you will not hit your head
+    if(!(newMap -> mapTiles.at(i).containsAttribute(gas)) || newMap -> mapTiles.at(i).containsAttribute(liquid)){
+      if(collisionAny(x + 16, x + 48, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + newMap -> mapTiles.at(i).getWidth(), newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64, y, y + 144) &&
+         collisionTop(newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 128, y + yVelocity, y + 144 + yVelocity)){
+        canJumpUp = false;
       }
-      if(newMap -> mapTiles.at(i).getAttribute() == liquid){
-        if(collisionAny(x + 16, x + 48, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y-16, y + 128, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64)){
-          inLiquid = true;
-        }
+    }
+
+    // If you are swimming
+    if(newMap -> mapTiles.at(i).containsAttribute(liquid)){
+      if(collisionAny(x + 16, x + 48, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + newMap -> mapTiles.at(i).getWidth(), y-16, y + 128, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64)){
+        inLiquid = true;
       }
     }
   }
 
   //Check for points and dangers
-  for(int i = 0; i < newMap -> mapTiles.size(); i++){
+  for(int i = 0; i < fullMap -> mapTiles.size(); i++){
     //Get point
-    if(newMap -> mapTiles.at(i).getType() == tile_lollypop){
-      if(collisionAny(x + 16, x + 48, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y-16, y + 128, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 128)){
+    if(fullMap -> mapTiles.at(i).containsAttribute(item)){
+      if(collisionAny(x + 16, x + 48, fullMap -> mapTiles.at(i).getX(), fullMap -> mapTiles.at(i).getX() + fullMap -> mapTiles.at(i).getWidth(), y+32, y + 128, fullMap -> mapTiles.at(i).getY(), fullMap -> mapTiles.at(i).getY() +  fullMap -> mapTiles.at(i).getHeight())){
         play_sample(getItem,255,125,1000,0);
-        newMap -> mapTiles.at(i).setType(0);
+        fullMap -> mapTiles.at(i).setType(0);
       }
     }
+  }
 
+  for(int i = 0; i < newMap -> mapTiles.size(); i++){
     //Die
-    if(newMap -> mapTiles.at(i).getAttribute() == harmful){
-      if(collisionAny(x + 16, x + 48, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y-16, y + 128, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 128)){
+    if(newMap -> mapTiles.at(i).getType() == tile_finish){
+      if(collisionAny(x + 16, x + 48, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() +  newMap -> mapTiles.at(i).getWidth(), y + 32, y + 128, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() +  newMap -> mapTiles.at(i).getHeight())){
+        play_sample(win,255,125,1000,0);
+        finished = true;
+      }
+    }
+    if(newMap -> mapTiles.at(i).containsAttribute(harmful)){
+      if(collisionAny(x + 16, x + 48, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + newMap -> mapTiles.at(i).getWidth(), y+32, y + 128, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() +  newMap -> mapTiles.at(i).getHeight())){
         play_sample(die,255,125,1000,0);
         dead = true;
+        deathcount++;
       }
     }
     if(x > newMap -> width*64 || x < 0 || y > newMap -> height*64){
+      x=0;
+      y=0;
       play_sample(die,255,125,1000,0);
       dead = true;
+      deathcount++;
     }
   }
 
   //Move up
-  if(key[KEY_W]){
+  if(key[upKey]){
     characterDir = UP;
     if(canClimbUp2 && canClimbUp){
       y -= 16;
@@ -246,7 +349,7 @@ void player::update(tileMap *newMap){
   }
 
   //Move down
-  if(key[KEY_S]){
+  if(key[downKey]){
     characterDir = UP;
     if(canClimbDown2 && canClimbDown){
       y += 16;
@@ -255,12 +358,19 @@ void player::update(tileMap *newMap){
   }
 
   //Move right
-  if(key[KEY_D] && jumping_animation_done && x < newMap -> width*64){
+  if((key[rightKey] || joy[joyNumber].stick[0].axis[0].d2) && jumping_animation_done && x < newMap -> width*64){
+    if( !sprinting){
+      sprinting = true;
+      sprintSpeed = 8;
+    }
+    else if( sprintSpeed < 16 && !jumping){
+      sprintSpeed *= 1.05;
+    }
     characterDir = RIGHT;
     if(canMoveRight){
-      x += 8;
+      x += sprintSpeed;
       walking_animation_sequence++;
-      if(walking_animation_sequence %(ANIMATION_SPEED * 2) == 0 && !canFall && !jumping){
+      if(walking_animation_sequence == ANIMATION_SPEED && !canFall && !jumping){
         if(random(0,1)){
           play_sample(walk1,255,125,1000,0);
         }
@@ -272,12 +382,19 @@ void player::update(tileMap *newMap){
   }
 
   //Move left
-  if(key[KEY_A] && jumping_animation_done && x > 0){
+  if((key[leftKey] || joy[joyNumber].stick[0].axis[0].d1) && jumping_animation_done && x > 0){
+    if( !sprinting){
+      sprinting = true;
+      sprintSpeed = 8;
+    }
+    else if( sprintSpeed < 16 && !jumping){
+      sprintSpeed *= 1.05;
+    }
     characterDir = LEFT;
     if(canMoveLeft){
-      x -= 8;
+      x -= sprintSpeed;
       walking_animation_sequence++;
-      if(walking_animation_sequence %(ANIMATION_SPEED * 2) == 0 && !canFall && !jumping){
+      if(walking_animation_sequence == ANIMATION_SPEED && !canFall && !jumping){
         if(random(0,1)){
           play_sample(walk1,255,125,1000,0);
         }
@@ -288,19 +405,24 @@ void player::update(tileMap *newMap){
     }
   }
 
+  // Stop sprinting
+  if(!key[leftKey] && !key[rightKey] && !joy[joyNumber].stick[0].axis[0].d1 && !joy[joyNumber].stick[0].axis[0].d2){
+    sprinting = false;
+    sprintSpeed = 0;
+  }
+
   canFall = true;
   bool smoothFall = false;
+
   //Falling (calculated seperately to ensure collision accurate)
   for(int i = 0; i < newMap -> mapTiles.size(); i++){
-    if(collisionAny(x - 64*2, x + 64*2, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y - 128*2, y + 128*2, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64)){
-      if(newMap -> mapTiles.at(i).getAttribute() == solid || newMap -> mapTiles.at(i).getAttribute() == climb){
-        if(collisionAny(x + 16, x + 48, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y, y + 144, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64) &&
-           collisionTop(y, y + 144, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 128)){
-          canFall = false;
-          if(!collisionAny(x + 16, x + 48, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y, y + 129, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64) &&
-           !collisionTop(y, y + 129, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 129)){
-            smoothFall = true;
-          }
+    if(newMap -> mapTiles.at(i).containsAttribute(solid) || newMap -> mapTiles.at(i).containsAttribute(climb)){
+      if(collisionAny(x + 16, x + 48, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + newMap -> mapTiles.at(i).getWidth(), y, y + 144, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + newMap -> mapTiles.at(i).getHeight()) &&
+         collisionTop(y, y + 144, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + newMap -> mapTiles.at(i).getHeight())){
+        canFall = false;
+        if(!collisionAny(x + 16, x + 48, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + newMap -> mapTiles.at(i).getWidth(), y, y + 129, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + newMap -> mapTiles.at(i).getHeight()) &&
+         !collisionTop(y, y + 129, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + newMap -> mapTiles.at(i).getHeight())){
+          smoothFall = true;
         }
       }
     }
@@ -312,11 +434,16 @@ void player::update(tileMap *newMap){
       y += 16;
     }
     else{
-      y += 16;
+      if( key[downKey]){
+        y += 32;
+      }
+      else{
+        y += 16;
+      }
     }
   }
   //Smooth falling
-  if(smoothFall){
+  if(smoothFall && !jumping){
     y += 1;
   }
 
@@ -344,7 +471,7 @@ void player::update(tileMap *newMap){
   }
 
   //Jump
-  if(key[KEY_SPACE]){
+  if(key[jumpKey]){
     if(inLiquid){
       y -= 16;
     }
@@ -359,7 +486,7 @@ void player::update(tileMap *newMap){
   //Increse jump animation sequence
   if(!jumping_animation_done){
     jumping_animation_sequence++;
-    if(key[KEY_SPACE]){
+    if(key[jumpKey]){
       if(jumping_animation_sequence < 7){
         jump_height=32;
       }
@@ -376,12 +503,13 @@ void player::update(tileMap *newMap){
       jumping = true;
     }
   }
+
   // Reset animation sequence
-  if(walking_animation_sequence > ANIMATION_SPEED * 4){
+  if(walking_animation_sequence >= ANIMATION_SPEED * 4){
     walking_animation_sequence = 0;
   }
   // Prevents getting stuck through an animation
-  else if(!key[KEY_LEFT] && !key[KEY_RIGHT] && !key[KEY_A] && !key[KEY_D]){
+  else if(!key[rightKey] && !key[leftKey]){
     walking_animation_sequence = 0;
   }
 
@@ -395,7 +523,7 @@ void player::update(tileMap *newMap){
   }
 
   // Shoot
-  if(key[KEY_ENTER] && !shooting){
+  if(key[shootKey] && !shooting){
     if(characterDir == RIGHT){
       projectile newBullet( 0, x + 57, y + 70, 100);
       bullets.push_back(newBullet);
@@ -414,11 +542,17 @@ void player::update(tileMap *newMap){
       bullets.erase(bullets.begin() + i);
     }
   }
+
+  // Prevents getting stuck through an animation
+  if(!key[leftKey] && !key[rightKey] && !key[upKey] && !key[downKey] && !joy[joyNumber].stick[0].axis[0].d1 && !joy[joyNumber].stick[0].axis[0].d2 && !joy[joyNumber].stick[0].axis[2].d1){
+    walking_animation_sequence = 0;
+  }
+  idle_timer++;
+  if(idle_timer>100)idle_timer=0;
 }
 
 player::~player(){
   bullets.clear();
-
   for(int i = 0; i < 26; i++){
 		if(player_images[i]){
 			destroy_bitmap(player_images[i]);
@@ -428,6 +562,7 @@ player::~player(){
   destroy_sample( walk1);
   destroy_sample( walk2);
   destroy_sample( jump);
+  destroy_sample( win);
   destroy_sample( die);
   destroy_sample( getItem);
   destroy_sample( getBonus);

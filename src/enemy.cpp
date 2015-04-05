@@ -19,6 +19,8 @@ enemy::enemy( int newX, int newY, int newType){
   x = newX;
   y = newY;
   type = newType;
+
+  newMap = new tileMap("blank");
 }
 
 enemy::~enemy(){
@@ -51,54 +53,6 @@ void enemy::load_images(){
     jumpSpeed = 2;
     speed = 3;
   }
-  else if(type == enemy_robot){
-    enemy_images[0] = load_bitmap ( "images/enemys/robot/left_1.png", NULL);
-    enemy_images[1] = load_bitmap ( "images/enemys/robot/left_2.png", NULL);
-    enemy_images[2] = load_bitmap ( "images/enemys/robot/left_3.png", NULL);
-    enemy_images[3] = load_bitmap ( "images/enemys/robot/left_4.png", NULL);
-
-    enemy_images[4] = load_bitmap ( "images/enemys/robot/right_1.png", NULL);
-    enemy_images[5] = load_bitmap ( "images/enemys/robot/right_2.png", NULL);
-    enemy_images[6] = load_bitmap ( "images/enemys/robot/right_3.png", NULL);
-    enemy_images[7] = load_bitmap ( "images/enemys/robot/right_4.png", NULL);
-
-    enemy_images[8] = load_bitmap ( "images/enemys/robot/jump_left.png", NULL);
-    enemy_images[9] = load_bitmap ( "images/enemys/robot/jump_right.png", NULL);
-
-    enemy_images[10] = load_bitmap ( "images/enemys/robot/dead.png", NULL);
-
-    jumpChance = 0;
-    maxSteps = 100;
-    minSteps = 20;
-    jumpHeight = 0;
-    walkChance = 1;
-    jumpSpeed = 0;
-    speed = 2;
-  }
-  else if(type == enemy_danny){
-    enemy_images[0] = load_bitmap ( "images/enemys/danny/left_1.png", NULL);
-    enemy_images[1] = load_bitmap ( "images/enemys/danny/left_2.png", NULL);
-    enemy_images[2] = load_bitmap ( "images/enemys/danny/left_3.png", NULL);
-    enemy_images[3] = load_bitmap ( "images/enemys/danny/left_4.png", NULL);
-
-    enemy_images[4] = load_bitmap ( "images/enemys/danny/right_1.png", NULL);
-    enemy_images[5] = load_bitmap ( "images/enemys/danny/right_2.png", NULL);
-    enemy_images[6] = load_bitmap ( "images/enemys/danny/right_3.png", NULL);
-    enemy_images[7] = load_bitmap ( "images/enemys/danny/right_4.png", NULL);
-
-    enemy_images[8] = load_bitmap ( "images/enemys/danny/jump_left.png", NULL);
-    enemy_images[9] = load_bitmap ( "images/enemys/danny/jump_right.png", NULL);
-
-    enemy_images[10] = load_bitmap ( "images/enemys/danny/dead.png", NULL);
-
-    jumpChance = 20;
-    maxSteps = 200;
-    minSteps = 100;
-    jumpHeight = 256;
-    walkChance = 1;
-    jumpSpeed = 3;
-    speed = 4;
-  }
   width = enemy_images[0] -> w;
   height = enemy_images[0] -> h;
 }
@@ -106,28 +60,24 @@ void enemy::load_images(){
 // Load sounds
 void enemy::load_sounds(){
   if(type == enemy_vorticon){
-    walk1 = load_sample("sounds/walk_1.wav");
-    walk2 = load_sample("sounds/walk_2.wav");
-    jump = load_sample("sounds/keen_jump.wav");
-    die = load_sample("sounds/keen_die.wav");
-    getItem = load_sample("sounds/get_item.wav");
-    getBonus = load_sample("sounds/get_bonus.wav");
-  }
-  else if(type == enemy_robot){
-    walk1 = load_sample("sounds/walk_1.wav");
-    walk2 = load_sample("sounds/walk_2.wav");
-    jump = load_sample("sounds/keen_jump.wav");
-    die = load_sample("sounds/keen_die.wav");
-    getItem = load_sample("sounds/get_item.wav");
-    getBonus = load_sample("sounds/get_bonus.wav");
-  }
-  else if(type == enemy_danny){
-    walk1 = load_sample("sounds/walk_1.wav");
-    walk2 = load_sample("sounds/walk_2.wav");
-    jump = load_sample("sounds/keen_jump.wav");
-    die = load_sample("sounds/keen_die.wav");
-    getItem = load_sample("sounds/get_item.wav");
-    getBonus = load_sample("sounds/get_bonus.wav");
+    if(!(walk1 = load_sample("sounds/keen_walk_1.wav"))){
+      abort_on_error( "Cannot find sound sounds/walk_1.wav \n Please check your files and try again");
+    }
+    if(!(walk2 = load_sample("sounds/keen_walk_2.wav"))){
+      abort_on_error( "Cannot find sound sounds/walk_2.wav \n Please check your files and try again");
+    }
+    if(!(jump = load_sample("sounds/keen_jump.wav"))){
+      abort_on_error( "Cannot find sound sounds/jump.wav \n Please check your files and try again");
+    }
+    if(!(die = load_sample("sounds/keen_die.wav"))){
+      abort_on_error( "Cannot find sound sounds/die.wav \n Please check your files and try again");
+    }
+    if(!(getItem = load_sample("sounds/get_item.wav"))){
+      abort_on_error( "Cannot find sound sounds/getItem.wav \n Please check your files and try again");
+    }
+    if(!(getBonus = load_sample("sounds/get_bonus.wav"))){
+      abort_on_error( "Cannot find sound sounds/getBonus.wav \n Please check your files and try again");
+    }
   }
 }
 
@@ -176,16 +126,17 @@ void enemy::draw(BITMAP* temp, int tile_map_x, int tile_map_y){
   }
 }
 
-//Movement
-void enemy::update(tileMap *newMap, player newPlayer){
-  //Only update if on screen (save CPU power)!
+// Update
+void enemy::update(tileMap *fullMap, player *newPlayer){
+  // Only update if on screen (save CPU power)!
   bool onScreen = true;
-  if(collisionAny(x, x + width, newPlayer.getX() - 1280, newPlayer.getX() + 1280, y, y + height, newPlayer.getY() - 960, newPlayer.getY() + 960)){
+  if(collisionAny(x, x + width, newPlayer -> getX() - SCREEN_W, newPlayer -> getX() + SCREEN_W, y, y + height, newPlayer -> getY() - SCREEN_H, newPlayer -> getY() + SCREEN_H)){
     onScreen = true;
   }
   else{
     onScreen = false;
   }
+
   if(onScreen){
     if(!dead ){
       //Collision stuff
@@ -199,57 +150,65 @@ void enemy::update(tileMap *newMap, player newPlayer){
       bool canJumpUp = true;
       bool inLiquid = false;
 
+      newMap -> mapTiles.clear();
+      newMap -> width = fullMap -> width;
+      newMap -> height = fullMap -> height;
+
+      // Add close elements
+      for(int i = 0; i < fullMap -> mapTiles.size(); i++){
+        if(collisionAny(x - 140, x + 140, fullMap -> mapTiles.at(i).getX(), fullMap -> mapTiles.at(i).getX() +  fullMap -> mapTiles.at(i).getWidth(), y - 140, y + 140, fullMap -> mapTiles.at(i).getY(), fullMap -> mapTiles.at(i).getY() + fullMap -> mapTiles.at(i).getHeight())){
+          newMap -> mapTiles.push_back( fullMap -> mapTiles.at(i));
+        }
+      }
+
       //Check for collision
       for(int i = 0; i < newMap -> mapTiles.size(); i++){
-        //Only compare to near by tiles to save CPU power!
-        if( collisionAny( x - 64, x + 128, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y - 64, y + 128, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64)){
-          if(newMap -> mapTiles.at(i).getAttribute() == solid){
-            if(collisionAny(x - speed, x + width - speed, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y, y + height, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64) &&
-               collisionLeft(x - speed, x + width - speed, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64)){
-              canMoveLeft = false;
-            }
+        if( newMap -> mapTiles.at(i).containsAttribute(solid)){
+          if(collisionAny(x - speed, x + width - speed, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y, y + height, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64) &&
+             collisionLeft(x - speed, x + width - speed, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64)){
+            canMoveLeft = false;
           }
-          if(newMap -> mapTiles.at(i).getAttribute() == solid){
-            if(collisionAny(x + speed, x + width + speed, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y, y + height, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64) &&
-               collisionRight(x + speed, x + width + speed, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64)){
-              canMoveRight = false;
-            }
+        }
+        if( newMap -> mapTiles.at(i).containsAttribute(solid)){
+          if(collisionAny(x + speed, x + width + speed, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y, y + height, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64) &&
+             collisionRight(x + speed, x + width + speed, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64)){
+            canMoveRight = false;
           }
-          if(newMap -> mapTiles.at(i).getAttribute() == climb){
-            if(collisionAny(x, x + width, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y, y + height, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64)){
-              canClimbUp2 = true;
-            }
+        }
+        if( newMap -> mapTiles.at(i).containsAttribute(climb)){
+          if(collisionAny(x, x + width, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y, y + height, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64)){
+            canClimbUp2 = true;
           }
-          if(newMap -> mapTiles.at(i).getAttribute() == climb){
-            if(collisionAny(x, x + width, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y, y + height + 16, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64)){
-              canClimbDown2 = true;
-            }
+        }
+        if( newMap -> mapTiles.at(i).containsAttribute(climb)){
+          if(collisionAny(x, x + width, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y, y + height + 16, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64)){
+            canClimbDown2 = true;
           }
-          if(newMap -> mapTiles.at(i).getAttribute() == solid){
-            if(collisionAny(x, x + width, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y - 16, y, newMap -> mapTiles.at(i).getY(),newMap -> mapTiles.at(i).getY() + 64)){
-              canClimbUp = false;
-            }
+        }
+        if( newMap -> mapTiles.at(i).containsAttribute(solid)){
+          if(collisionAny(x, x + width, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y - 16, y, newMap -> mapTiles.at(i).getY(),newMap -> mapTiles.at(i).getY() + 64)){
+            canClimbUp = false;
           }
-          if(newMap -> mapTiles.at(i).getAttribute() == solid){
-            if(collisionAny(x, x + width, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y, y + height + 16, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64)){
-              canClimbDown = false;
-            }
+        }
+        if( newMap -> mapTiles.at(i).containsAttribute(solid)){
+          if(collisionAny(x, x + width, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y, y + height + 16, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64)){
+            canClimbDown = false;
           }
-          if(newMap -> mapTiles.at(i).getAttribute() != gas && newMap -> mapTiles.at(i).getAttribute() != liquid){
-            if(collisionAny(x, x + width, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y, y + height, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64)){
-              canJump = false;
-            }
+        }
+        if( !newMap -> mapTiles.at(i).containsAttribute(gas) && !newMap -> mapTiles.at(i).containsAttribute(liquid)){
+          if(collisionAny(x, x + width, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y, y + height, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64)){
+            canJump = false;
           }
-          if(newMap -> mapTiles.at(i).getAttribute() != gas && newMap -> mapTiles.at(i).getAttribute() != liquid){
-            if(collisionAny(x, x + width, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64, y, y + 144) &&
-            collisionTop(newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 128, y + yVelocity, y + height + 16 + yVelocity)){
-              canJumpUp = false;
-            }
+        }
+        if( !newMap -> mapTiles.at(i).containsAttribute(gas) && !newMap -> mapTiles.at(i).containsAttribute(liquid)){
+          if(collisionAny(x, x + width, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64, y, y + 144) &&
+          collisionTop(newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 128, y + yVelocity, y + height + 16 + yVelocity)){
+            canJumpUp = false;
           }
-          if(newMap -> mapTiles.at(i).getAttribute() == liquid){
-            if(collisionAny(x, x + width, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y - 16, y + height, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64)){
-              inLiquid = true;
-            }
+        }
+        if( !newMap -> mapTiles.at(i).containsAttribute(liquid)){
+          if(collisionAny(x, x + width, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y - 16, y + height, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64)){
+            inLiquid = true;
           }
         }
       }
@@ -258,15 +217,15 @@ void enemy::update(tileMap *newMap, player newPlayer){
       for(int i = 0; i < newMap -> mapTiles.size(); i++){
         if(collisionAny(x - width*2, x + width*2, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y - height*2, y + height*2, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64)){
           //Get point
-          if(newMap -> mapTiles.at(i).getType() == tile_lollypop){
-            if(collisionAny(x, x + width, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y-16, y + height, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 128)){
-              play_sample(getBonus,255,125,1000,0);
-              newMap -> mapTiles.at(i).setType(0);
-            }
-          }
+          //if(newMap -> mapTiles.at(i).getType() == tile_lollypop){
+          //  if(collisionAny(x, x + width, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y-16, y + height, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 128)){
+          //    play_sample(getBonus,255,125,1000,0);
+          //    newMap -> mapTiles.at(i).setType(0);
+          //  }
+          //}
 
           //Die
-          if(newMap -> mapTiles.at(i).getAttribute() == harmful){
+          if(newMap -> mapTiles.at(i).containsAttribute(harmful)){
             if(collisionAny(x, x + width, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y-16, y + height, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 128)){
               dead = true;
             }
@@ -275,8 +234,8 @@ void enemy::update(tileMap *newMap, player newPlayer){
       }
 
       // Check collision with bullets
-      for(int i = 0; i < newPlayer.getBullets().size(); i++){
-        if(collisionAny(x, x + width, newPlayer.getBullets().at(i).getX(), newPlayer.getBullets().at(i).getX() + 64, y, y + height, newPlayer.getBullets().at(i).getY(), newPlayer.getBullets().at(i).getY() + 64)){
+      for(int i = 0; i < newPlayer -> getBullets().size(); i++){
+        if(collisionAny(x, x + width, newPlayer -> getBullets().at(i).getX(), newPlayer -> getBullets().at(i).getX() + 64, y, y + height, newPlayer -> getBullets().at(i).getY(), newPlayer -> getBullets().at(i).getY() + 64)){
           dead = true;
         }
       }
@@ -383,7 +342,7 @@ void enemy::update(tileMap *newMap, player newPlayer){
     //Falling (calculated seperately to ensure collision accurate)
     for(int i = 0; i < newMap -> mapTiles.size(); i++){
       if(collisionAny(x - width*2, x + width*2, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y - height*2, y + height*2, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64)){
-        if(newMap -> mapTiles.at(i).getAttribute() == solid || newMap -> mapTiles.at(i).getAttribute() == climb){
+        if(newMap -> mapTiles.at(i).containsAttribute(solid) || newMap -> mapTiles.at(i).containsAttribute(climb)){
           if(collisionAny(x, x + 96, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() + 64, y, y + 144, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 64) &&
              collisionTop(y, y + 144, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() + 128)){
             canFall = false;

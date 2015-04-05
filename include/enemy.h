@@ -7,9 +7,9 @@
 
 #include "globals.h"
 #include "tools.h"
+#include "projectile.h"
 
 #include "tileMap.h"
-#include "projectile.h"
 #include "player.h"
 
 #define ANIMATION_SPEED 5
@@ -30,7 +30,7 @@ class enemy{
 
     void setDead(bool newDead);
 
-    void update(tileMap *newMap, player newPlayer);
+    void update(tileMap *newMap, player *newPlayer);
     void draw(BITMAP* temp, int tile_map_x, int tile_map_y);
 
   private:
@@ -62,6 +62,7 @@ class enemy{
     int walking_counter;
 
     vector<projectile> bullets;
+    tileMap *newMap;
 
     // 0-3 left, 4-7 right, 8 jump left 9 jump right 10 dead
     BITMAP* enemy_images[11];

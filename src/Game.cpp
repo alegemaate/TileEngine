@@ -1,27 +1,45 @@
 #include "Game.h"
 
+
+volatile int Game::timer1 = 00;
+
 Game::Game()
 {
   // Creates a random number generator (based on time)
   srand (time(NULL));
 
   // Other Sprites
-  buffer = create_bitmap( 1280, 960);
+  buffer = create_bitmap( SCREEN_W, SCREEN_H);
+
+  lightingEnabled = false;
 
   // Player
-  character.load_images();
-  character.load_sounds();
+  player1.load_images(1);
+  player1.load_sounds();
+  player1.set_keys( KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_LCONTROL, KEY_ALT, 0);
 
   // Init
   init();
 }
 
+void Game::gameTicker(){
+  timer1++;
+}
+
+END_OF_FUNCTION(gameTicker)
+
 void Game::init(){
-  // Variables
-  character.setDead(false);
+  // Timer
+  LOCK_VARIABLE(timer1);
+  LOCK_FUNCTION(gameTicker);
+  install_int_ex(gameTicker, BPS_TO_TIMER(100));
 
   // Create map
   tile_map = new tileMap("data/levels/level_01");
+
+  // Variables
+  player1.setDead(false);
+  player1.spawncommand( tile_map);
 
   // Load enemies
   for(int i = 0; i < tile_map -> mapTiles.size(); i++){
@@ -33,58 +51,62 @@ void Game::init(){
       tile_map -> mapTiles.at(i).setType(0);
     }
   }
-
-  //Create duplicate map with only solids for updating enemies
-  newTileMap = new tileMap("blank");
-
-  for(int i = 0; i < tile_map -> mapTiles.size(); i++){
-    if(tile_map -> mapTiles.at(i).getAttribute() != gas){
-      newTileMap -> mapTiles.push_back(tile_map -> mapTiles.at(i));
-    }
-  }
 }
 
 void Game::update()
 {
   // Character movements (runs only every 2nd loop)
   if(frames_done % 2 == 0){
-    character.update(tile_map);
+    player1.update(tile_map);
 
     for(int i = 0; i < badGuy.size(); i++){
-      badGuy.at(i).update(newTileMap, character);
+      badGuy.at(i).update(tile_map, &player1);
     }
   }
 
   // Scroll Map
-  if(character.getY() - tile_map -> y < 300 && tile_map -> y > 0){
-     tile_map -> y -= 16;
+  if(player1.getY() - tile_map -> y < (SCREEN_H/4) && tile_map -> y > 0){ // UP
+    if( tile_map -> y - (SCREEN_H/4 - abs(player1.getY() - tile_map -> y)) >= 0)
+      tile_map -> y -= (SCREEN_H/4 - abs(player1.getY() - tile_map -> y));
+    else //Close But not quite
+      tile_map -> y = 0;
   }
-  if(character.getY() - tile_map -> y > 650 && tile_map -> y < tile_map -> height * 64 -  960){
-     tile_map -> y += 16;
+  if(player1.getY() - tile_map -> y > (3 * (SCREEN_H/4)) && tile_map -> y < (tile_map -> height * 64 -  SCREEN_H)){ // DOWN
+    if( tile_map -> y + (abs(player1.getY() - tile_map -> y) - (3 * (SCREEN_H/4))) <= (tile_map -> height * 64 -  SCREEN_H))
+      tile_map -> y += (abs(player1.getY() - tile_map -> y) - (3 * (SCREEN_H/4)));
+    else //Close But not quite
+      tile_map -> y = (tile_map -> height * 64 -  SCREEN_H);
   }
-  if(character.getX() - tile_map -> x < 400 && tile_map -> x > 0){
-     tile_map -> x -= 8;
+  if(player1.getX() - tile_map -> x < (SCREEN_W/4) && tile_map -> x > 0){ // LEFT
+    if( tile_map -> x - (SCREEN_W/4 - abs(player1.getX() - tile_map -> x)) >= 0)
+      tile_map -> x -= (SCREEN_W/4 - abs(player1.getX() - tile_map -> x));
+    else //Close But not quite
+      tile_map -> x = 0;
   }
-  if(character.getX() - tile_map -> x > 880 && tile_map -> x < tile_map -> width * 64 - 1280){
-     tile_map -> x += 8;
+  if(player1.getX() - tile_map -> x > (3 * (SCREEN_W/4)) && tile_map -> x < (tile_map -> width * 64 - SCREEN_W)){ // RIGHT
+    if( tile_map -> x + (abs(player1.getX() - tile_map -> x) - (3 * (SCREEN_W/4))) <= (tile_map -> width * 64 - SCREEN_W))
+      tile_map -> x += (abs(player1.getX() - tile_map -> x) - (3 * (SCREEN_W/4)));
+    else //Close But not quite
+      tile_map -> x = (tile_map -> width * 64 - SCREEN_W);
   }
 
   // Die
-  if(character.getDead()){
+  if(player1.getDead()){
     init();
   }
 
   // Respawn
   if(key[KEY_Y]){
-    character.spawncommand(tile_map);
+    player1.spawncommand(tile_map);
   }
 
   // Spawn enemy
   if(key[KEY_R]){
-    enemy newBadGuy( character.getX(), character.getY(), enemy_danny);
+    enemy newBadGuy( player1.getX(), player1.getY(), enemy_vorticon);
     newBadGuy.load_images();
     newBadGuy.load_sounds();
     badGuy.push_back(newBadGuy);
+    rest( 100);
   }
 
   // Back to menu
@@ -101,8 +123,14 @@ void Game::draw()
   // Draw tiles
   tile_map -> draw_map(buffer);
 
-  // Draw character
-  character.draw(buffer, tile_map -> x, tile_map -> y);
+  // Draw player1
+  player1.draw(buffer, tile_map -> x, tile_map -> y);
+
+  // Frame
+  rectfill( buffer, 0, 0, SCREEN_W, 16, makecol( 0,0,0));
+  rectfill( buffer, 0, 0, 16, SCREEN_H, makecol( 0,0,0));
+  rectfill( buffer, SCREEN_W-16, 0, SCREEN_W, SCREEN_H, makecol( 0,0,0));
+  rectfill( buffer, 0, SCREEN_H-16, SCREEN_W, SCREEN_H, makecol( 0,0,0));
 
   // Draw enemies
   for(int i = 0; i < badGuy.size(); i++){

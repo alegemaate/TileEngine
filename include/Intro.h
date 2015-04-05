@@ -7,6 +7,7 @@
 #include <alpng.h>
 #include <string>
 #include <vector>
+#include <string>
 
 #include "globals.h"
 #include "tools.h"
@@ -16,7 +17,11 @@ class Intro : public GameState
 {
   private:
     //Intro background
-    BITMAP *background;
+    BITMAP *buffer;
+    BITMAP *intro;
+    BITMAP *images[100];
+
+    SAMPLE *introSound;
 
   public:
     //Main loop functions
