@@ -82,6 +82,8 @@ Menu::Menu()
 
   // Set background scroll dir
   scrollDirection = "right";
+  tile_map -> y = random( 0, (tile_map -> height * 64) - SCREEN_H);
+  tile_map -> x = 0;
 
   levelOn = 0;
 }
@@ -181,7 +183,6 @@ void Menu::update()
       selectorX = 60;
       play_sample(click,255,125,1000,0);
     }
-
   }
 
   //Select button
@@ -206,6 +207,8 @@ void Menu::update()
     else if( levelOn == 3){
       tile_map -> load( "data/saves/dannyII");
     }
+    tile_map -> y = random( 0, (tile_map -> height * 64) - SCREEN_H);
+    tile_map -> x = 0;
     step=0;
   }
   if(((collisionAny(mouse_x,mouse_x,SCREEN_W-80,SCREEN_W-40,mouse_y,mouse_y, 80, 120) && mouse_b & 1) || (key[KEY_D] || key[KEY_RIGHT] || joy[0].button[5].b)) && step>10){
@@ -229,6 +232,8 @@ void Menu::update()
     else if( levelOn == 3){
       tile_map -> load( "data/saves/dannyII");
     }
+    tile_map -> y = random( 0, (tile_map -> height * 64) - SCREEN_H);
+    tile_map -> x = 0;
     step=0;
   }
   // Start
