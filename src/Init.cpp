@@ -17,7 +17,7 @@ Init::Init()
 void Init::update()
 {
   // Change to splash screen
-  set_next_state(STATE_MENU);
+  set_next_state(STATE_INTRO);
 }
 
 void Init::draw()
