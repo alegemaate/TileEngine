@@ -209,6 +209,12 @@ long tileMap::getFrame(){
   return frame;
 }
 
+// Get tileIndex generated from xml. If it has not been loaded it will
+// Return NULL!
+vector<tile>* tileMap::getIndex(){
+  return &tileIndex;
+}
+
 // Draw tile map to its x and y
 void tileMap::draw_map(BITMAP* tempSprite){
   for(int i = 0; i < mapTilesBack.size(); i++){

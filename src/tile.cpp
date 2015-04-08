@@ -137,6 +137,35 @@ void tile::setType(int newType){
   }
 }
 
+// Set tile to an index number forward or back
+bool tile::changeType(int changeValue){
+  // Match found
+  bool matchFound = false;
+
+  // Index number of tile
+  int matchIndex = -1;
+
+  // Find matching index tile
+  for( int i = 0; i < tileSet -> size(); i++){
+    if( tileSet -> at(i).getType() == type){
+      matchFound = true;
+      matchIndex = i;
+      break;
+    }
+  }
+
+  // Match is found at current location
+  if( matchFound && (matchIndex + changeValue) > 0 && (matchIndex + changeValue) < tileSet -> size()){
+    // Set type to found type
+    setType( tileSet -> at( matchIndex + changeValue).getType());
+
+    // Worked yay!
+    return true;
+  }
+  else
+    return false;
+}
+
 // Set images (and automatically changes animation to 0, 1 or 2)
 void tile::setImages(BITMAP* image1, BITMAP* image2, BITMAP* image3, BITMAP* image4, BITMAP* image5, BITMAP* image6, BITMAP* image7, BITMAP* image8){
   images[0] = image1;

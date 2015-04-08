@@ -11,10 +11,9 @@ Editor::Editor()
   tile_map = new tileMap("data/templates/blank64x48");
 
   // Create example tile
-  /*exampleTile = new tile(0);
-  exampleTile -> setType(0);
+  exampleTile = new tile(0, tile_map -> getIndex());
   exampleTile -> setX(0);
-  exampleTile -> setY(0);*/
+  exampleTile -> setY(0);
 
   FONT *f1, *f2, *f3, *f4, *f5;
 
@@ -205,28 +204,18 @@ void Editor::update(){
     }
 
     // Change selected
-    /*if(key[KEY_UP]){
+    if(key[KEY_UP]){
       exampleTile -> setX(0);
       exampleTile -> setY(0);
-      if(exampleTile -> getType() < 400){
-        do{
-          exampleTile -> setType( exampleTile -> getType() + 1);
-          selectedTileType = exampleTile -> getType();
-        }while( exampleTile -> getImage() == NULL && exampleTile -> getType() < 400);
-        rest(100);
-      }
+      exampleTile -> changeType( 1);
+      rest( 100);
     }
     if(key[KEY_DOWN]){
       exampleTile -> setX(0);
       exampleTile -> setY(0);
-      if(exampleTile -> getType() > 1){
-        do{
-          exampleTile -> setType( exampleTile -> getType() - 1);
-          selectedTileType = exampleTile -> getType();
-        }while( exampleTile -> getImage() == NULL && exampleTile -> getType() > 1);
-        rest(100);
-      }
-    }*/
+      exampleTile -> changeType( -1);
+      rest( 100);
+    }
 
     // Change Layer
     if(key[KEY_TAB]){
@@ -259,7 +248,7 @@ void Editor::update(){
     }
 
     // Get tile type tile
-    /*if( key[KEY_K]){
+    if( key[KEY_K]){
       //Check for collision
       if( layer == 1){
         for(int i = 0; i < tile_map -> mapTiles.size(); i++){
@@ -281,7 +270,7 @@ void Editor::update(){
           }
         }
       }
-    }*/
+    }
 
     // Erase tile
     if( mouse_b & 2){
@@ -364,7 +353,7 @@ void Editor::draw()
   else{
     // Draw tiles
     tile_map -> draw_map( buffer);
-    //exampleTile -> draw_tile( buffer, 0, 0, 0);
+    exampleTile -> draw_tile( buffer, 0, 0, 0);
 
     // Map info
     textprintf_ex(buffer,font,0,80,makecol(255,255,255),makecol(0,0,0),"height-%i width-%i", tile_map -> height, tile_map -> width);
@@ -389,5 +378,5 @@ Editor::~Editor()
   destroy_bitmap( buffer);
 
   delete tile_map;
-  //delete exampleTile;
+  delete exampleTile;
 }

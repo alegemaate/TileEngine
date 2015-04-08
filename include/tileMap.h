@@ -51,10 +51,13 @@ class tileMap{
     // Frame, for animations
     long getFrame();
 
+    // Get tileIndex generated from xml. If it has not been loaded it will
+    // Return NULL!
+    vector<tile>* getIndex();
+
     // Draw map
     void draw_map(BITMAP* tempSprite);
     void draw_map(BITMAP* tempSprite, int newX, int newY);
-
   private:
     // Load starting tiles
     void load_tiles();

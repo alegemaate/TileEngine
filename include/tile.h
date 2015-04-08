@@ -59,6 +59,9 @@ class tile{
     // Warning! tileSet must have been initialized else this will not work!
     void setType(int newType);
 
+    // Set tile to an index number forward or back
+    bool changeType(int changeValue);
+
     // Set images (and automatically changes animation to 0, 1 or 2)
     void setImages(BITMAP* image1);
     void setImages(BITMAP* image1, BITMAP* image2, BITMAP* image3, BITMAP* image4);
