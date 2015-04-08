@@ -19,15 +19,9 @@
 					<Add option="-lalpng" />
 					<Add option="-lalleg" />
 					<Add option="-lfmod" />
-					<Add option="-static-libgcc" />
-					<Add option="-static-libstdc++" />
 				</Linker>
 			</Target>
 		</Build>
-		<Linker>
-			<Add library="alleg" />
-			<Add library="fmod" />
-		</Linker>
 		<Unit filename="include/Editor.h" />
 		<Unit filename="include/Game.h" />
 		<Unit filename="include/GameState.h" />

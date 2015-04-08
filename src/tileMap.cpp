@@ -1,7 +1,11 @@
 #include "tileMap.h"
 
+#include "rapidxml.hpp"
+#include "rapidxml_print.hpp"
+
 volatile long tileMap::frame = 0;
 
+// Creates map and loads level from fileName
 tileMap::tileMap(string fileName){
   x = 0;
   y = 0;
@@ -13,93 +17,123 @@ tileMap::tileMap(string fileName){
   LOCK_FUNCTION(change_frame);
   install_int_ex(change_frame, MSEC_TO_TIMER(FRAME_MILASECONDS));
 
-  load_images();
+  load_tiles();
   load(fileName);
 }
 
-void tileMap::load_images(){
-  // Tile Sprites
-  // Not animated
-  tileSprites[tile_air][0] = load_bitmap("images/blocks/air.png", NULL);
-  tileSprites[tile_blue_top][0] = load_bitmap("images/blocks/blue_top.png", NULL);
-  tileSprites[tile_blue_bottom][0] = load_bitmap("images/blocks/blue_bottom.png", NULL);
-  tileSprites[tile_brick_blue][0] = load_bitmap("images/blocks/brick_blue.png", NULL);
-  tileSprites[tile_brick_red][0] = load_bitmap("images/blocks/brick_red.png", NULL);
-  tileSprites[tile_brick_yellow][0] = load_bitmap("images/blocks/brick_yellow.png", NULL);
-  tileSprites[tile_brick_green][0] = load_bitmap("images/blocks/brick_green.png", NULL);
-  tileSprites[tile_lollypop][0] = load_bitmap("images/blocks/lollypop.png", NULL);
-  tileSprites[tile_old_vorticon][0] = load_bitmap("images/blocks/vorticon_old.png", NULL);
-  tileSprites[tile_happy][0] = load_bitmap("images/blocks/happy.png", NULL);
-
-  // Animated
-  tileSprites[tile_lava][0] = load_bitmap("images/blocks/lava1.png", NULL);
-  tileSprites[tile_lava][1] = load_bitmap("images/blocks/lava2.png", NULL);
-  tileSprites[tile_lava][2] = load_bitmap("images/blocks/lava3.png", NULL);
-  tileSprites[tile_lava][3] = load_bitmap("images/blocks/lava4.png", NULL);
-
-  tileSprites[tile_light_pillar][0] = load_bitmap("images/blocks/light_pillar1.png", NULL);
-  tileSprites[tile_light_pillar][1] = load_bitmap("images/blocks/light_pillar2.png", NULL);
-  tileSprites[tile_light_pillar][2] = load_bitmap("images/blocks/light_pillar3.png", NULL);
-  tileSprites[tile_light_pillar][3] = load_bitmap("images/blocks/light_pillar4.png", NULL);
-
-  tileSprites[tile_zapper][0] = load_bitmap("images/blocks/zapper1.png", NULL);
-  tileSprites[tile_zapper][1] = load_bitmap("images/blocks/zapper2.png", NULL);
-  tileSprites[tile_zapper][2] = load_bitmap("images/blocks/zapper3.png", NULL);
-  tileSprites[tile_zapper][3] = load_bitmap("images/blocks/zapper4.png", NULL);
-
-  tileSprites[tile_green_light][0] = load_bitmap("images/blocks/green_light1.png", NULL);
-  tileSprites[tile_green_light][1] = load_bitmap("images/blocks/green_light2.png", NULL);
-  tileSprites[tile_green_light][2] = load_bitmap("images/blocks/green_light1.png", NULL);
-  tileSprites[tile_green_light][3] = load_bitmap("images/blocks/green_light2.png", NULL);
-
-  tileSprites[tile_red_light][0] = load_bitmap("images/blocks/red_light1.png", NULL);
-  tileSprites[tile_red_light][1] = load_bitmap("images/blocks/red_light2.png", NULL);
-  tileSprites[tile_red_light][2] = load_bitmap("images/blocks/red_light3.png", NULL);
-  tileSprites[tile_red_light][3] = load_bitmap("images/blocks/red_light4.png", NULL);
-
-  tileSprites[tile_id][0] = load_bitmap("images/blocks/id1.png", NULL);
-  tileSprites[tile_id][1] = load_bitmap("images/blocks/id2.png", NULL);
-  tileSprites[tile_id][2] = load_bitmap("images/blocks/id3.png", NULL);
-  tileSprites[tile_id][3] = load_bitmap("images/blocks/id4.png", NULL);
-
-  //Back Tiles
-  tileSprites[tile_back_grey][0] = load_bitmap("images/blocks/backs/grey.png", NULL);
-
-  tileSprites[tile_back_grey_shadow_top][0] = load_bitmap("images/blocks/backs/grey_shadow_top.png", NULL);
-  tileSprites[tile_back_grey_shadow_top_right][0] = load_bitmap("images/blocks/backs/grey_shadow_top_right.png", NULL);
-  tileSprites[tile_back_grey_shadow_top_left][0] = load_bitmap("images/blocks/backs/grey_shadow_top_left.png", NULL);
-  tileSprites[tile_back_grey_shadow_left][0] = load_bitmap("images/blocks/backs/grey_shadow_left.png", NULL);
-  tileSprites[tile_back_grey_shadow_bottom_left][0] = load_bitmap("images/blocks/backs/grey_shadow_bottom_left.png", NULL);
-  tileSprites[tile_back_grey_shadow_top_left_corner][0] = load_bitmap("images/blocks/backs/grey_shadow_top_left_corner.png", NULL);
-
-  tileSprites[tile_back_grey_dark][0] = load_bitmap("images/blocks/backs/grey_dark.png", NULL);
-  tileSprites[tile_back_grey_dark_top_left][0] = load_bitmap("images/blocks/backs/grey_dark_top_left.png", NULL);
-  tileSprites[tile_back_grey_dark_top_right][0] = load_bitmap("images/blocks/backs/grey_dark_top_right.png", NULL);
-
-  tileSprites[tile_back_lamp][0] = load_bitmap("images/blocks/backs/lamp.png", NULL);
-
-  //Spawners
-  tileSprites[tile_spawn_player][0] = load_bitmap("images/blocks/spawn.png", NULL);
-  tileSprites[tile_spawn_vorticon][0] = load_bitmap("images/enemys/vorticon/left_1.png", NULL);
-  tileSprites[tile_spawn_robot][0] = load_bitmap("images/enemys/robot/left_1.png", NULL);
-  tileSprites[tile_spawn_danny][0] = load_bitmap("images/enemys/danny/left_1.png", NULL);
+// Destroy map
+tileMap::~tileMap(){
+  mapTiles.clear();
+  mapTilesBack.clear();
 }
 
-//Change frame
-void tileMap::change_frame(){
-  if(frame < 7){
-    frame++;
+// Manually load new file
+void tileMap::load_tiles(){
+  // Read tiles
+  rapidxml::xml_document<> doc;
+  ifstream file;
+
+  // Check exist
+  if( fexists( "data/tiles.xml")){
+    file.open("data/tiles.xml");
   }
   else{
-    frame = 0;
+    abort_on_error( "Cannot find file /data/tiles.xml \n Please check your files and try again");
+  }
+
+  std::stringstream buffer;
+  buffer << file.rdbuf();
+  std::string content(buffer.str());
+  doc.parse<0>(&content[0]);
+
+  rapidxml::xml_node<> *loadingTiles = doc.first_node();
+
+  // Load blocks
+  for(rapidxml::xml_node<> *cTile = loadingTiles-> first_node("tile"); cTile; cTile = cTile -> next_sibling()){
+    // Read xml variables
+    string tileName = cTile-> first_node("name") -> value();
+    int tileId = atoi(cTile-> first_node("id") -> value());
+
+    bool tileParticlesEnabled = convertStringToBool(cTile-> first_node("particles") -> value());
+    bool tileLightingEnabled = convertStringToBool(cTile-> first_node("lighting") -> value());
+
+    tile newTile(tileId, tileParticlesEnabled, tileLightingEnabled, tileName);
+
+    // Attributes
+    for(rapidxml::xml_node<> *bTile = cTile -> first_node("types") -> first_node("type"); bTile; bTile = bTile -> next_sibling()){
+      string tileType = bTile -> value();
+      int tileTypeInt = 0;
+      // Type
+      if( tileType == "gas")
+        tileTypeInt = 0;
+      else if( tileType == "solid")
+        tileTypeInt = 1;
+      else if( tileType == "liquid")
+        tileTypeInt = 2;
+      else if( tileType == "climb")
+        tileTypeInt = 3;
+      else if( tileType == "harmful")
+        tileTypeInt = 4;
+      else if( tileType == "interactive")
+        tileTypeInt = 5;
+      else if( tileType == "item")
+        tileTypeInt = 6;
+      else if( tileType == "spawn")
+        tileTypeInt = 7;
+      else if( tileType == "half_block_top")
+        tileTypeInt = 8;
+      else if( tileType == "half_block_bottom")
+        tileTypeInt = 9;
+      else if( tileType == "quarter_block_top")
+        tileTypeInt = 10;
+      else if( tileType == "quarter_block_bottom")
+        tileTypeInt = 11;
+      else if( tileType == "light")
+        tileTypeInt = 12;
+      else if( tileType == "finish")
+        tileTypeInt = 13;
+      else
+        abort_on_error(("Unknown type (" + tileType + ") in node: type for tile: " + tileName).c_str());
+
+      newTile.addAttribute( tileTypeInt);
+    }
+
+    // Images
+    int counter = 0;
+    string images[8];
+    for(rapidxml::xml_node<> *bTile = cTile -> first_node("images") -> first_node("image"); bTile; bTile = bTile -> next_sibling()){
+      images[counter] = bTile -> value();
+      counter++;
+    }
+
+    // Set images
+    if(images[0].length() > 0){
+      if(images[1].length() > 0){
+        if(images[4].length() > 0){
+          newTile.setImages( load_bitmap( images[0].c_str(), NULL), load_bitmap( images[1].c_str(), NULL),
+                             load_bitmap( images[2].c_str(), NULL), load_bitmap( images[3].c_str(), NULL),
+                             load_bitmap( images[4].c_str(), NULL), load_bitmap( images[5].c_str(), NULL),
+                             load_bitmap( images[6].c_str(), NULL), load_bitmap( images[7].c_str(), NULL));
+        }
+        else{
+          newTile.setImages( load_bitmap( images[0].c_str(), NULL), load_bitmap( images[1].c_str(), NULL),
+                             load_bitmap( images[2].c_str(), NULL), load_bitmap( images[3].c_str(), NULL));
+        }
+      }
+      else{
+        newTile.setImages( load_bitmap( images[0].c_str(), NULL));
+      }
+    }
+    else{
+      abort_on_error(("Need images for tile: " + tileName).c_str());
+    }
+
+    // Index for other tiles to reference
+    tileIndex.push_back( newTile);
   }
 }
-END_OF_FUNCTION(change_frame)
 
-long tileMap::getFrame(){
-  return frame;
-}
-
+// Manually load new file
 void tileMap::load(string fileName){
   //Change size
   string fileLoad = fileName + ".txt";
@@ -129,10 +163,11 @@ void tileMap::load(string fileName){
         int newTileType;
         read >> newTileType;
         // Set tile type
-        tile newTile(newTileType);
+        tile newTile(newTileType, &tileIndex);
         newTile.setX( i * 64);
         newTile.setY( t * 64);
-        newTile.setType(newTileType);
+
+        // First time, set tile set
         mapTiles.push_back(newTile);
       }
     }
@@ -146,10 +181,11 @@ void tileMap::load(string fileName){
         int newTileType;
         read2 >> newTileType;
         // Set tile type
-        tile newTile(newTileType);
+        tile newTile(newTileType, &tileIndex);
         newTile.setX( i * 64);
         newTile.setY( t * 64);
-        newTile.setType(newTileType);
+
+        // First time, set tile set
         mapTilesBack.push_back(newTile);
       }
     }
@@ -157,7 +193,23 @@ void tileMap::load(string fileName){
   }
 }
 
-//Draw tile map
+//Change animation frame
+void tileMap::change_frame(){
+  if(frame < 7){
+    frame++;
+  }
+  else{
+    frame = 0;
+  }
+}
+END_OF_FUNCTION(change_frame)
+
+// Return current animation frame
+long tileMap::getFrame(){
+  return frame;
+}
+
+// Draw tile map to its x and y
 void tileMap::draw_map(BITMAP* tempSprite){
   for(int i = 0; i < mapTilesBack.size(); i++){
     if((mapTilesBack.at(i).getX() >= x - mapTilesBack.at(i).getWidth()) && (mapTilesBack.at(i).getX() < x + SCREEN_W) &&
@@ -168,11 +220,14 @@ void tileMap::draw_map(BITMAP* tempSprite){
   for(int i = 0; i < mapTiles.size(); i++){
     if((mapTiles.at(i).getX() >= x - mapTiles.at(i).getWidth()) && (mapTiles.at(i).getX() < x + SCREEN_W) &&
        (mapTiles.at(i).getY() >= y - mapTiles.at(i).getHeight()) && (mapTiles.at(i).getY() < y + SCREEN_H)){
-      mapTiles.at(i).draw_tile( tempSprite, x, y, frame);
+      if( !mapTiles.at(i).containsAttribute( spawn)){
+        mapTiles.at(i).draw_tile( tempSprite, x, y, frame);
+      }
     }
   }
 }
 
+// Draw tile map to certain coordinates
 void tileMap::draw_map(BITMAP* tempSprite, int newX, int newY){
   for(int i = 0; i < mapTilesBack.size(); i++){
     if((mapTilesBack.at(i).getX() >= newX - mapTilesBack.at(i).getWidth()) && (mapTilesBack.at(i).getX() < newX + SCREEN_W) &&
@@ -183,12 +238,9 @@ void tileMap::draw_map(BITMAP* tempSprite, int newX, int newY){
   for(int i = 0; i < mapTiles.size(); i++){
     if((mapTiles.at(i).getX() >= newX - mapTiles.at(i).getHeight()) && (mapTiles.at(i).getX() < newX + SCREEN_W) &&
        (mapTiles.at(i).getY() >= newY - mapTiles.at(i).getHeight()) && (mapTiles.at(i).getY() < newY + SCREEN_H)){
-      mapTiles.at(i).draw_tile( tempSprite, newX, newY, frame);
+      if( !mapTiles.at(i).containsAttribute( spawn)){
+        mapTiles.at(i).draw_tile( tempSprite, newX, newY, frame);
+      }
     }
   }
-}
-
-tileMap::~tileMap(){
-  mapTiles.clear();
-  mapTilesBack.clear();
 }

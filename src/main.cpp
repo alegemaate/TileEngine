@@ -43,8 +43,7 @@ END_OF_FUNCTION(close_button_handler)
 GameState *currentState = NULL;
 
 // Change game screen
-void change_state()
-{
+void change_state(){
   //If the state needs to be changed
   if( nextState != STATE_NULL ){
     //Delete the current state
@@ -53,8 +52,7 @@ void change_state()
     }
 
     //Change the state
-    switch( nextState )
-    {
+    switch( nextState){
       case STATE_INIT:
         currentState = new Init();
         break;
@@ -118,12 +116,10 @@ void setup(){
   closeGame = false;
 }
 
-void clean_up()
-{
-    //Delete game state and free state resources
+//Delete game state and free state resources
+void clean_up(){
     delete currentState;
 }
-
 
 //Main function*/
 int main(){

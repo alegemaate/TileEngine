@@ -38,6 +38,9 @@ extern string convertDoubleToString(double number);
 //Convert bool to string
 extern string convertBoolToString(bool boolean);
 
+// Convert string to bool
+extern int convertStringToBool(string newString);
+
 // Fade in and out
 extern void highcolor_fade_in(BITMAP* bmp_orig, int speed);
 extern void highcolor_fade_out(int speed);

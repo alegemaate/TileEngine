@@ -1,10 +1,26 @@
 #include "tile.h"
 
-tile::tile(int newType){
-  setType(newType);
+// Automatic tile creator, when in doubt, use this one
+tile::tile(int newType, vector<tile>* newTileSet){
+  setTileSet( newTileSet);
+  setType( newType);
 }
 
-//Getters/ setters
+// Manual tile creator, must be used when no tileSet has been created (for example before it is loaded)
+// In order to work fully, it must be called alongside setImages(...); and addAttribute(...);
+// If this is used, it is not possible to change types using setType unless setTileSet(...) is called first
+tile::tile(int newType, bool newParticles, bool newLighting, string newName){
+  type = newType;
+  particlesEnabled = newParticles;
+  lightingEnabled = newLighting;
+  name = newName;
+}
+
+// Destroy tile
+tile::~tile(){ }
+
+
+// Get coordinates
 int tile::getX(){
   return x;
 }
@@ -12,6 +28,7 @@ int tile::getY(){
   return y;
 }
 
+// Get size
 int tile::getWidth(){
   return width;
 }
@@ -19,6 +36,7 @@ int tile::getHeight(){
   return height;
 }
 
+// Set new coordinates
 void tile::setX(int newX){
   x = newX;
   initialX = x;
@@ -27,86 +45,100 @@ void tile::setY(int newY){
   y = newY;
   initialY = y;
 }
+
+// Get tile type
 int tile::getType(){
   return type;
 }
+
+// Get animation type (0 = 1 frame, 1 = 4 frame, 8 = 8 frame)
+int tile::getAnimated(){
+  return animated;
+}
+
+// Gets a vector containing any attributes of the tile
+// (e.g. may return a vector containing 2 attributes, gas and harmful)
 vector<int> tile::getAttribute(){
   return attribute;
 }
-// Contains Attribute
+
+// Returns true if the tile contains the given attribute (e.g. solid, gas)
 bool tile::containsAttribute( int newAttribute){
-  if (find(attribute.begin(), attribute.end(), newAttribute) != attribute.end()) {
+  if (find(attribute.begin(), attribute.end(), newAttribute) != attribute.end()){
   	return true;
 	}
 	return false;
 }
 
+// Add an attribute to the tile (e.g. solid, harmful)
+void tile::addAttribute( int newAttribute){
+  attribute.push_back(newAttribute);
+}
+
+// Returns images[0], even if it is NOT loaded in which case it returns NULL
 BITMAP* tile::getImage(){
   return images[0];
 }
 
-//Set type
+// Set tile type and automatically assigns attributes/images/ect...
+// Warning! tileSet must have been initialized else this will not work!
 void tile::setType(int newType){
+  // Reset x and y position
   x = initialX;
   y = initialY;
 
+  // Set type to defined type
   type = newType;
+
+  // Tile copying
+  tile* tileToCopy;
+
+  // Remove all attributes
   attribute.clear();
 
-  // Fronts
-  if(type == tile_blue_top){
-    attribute.push_back(solid);
-  }
-  else if(type == tile_blue_bottom){
-    attribute.push_back(solid);
-  }
-  else if(type == tile_brick_blue){
-    attribute.push_back(solid);
-  }
-  else if(type == tile_brick_red){
-    attribute.push_back(solid);
-  }
-  else if(type == tile_lollypop){
-    attribute.push_back(gas);
-    attribute.push_back(item);
-  }
-  else if(type == tile_zapper){
-    attribute.push_back(harmful);
-  }
-  else if(type == tile_brick_yellow){
-    attribute.push_back(solid);
-  }
-  else if(type == tile_brick_green){
-    attribute.push_back(solid);
-  }
-  else if(type == tile_lava){
-    attribute.push_back(harmful);
-  }
-  else if(type == tile_happy){
-    attribute.push_back(solid);
-  }
-  else if(type == tile_spawn_player){
-    attribute.push_back(spawn);
+  // Match found
+  bool matchFound = false;
 
-  }
-  else{
-    attribute.push_back(gas);
+  // Find matching index tile
+  for( int i = 0; i < tileSet -> size(); i++){
+    if( tileSet -> at(i).getType() == type){
+      tileToCopy = &(tileSet -> at(i));
+      matchFound = true;
+      break;
+    }
   }
 
-  // Sets images
-  if(tileSprites[type][4] != NULL){
-    setImagesAnimatedEight(tileSprites[type][0], tileSprites[type][1], tileSprites[type][2], tileSprites[type][3], tileSprites[type][4], tileSprites[type][5], tileSprites[type][6], tileSprites[type][7]);
-  }
-  else if(tileSprites[type][1] != NULL){
-    setImagesAnimated(tileSprites[type][0], tileSprites[type][1], tileSprites[type][2], tileSprites[type][3]);
-  }
-  else{
-    setImages(tileSprites[type][0]);
+  if( matchFound){
+    // Set attributes to ones found in the index
+    for( int t = 0; t < tileToCopy -> getAttribute().size(); t++){
+      attribute.push_back(tileToCopy -> getAttribute().at(t));
+    }
+
+    // Sets images
+    if(tileToCopy -> getAnimated() == 2){
+      setImages(tileToCopy -> images[0],
+                tileToCopy -> images[1],
+                tileToCopy -> images[2],
+                tileToCopy -> images[3],
+                tileToCopy -> images[4],
+                tileToCopy -> images[5],
+                tileToCopy -> images[6],
+                tileToCopy -> images[7]);
+    }
+    else if(tileToCopy -> getAnimated() == 1){
+      setImages(tileToCopy -> images[0],
+                tileToCopy -> images[1],
+                tileToCopy -> images[2],
+                tileToCopy -> images[3]);
+    }
+    else{
+      setImages(tileToCopy -> images[0]);
+    }
   }
 }
 
-//Set tiles images
-void tile::setImagesAnimatedEight(BITMAP* image1, BITMAP* image2, BITMAP* image3, BITMAP* image4, BITMAP* image5, BITMAP* image6, BITMAP* image7, BITMAP* image8){
+// Set images (and automatically changes animation to 0, 1 or 2)
+void tile::setImages(BITMAP* image1, BITMAP* image2, BITMAP* image3, BITMAP* image4, BITMAP* image5, BITMAP* image6, BITMAP* image7, BITMAP* image8){
   images[0] = image1;
   images[1] = image2;
   images[2] = image3;
@@ -118,9 +150,7 @@ void tile::setImagesAnimatedEight(BITMAP* image1, BITMAP* image2, BITMAP* image3
   animated = 2;
   setDimensions();
 }
-
-//Set tiles images
-void tile::setImagesAnimated(BITMAP* image1, BITMAP* image2, BITMAP* image3, BITMAP* image4){
+void tile::setImages(BITMAP* image1, BITMAP* image2, BITMAP* image3, BITMAP* image4){
   images[0] = image1;
   images[1] = image2;
   images[2] = image3;
@@ -128,37 +158,13 @@ void tile::setImagesAnimated(BITMAP* image1, BITMAP* image2, BITMAP* image3, BIT
   animated = 1;
   setDimensions();
 }
-
-//Set tiles images
 void tile::setImages(BITMAP* image1){
   images[0] = image1;
   animated = 0;
   setDimensions();
 }
 
-// Set images dimensions
-void tile::setDimensions(){
-  if(images[0] != NULL){
-    width = images[0] -> w;
-    height = images[0] -> h;
-    if( containsAttribute( half_block_top)){
-      height = 32;
-    }
-    else if( containsAttribute( half_block_bottom)){
-      height = 32;
-      y += height;
-    }
-    else if( containsAttribute( quarter_block_top)){
-      height = 16;
-    }
-    else if( containsAttribute( quarter_block_bottom)){
-      height = 16;
-      y += 48;
-    }
-  }
-}
-
-//Draw tile
+// Draws tile. If no images are assigned it prints out the type number instead
 void tile::draw_tile(BITMAP* tempSprite, int xOffset, int yOffset, int newFrame){
   if(images[0] != NULL){
     //Not animated
@@ -195,6 +201,29 @@ void tile::draw_tile(BITMAP* tempSprite, int xOffset, int yOffset, int newFrame)
   }
 }
 
-tile::~tile(){
+// Gives the tile an index of all tiles in the tile map, used when assigning type
+void tile::setTileSet( vector<tile>* newTileSet){
+  tileSet = newTileSet;
+}
 
+// Sets dimensions to images[0]'s dimensions
+void tile::setDimensions(){
+  if(images[0] != NULL){
+    width = images[0] -> w;
+    height = images[0] -> h;
+    if( containsAttribute( half_block_top)){
+      height = 32;
+    }
+    else if( containsAttribute( half_block_bottom)){
+      height = 32;
+      y += height;
+    }
+    else if( containsAttribute( quarter_block_top)){
+      height = 16;
+    }
+    else if( containsAttribute( quarter_block_bottom)){
+      height = 16;
+      y += 48;
+    }
+  }
 }

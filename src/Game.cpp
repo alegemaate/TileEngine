@@ -3,8 +3,8 @@
 
 volatile int Game::timer1 = 00;
 
-Game::Game()
-{
+// Create game state
+Game::Game(){
   // Creates a random number generator (based on time)
   srand (time(NULL));
 
@@ -25,9 +25,9 @@ Game::Game()
 void Game::gameTicker(){
   timer1++;
 }
-
 END_OF_FUNCTION(gameTicker)
 
+// Init game state
 void Game::init(){
   // Timer
   LOCK_VARIABLE(timer1);
@@ -53,8 +53,8 @@ void Game::init(){
   }
 }
 
-void Game::update()
-{
+// Update game
+void Game::update(){
   // Character movements (runs only every 2nd loop)
   if(frames_done % 2 == 0){
     player1.update(tile_map);
@@ -115,6 +115,7 @@ void Game::update()
   }
 }
 
+// Draw game
 void Game::draw()
 {
   // Black background (just in case)
@@ -141,6 +142,7 @@ void Game::draw()
   stretch_sprite( screen, buffer, 0, 0, SCREEN_W, SCREEN_H);
 }
 
+// Destroy game
 Game::~Game()
 {
   destroy_bitmap( buffer);

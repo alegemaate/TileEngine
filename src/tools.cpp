@@ -83,6 +83,15 @@ string convertBoolToString(bool boolean){
   return ss.str();
 }
 
+//Convert string to bool
+int convertStringToBool(string newString){
+  bool result;
+  if( newString == "true"){
+    return true;
+  }
+  return false;
+}
+
 // Set next state
 void set_next_state( int newState )
 {

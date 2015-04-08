@@ -176,7 +176,7 @@
 
 1396674213 source:e:\allans programming\games indev\tileengine\res\resources.rc
 
-1428192988 source:e:\allans programming\games indev\tileengine\src\game.cpp
+1428521419 source:e:\allans programming\games indev\tileengine\src\game.cpp
 	"Game.h"
 
 1428192359 e:\allans programming\games indev\tileengine\include\game.h
@@ -195,10 +195,10 @@
 
 1396672756 e:\allans programming\games indev\tileengine\include\gamestate.h
 
-1428184026 e:\allans programming\games indev\tileengine\include\globals.h
+1428521126 e:\allans programming\games indev\tileengine\include\globals.h
 	<allegro.h>
 
-1426877741 e:\allans programming\games indev\tileengine\include\tools.h
+1428201601 e:\allans programming\games indev\tileengine\include\tools.h
 	<allegro.h>
 	<alpng.h>
 	<string>
@@ -206,7 +206,7 @@
 	<sstream>
 	<fstream>
 
-1398564378 e:\allans programming\games indev\tileengine\include\tilemap.h
+1428520048 e:\allans programming\games indev\tileengine\include\tilemap.h
 	<allegro.h>
 	<alpng.h>
 	<string>
@@ -220,7 +220,7 @@
 	"tools.h"
 	"tile.h"
 
-1398564468 e:\allans programming\games indev\tileengine\include\tile.h
+1428520143 e:\allans programming\games indev\tileengine\include\tile.h
 	<allegro.h>
 	<alpng.h>
 	<vector>
@@ -258,7 +258,7 @@
 
 1396665024 source:e:\allans programming\games indev\tileengine\src\gamestate.cpp
 
-1426877742 source:e:\allans programming\games indev\tileengine\src\editor.cpp
+1428513562 source:e:\allans programming\games indev\tileengine\src\editor.cpp
 	"Editor.h"
 
 1396730824 e:\allans programming\games indev\tileengine\include\editor.h
@@ -272,10 +272,10 @@
 	"globals.h"
 	"tools.h"
 
-1426798930 source:e:\allans programming\games indev\tileengine\src\globals.cpp
+1428521096 source:e:\allans programming\games indev\tileengine\src\globals.cpp
 	"globals.h"
 
-1428197719 source:e:\allans programming\games indev\tileengine\src\init.cpp
+1428197935 source:e:\allans programming\games indev\tileengine\src\init.cpp
 	"Init.h"
 
 1396724532 e:\allans programming\games indev\tileengine\include\init.h
@@ -301,7 +301,7 @@
 	"globals.h"
 	"tools.h"
 
-1428188671 source:e:\allans programming\games indev\tileengine\src\main.cpp
+1428521254 source:e:\allans programming\games indev\tileengine\src\main.cpp
 	<allegro.h>
 	<alpng.h>
 	"globals.h"
@@ -328,19 +328,21 @@
 1428197737 source:e:\allans programming\games indev\tileengine\src\menu.cpp
 	"Menu.h"
 
-1428192971 source:e:\allans programming\games indev\tileengine\src\player.cpp
+1428521492 source:e:\allans programming\games indev\tileengine\src\player.cpp
 	"player.h"
 
 1398523654 source:e:\allans programming\games indev\tileengine\src\projectile.cpp
 	"projectile.h"
 
-1428188801 source:e:\allans programming\games indev\tileengine\src\tile.cpp
+1428522216 source:e:\allans programming\games indev\tileengine\src\tile.cpp
 	"tile.h"
 
-1428184106 source:e:\allans programming\games indev\tileengine\src\tilemap.cpp
+1428519239 source:e:\allans programming\games indev\tileengine\src\tilemap.cpp
 	"tileMap.h"
+	"rapidxml.hpp"
+	"rapidxml_print.hpp"
 
-1426877742 source:e:\allans programming\games indev\tileengine\src\tools.cpp
+1428201569 source:e:\allans programming\games indev\tileengine\src\tools.cpp
 	"tools.h"
 	"globals.h"
 

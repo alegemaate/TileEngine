@@ -208,12 +208,11 @@ void player::draw(BITMAP* temp, int tile_map_x, int tile_map_y){
 // Spawn
 void player::spawncommand(tileMap *fullMap){
   for(int i = 0; i < fullMap -> mapTiles.size(); i++){
-    if(fullMap -> mapTiles.at(i).getType() == 199){
+    if(fullMap -> mapTiles.at(i).containsAttribute(spawn)){
       x = fullMap -> mapTiles.at(i).getX();
       y = fullMap -> mapTiles.at(i).getY();
     }
   }
-
 }
 
 //Movement
@@ -317,7 +316,7 @@ void player::update(tileMap *fullMap){
 
   for(int i = 0; i < newMap -> mapTiles.size(); i++){
     //Die
-    if(newMap -> mapTiles.at(i).getType() == tile_finish){
+    if(newMap -> mapTiles.at(i).containsAttribute(finish)){
       if(collisionAny(x + 16, x + 48, newMap -> mapTiles.at(i).getX(), newMap -> mapTiles.at(i).getX() +  newMap -> mapTiles.at(i).getWidth(), y + 32, y + 128, newMap -> mapTiles.at(i).getY(), newMap -> mapTiles.at(i).getY() +  newMap -> mapTiles.at(i).getHeight())){
         play_sample(win,255,125,1000,0);
         finished = true;
