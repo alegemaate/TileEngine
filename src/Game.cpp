@@ -1,6 +1,5 @@
 #include "Game.h"
 
-
 volatile int Game::timer1 = 00;
 
 // Create game state
@@ -34,8 +33,21 @@ void Game::init(){
   LOCK_FUNCTION(gameTicker);
   install_int_ex(gameTicker, BPS_TO_TIMER(100));
 
+  tile_map = new tileMap( "blank");
+
   // Create map
-  tile_map = new tileMap("data/levels/level_01");
+  if( levelOn == 0){
+    tile_map -> load( "data/levels/level_01");
+  }
+  else if( levelOn == 1){
+    tile_map -> load( "data/levels/level_test");
+  }
+  else if( levelOn == 2){
+    tile_map -> load( "data/saves/danny");
+  }
+  else{
+    tile_map -> load( "data/saves/dannyII");
+  }
 
   // Variables
   player1.setDead(false);

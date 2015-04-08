@@ -1,7 +1,6 @@
 #include "Menu.h"
 
-Menu::Menu()
-{
+Menu::Menu(){
   // Init fmod
   FSOUND_Init (44100, 32, 0);
 
@@ -9,36 +8,26 @@ Menu::Menu()
   buffer = create_bitmap( SCREEN_W, SCREEN_H);
 
   // Load images
-  if(!(menu = load_bitmap( ("images/gui/menu.png"), NULL))){
+  if(!(menu = load_bitmap( ("images/gui/menu.png"), NULL)))
     abort_on_error( "Cannot find image images/gui/menu.png \n Please check your files and try again");
-  }
-  if(!(menuselect = load_bitmap( ("images/gui/menuSelector.png"), NULL))){
+  if(!(menuselect = load_bitmap( ("images/gui/menuSelector.png"), NULL)))
     abort_on_error( "Cannot find image images/gui/menuSelector.png \n Please check your files and try again");
-  }
-  if(!(help = load_bitmap( ("images/gui/help.png"), NULL))){
+  if(!(help = load_bitmap( ("images/gui/help.png"), NULL)))
     abort_on_error( "Cannot find image images/gui/help.png \n Please check your files and try again");
-  }
-  if(!(cursor[0] = load_bitmap( ("images/gui/cursor1.png"), NULL))){
+  if(!(cursor[0] = load_bitmap( ("images/gui/cursor1.png"), NULL)))
     abort_on_error( "Cannot find image images/gui/cursor1.png \n Please check your files and try again");
-  }
-  if(!(cursor[1] = load_bitmap( ("images/gui/cursor2.png"), NULL))){
+  if(!(cursor[1] = load_bitmap( ("images/gui/cursor2.png"), NULL)))
     abort_on_error( "Cannot find image images/gui/cursor2.png \n Please check your files and try again");
-  }
-  if(!(levelSelectLeft = load_bitmap( ("images/gui/levelSelectLeft.png"), NULL))){
+  if(!(levelSelectLeft = load_bitmap( ("images/gui/levelSelectLeft.png"), NULL)))
     abort_on_error( "Cannot find image images/gui/levelSelectLeft.png \n Please check your files and try again");
-  }
-  if(!(levelSelectRight = load_bitmap( ("images/gui/levelSelectRight.png"), NULL))){
+  if(!(levelSelectRight = load_bitmap( ("images/gui/levelSelectRight.png"), NULL)))
     abort_on_error( "Cannot find image images/gui/levelSelectRight.png \n Please check your files and try again");
-  }
-  if(!(levelSelectNumber = load_bitmap( ("images/gui/levelSelectNumber.png"), NULL))){
+  if(!(levelSelectNumber = load_bitmap( ("images/gui/levelSelectNumber.png"), NULL)))
     abort_on_error( "Cannot find image images/gui/levelSelectNumber.png \n Please check your files and try again");
-  }
-  if(!(copyright = load_bitmap( ("images/gui/copyright.png"), NULL))){
+  if(!(copyright = load_bitmap( ("images/gui/copyright.png"), NULL)))
     abort_on_error( "Cannot find image images/gui/copyright.png \n Please check your files and try again");
-  }
-  if(!(credits = load_bitmap( ("images/gui/credits.png"), NULL))){
+  if(!(credits = load_bitmap( ("images/gui/credits.png"), NULL)))
     abort_on_error( "Cannot find image images/gui/credits.png \n Please check your files and try again");
-  }
 
   //Load sound effects
   if(!(click = load_sample(("sounds/click.wav")))){
@@ -71,16 +60,16 @@ Menu::Menu()
   set_alpha_blender();
 
   //Variables
-  newSelectorY = SCREEN_H-323;
-  selectorY = SCREEN_H-323;
+  newSelectorY = SCREEN_H - 323;
+  selectorY = SCREEN_H - 323;
   selectorX = 60;
-  mouse_control=false;
-  selectorHovering=0;
+  mouse_control = false;
+  selectorHovering = 0;
 
   // Create map for live background
   tile_map = new tileMap("data/levels/level_01");
 
-  // Set background scroll dir
+  // Set background scroll direction
   scrollDirection = "right";
   tile_map -> y = random( 0, (tile_map -> height * 64) - SCREEN_H);
   tile_map -> x = 0;
@@ -88,28 +77,29 @@ Menu::Menu()
   levelOn = 0;
 }
 
-void Menu::update()
-{
+void Menu::update(){
+  // Disable/Enable mouse control on input
   if(key[KEY_UP] || key[KEY_DOWN] || key[KEY_LEFT] || key[KEY_RIGHT] || key[KEY_W] || key[KEY_A] || key[KEY_S] || key[KEY_D] || joy[0].stick[0].axis[1].d2 || joy[0].stick[0].axis[1].d1 || joy[0].button[4].b || joy[0].button[5].b)
     mouse_control=false;
   else if (mouse_x!=old_mouse_x || mouse_y!=old_mouse_y)
     mouse_control=true;
 
-  old_mouse_x=mouse_x;
-  old_mouse_y=mouse_y;
+  old_mouse_x = mouse_x;
+  old_mouse_y = mouse_y;
 
   menuOpen = false;
   poll_joystick();
+
   // Move around live background
   if( scrollDirection == "right"){
-    if( tile_map -> x + 1 < tile_map -> width * 32){
+    if( tile_map -> x + 1 < (tile_map -> width * 64 - SCREEN_W)){
       tile_map -> x += 1;
     }
     else{
       scrollDirection = "left";
     }
   }
-  if( scrollDirection == "left"){
+  else if( scrollDirection == "left"){
     if( tile_map -> x - 1 > 0){
       tile_map -> x -= 1;
     }
@@ -148,7 +138,7 @@ void Menu::update()
     step=0;
   }
 
-  //Hover play
+  // Hover play
   if((mouse_control && (collisionAny(mouse_x,mouse_x,60,270,mouse_y,mouse_y, SCREEN_H-323, SCREEN_H-278)) || !mouse_control && ( selectorHovering==0))){
     if(newSelectorY != SCREEN_H-323){
       newSelectorY = SCREEN_H-323;
@@ -157,7 +147,7 @@ void Menu::update()
     }
 
   }
-  //Hover edit
+  // Hover edit
   else if((mouse_control && (collisionAny(mouse_x,mouse_x,60,270,mouse_y,mouse_y, SCREEN_H-260, SCREEN_H-215)) || !mouse_control && ( selectorHovering==1))){
     if(newSelectorY != SCREEN_H-260){
       newSelectorY = SCREEN_H-260;
@@ -166,14 +156,13 @@ void Menu::update()
     }
 
   }
-  //Hover help
+  // Hover help
   else if((mouse_control && (collisionAny(mouse_x,mouse_x,60,270,mouse_y,mouse_y, SCREEN_H-197, SCREEN_H-152)) || !mouse_control && ( selectorHovering==2))){
     if(newSelectorY != SCREEN_H-197){
       newSelectorY = SCREEN_H-197;
       selectorX = 60;
       play_sample(click,255,125,1000,0);
     }
-
     menuOpen = true;
   }
   //Hover exit
@@ -185,7 +174,7 @@ void Menu::update()
     }
   }
 
-  //Select button
+  // Select button
   // level select left
   if(((collisionAny(mouse_x,mouse_x,SCREEN_W-180,SCREEN_W-140,mouse_y,mouse_y, 80, 120) && mouse_b & 1) || (key[KEY_A] || key[KEY_LEFT] || joy[0].button[4].b)) && step>10) {
     play_sample(click,255,125,1000,0);
@@ -196,7 +185,7 @@ void Menu::update()
       levelOn = 3;
     }
     if( levelOn == 0){
-      tile_map -> load( "levels/level_01");
+      tile_map -> load( "data/levels/level_01");
     }
     else if( levelOn == 1){
       tile_map -> load( "data/levels/level_test");
@@ -288,7 +277,6 @@ void Menu::draw()
       do{
         draw_sprite(buffer, menu, 0, 0);
         draw_sprite(buffer, help,0,0);
-        //stretch_sprite(buffer, cursor[0], mouse_x, mouse_y, 21 * resDiv, 26 * resDiv);
         draw_sprite(screen,buffer,0,0);
       }
       while(!key[KEY_ESC] && !mouse_b & 1 && !joy[0].button[0].b);
@@ -301,7 +289,6 @@ void Menu::draw()
   draw_sprite(buffer,cursor[0],mouse_x,mouse_y);
   // Draw buffer
   stretch_sprite( screen, buffer, 0, 0, SCREEN_W, SCREEN_H);
-
 }
 
 Menu::~Menu()

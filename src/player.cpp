@@ -430,7 +430,7 @@ void player::update(tileMap *fullMap){
   //Fall
   if(canFall && !jumping){
     if(inLiquid){
-      y += 16;
+      y += 2;
     }
     else{
       if( key[downKey]){
@@ -472,7 +472,7 @@ void player::update(tileMap *fullMap){
   //Jump
   if(key[jumpKey]){
     if(inLiquid){
-      y -= 16;
+      y -= 4;
     }
     else if(!canFall && canJump && !jumping && jumping_animation_done){
       yVelocity = 16;
@@ -482,7 +482,7 @@ void player::update(tileMap *fullMap){
     }
   }
 
-  //Increse jump animation sequence
+  //Increase jump animation sequence
   if(!jumping_animation_done){
     jumping_animation_sequence++;
     if(key[jumpKey]){
