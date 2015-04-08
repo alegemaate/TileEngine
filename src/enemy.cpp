@@ -53,13 +53,61 @@ void enemy::load_images(){
     jumpSpeed = 2;
     speed = 3;
   }
+  else if(type == enemy_robot){
+    enemy_images[0] = load_bitmap ( "images/enemys/robot/left_1.png", NULL);
+    enemy_images[1] = load_bitmap ( "images/enemys/robot/left_2.png", NULL);
+    enemy_images[2] = load_bitmap ( "images/enemys/robot/left_3.png", NULL);
+    enemy_images[3] = load_bitmap ( "images/enemys/robot/left_4.png", NULL);
+
+    enemy_images[4] = load_bitmap ( "images/enemys/robot/right_1.png", NULL);
+    enemy_images[5] = load_bitmap ( "images/enemys/robot/right_2.png", NULL);
+    enemy_images[6] = load_bitmap ( "images/enemys/robot/right_3.png", NULL);
+    enemy_images[7] = load_bitmap ( "images/enemys/robot/right_4.png", NULL);
+
+    enemy_images[8] = load_bitmap ( "images/enemys/robot/jump_left.png", NULL);
+    enemy_images[9] = load_bitmap ( "images/enemys/robot/jump_right.png", NULL);
+
+    enemy_images[10] = load_bitmap ( "images/enemys/robot/dead.png", NULL);
+
+    jumpChance = 0;
+    maxSteps = 100;
+    minSteps = 20;
+    jumpHeight = 0;
+    walkChance = 1;
+    jumpSpeed = 0;
+    speed = 2;
+  }
+  else if(type == enemy_danny){
+    enemy_images[0] = load_bitmap ( "images/enemys/danny/left_1.png", NULL);
+    enemy_images[1] = load_bitmap ( "images/enemys/danny/left_2.png", NULL);
+    enemy_images[2] = load_bitmap ( "images/enemys/danny/left_3.png", NULL);
+    enemy_images[3] = load_bitmap ( "images/enemys/danny/left_4.png", NULL);
+
+    enemy_images[4] = load_bitmap ( "images/enemys/danny/right_1.png", NULL);
+    enemy_images[5] = load_bitmap ( "images/enemys/danny/right_2.png", NULL);
+    enemy_images[6] = load_bitmap ( "images/enemys/danny/right_3.png", NULL);
+    enemy_images[7] = load_bitmap ( "images/enemys/danny/right_4.png", NULL);
+
+    enemy_images[8] = load_bitmap ( "images/enemys/danny/jump_left.png", NULL);
+    enemy_images[9] = load_bitmap ( "images/enemys/danny/jump_right.png", NULL);
+
+    enemy_images[10] = load_bitmap ( "images/enemys/danny/dead.png", NULL);
+
+    jumpChance = 20;
+    maxSteps = 200;
+    minSteps = 100;
+    jumpHeight = 256;
+    walkChance = 1;
+    jumpSpeed = 3;
+    speed = 4;
+  }
   width = enemy_images[0] -> w;
   height = enemy_images[0] -> h;
 }
 
 // Load sounds
 void enemy::load_sounds(){
-  if(type == enemy_vorticon){
+  //if(type == enemy_vorticon){
     if(!(walk1 = load_sample("sounds/keen_walk_1.wav"))){
       abort_on_error( "Cannot find sound sounds/walk_1.wav \n Please check your files and try again");
     }
@@ -78,7 +126,7 @@ void enemy::load_sounds(){
     if(!(getBonus = load_sample("sounds/get_bonus.wav"))){
       abort_on_error( "Cannot find sound sounds/getBonus.wav \n Please check your files and try again");
     }
-  }
+  //}
 }
 
 // Return X

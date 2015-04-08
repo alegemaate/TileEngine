@@ -114,11 +114,27 @@ void Game::update(){
 
   // Spawn enemy
   if(key[KEY_R]){
-    enemy newBadGuy( player1.getX(), player1.getY(), enemy_vorticon);
-    newBadGuy.load_images();
-    newBadGuy.load_sounds();
-    badGuy.push_back(newBadGuy);
-    rest( 100);
+    if( key[KEY_1] || key[KEY_2] || key[KEY_3]){
+      if( key[KEY_1]){
+        enemy newBadGuy( player1.getX(), player1.getY(), enemy_vorticon);
+        newBadGuy.load_images();
+        newBadGuy.load_sounds();
+        badGuy.push_back(newBadGuy);
+      }
+      if( key[KEY_2]){
+        enemy newBadGuy( player1.getX(), player1.getY(), enemy_robot);
+        newBadGuy.load_images();
+        newBadGuy.load_sounds();
+        badGuy.push_back(newBadGuy);
+      }
+      if( key[KEY_3]){
+        enemy newBadGuy( player1.getX(), player1.getY(), enemy_vorticon);
+        newBadGuy.load_images();
+        newBadGuy.load_sounds();
+        badGuy.push_back(newBadGuy);
+      }
+      rest( 100);
+    }
   }
 
   // Back to menu
