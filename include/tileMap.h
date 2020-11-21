@@ -26,7 +26,7 @@ using namespace std;
 class tileMap{
   public:
     // Creates map and loads level from fileName
-    tileMap(string fileName);
+    tileMap( string fileName);
     // Destroy map
     ~tileMap();
 
@@ -46,7 +46,10 @@ class tileMap{
     int height;
 
     // Manually load new file
-    void load(string fileName);
+    void load( string fileName);
+
+    // Add tile to map
+    void addTile( float newX, float newY, int type, bool isBackgroundTile);
 
     // Frame, for animations
     long getFrame();
@@ -56,8 +59,8 @@ class tileMap{
     vector<tile>* getIndex();
 
     // Draw map
-    void draw_map(BITMAP* tempSprite);
-    void draw_map(BITMAP* tempSprite, int newX, int newY);
+    void draw_map( BITMAP* tempSprite);
+    void draw_map( BITMAP* tempSprite, int newX, int newY);
   private:
     // Load starting tiles
     void load_tiles();

@@ -181,16 +181,28 @@ void tileMap::load(string fileName){
         int newTileType;
         read2 >> newTileType;
         // Set tile type
-        tile newTile(newTileType, &tileIndex);
+        tile newTile( newTileType, &tileIndex);
         newTile.setX( i * 64);
         newTile.setY( t * 64);
 
         // First time, set tile set
-        mapTilesBack.push_back(newTile);
+        mapTilesBack.push_back( newTile);
       }
     }
     read2.close();
   }
+}
+
+// Add tile to map
+void tileMap::addTile( float newX, float newY, int type, bool isBackgroundTile){
+  tile newTile( type, &tileIndex);
+  newTile.setX( newX + x);
+  newTile.setY( newY + y);
+
+  if( isBackgroundTile)
+    mapTilesBack.push_back( newTile);
+  else
+    mapTiles.push_back( newTile);
 }
 
 //Change animation frame

@@ -26,8 +26,10 @@ Intro::Intro()
 
   string fileName;
   for( int i = 1; i < 63; i++){
-    fileName = "images/intro/ (" + convertIntToString( i) + ").png";
-    images[i] = load_bitmap( fileName.c_str(), NULL);
+    fileName = "images/intro/(" + convertIntToString( i) + ").png";
+    if( !(images[i] = load_bitmap( fileName.c_str(), NULL))){
+      abort_on_error(string("Could not find image images/intro/(" + convertIntToString( i) + ").png").c_str());
+    }
   }
 
   buffer = create_bitmap( SCREEN_W, SCREEN_H);
@@ -49,7 +51,6 @@ void Intro::draw()
   clear_keybuf();
 
   // Show background
-  //play_sample( introSound, 255, 128, 1000, 0);
   for( int i = 1; i < 63; i++){
     poll_joystick();
     if(keyboard_keypressed() || joy_buttonpressed()){

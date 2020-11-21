@@ -112,6 +112,13 @@ void Game::update(){
     player1.spawncommand(tile_map);
   }
 
+  // Magic tile
+  if( key[KEY_Q]){
+    tile_map -> addTile( mouse_x, mouse_y, 15, false);
+    while( key[KEY_Q]);
+  }
+
+
   // Spawn enemy
   if(key[KEY_R]){
     if( key[KEY_1] || key[KEY_2] || key[KEY_3]){

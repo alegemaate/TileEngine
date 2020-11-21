@@ -9,7 +9,7 @@ Init::Init()
   int height;
   get_desktop_resolution(&width,&height);
 
-  set_gfx_mode( GFX_AUTODETECT, width,height , 0, 0);
+  set_gfx_mode( GFX_AUTODETECT_WINDOWED, 1280, 960 , 0, 0);
 
   set_window_title("Tile Engine");
 }
@@ -17,7 +17,7 @@ Init::Init()
 void Init::update()
 {
   // Change to splash screen
-  set_next_state(STATE_MENU);
+  set_next_state(STATE_INTRO);
 }
 
 void Init::draw()

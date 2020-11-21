@@ -12,7 +12,7 @@
 
 class projectile{
   public:
-    projectile(int newType, int newX, int newY, int newSpeed);
+    projectile(int newType, float newX, float newY, float newXSpeed, float newYSpeed);
     ~projectile();
 
     int getX();
@@ -20,7 +20,7 @@ class projectile{
 
     int getType();
     int getContactFrameCounter();
-    bool getContact(tileMap *newMap);
+    bool getContact(tileMap *fullMap);
 
     void setType(int newType);
     void setImage(BITMAP* image1, BITMAP* image2, BITMAP* image3);
@@ -30,11 +30,17 @@ class projectile{
     void draw(BITMAP* temp, int xOffset, int yOffset);
 
   private:
-    int x;
-    int y;
-    int speed;
+    float x;
+    float y;
+    float x_speed;
+    float y_speed;
+
+    float angle;
+
     int type;
     int contact_counter;
+
+    tileMap *newMap;
 
     bool contact;
 

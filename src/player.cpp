@@ -524,11 +524,11 @@ void player::update(tileMap *fullMap){
   // Shoot
   if(key[shootKey] && !shooting){
     if(characterDir == RIGHT){
-      projectile newBullet( 0, x + 57, y + 70, 100);
+      projectile newBullet( 0, x + 57, y + 70, 100, random( -10, 10));
       bullets.push_back(newBullet);
     }
     else if(characterDir == LEFT){
-      projectile newBullet( 0, x - 64, y + 70, -100);
+      projectile newBullet( 0, x - 64, y + 70, -100, 0);
       bullets.push_back(newBullet);
     }
     shooting = true;
@@ -536,9 +536,11 @@ void player::update(tileMap *fullMap){
 
   // Update bullets
   for(int i = 0; i < bullets.size(); i++){
-    bullets.at(i).update();
-    if(bullets.at(i).getContact(newMap) && bullets.at(i).getContactFrameCounter() == 10){
+    if( bullets.at(i).getContact(fullMap) && bullets.at(i).getContactFrameCounter() == 10){
       bullets.erase(bullets.begin() + i);
+    }
+    else{
+      bullets.at(i).update();
     }
   }
 
