@@ -1,7 +1,9 @@
 #include "TileMap.h"
 
+#include <fstream>
 #include <nlohmann/json.hpp>
 
+#include "../globals.h"
 #include "../util/DisplayMode.h"
 #include "../util/Logger.h"
 
@@ -22,10 +24,8 @@ std::map<std::string, int> TileMap::TILE_TYPE_LOOKUP = {
     {"finish", 13},
 };
 
-volatile long TileMap::frame = 0;
-
 // Creates map and loads level from fileName
-TileMap::TileMap(string fileName) {
+TileMap::TileMap(std::string fileName) {
   x = 0;
   y = 0;
 
@@ -34,7 +34,7 @@ TileMap::TileMap(string fileName) {
 
   // LOCK_VARIABLE(frame);
   // LOCK_FUNCTION(change_frame);
-  // install_int_ex(change_frame, MSEC_TO_TIMER(FRAME_MILASECONDS));
+  // install_int_ex(change_frame, MSEC_TO_TIMER(FRAME_SECONDS));
 
   load_tiles();
   load(fileName);
@@ -46,10 +46,15 @@ TileMap::~TileMap() {
   mapTilesBack.clear();
 }
 
+// Update map
+void TileMap::update(double delta) {
+  runningTime += delta;
+}
+
 // Manually load new file
 void TileMap::load_tiles() {
   // Read tiles
-  ifstream file("data/tiles.json");
+  std::ifstream file("data/tiles.json");
 
   // Check exist
   if (!file.is_open()) {
@@ -98,10 +103,10 @@ void TileMap::load_tiles() {
 }
 
 // Manually load new file
-void TileMap::load(string fileName) {
+void TileMap::load(std::string fileName) {
   // Change size
-  string fileLoad = fileName + ".txt";
-  ifstream findSize(fileLoad.c_str());
+  std::string fileLoad = fileName + ".txt";
+  std::ifstream findSize(fileLoad.c_str());
   width = 0;
   height = 0;
   int data;
@@ -120,7 +125,7 @@ void TileMap::load(string fileName) {
     mapTilesBack.clear();
 
     fileLoad = fileName + ".txt";
-    ifstream read(fileLoad.c_str());
+    std::ifstream read(fileLoad.c_str());
 
     for (int t = 0; t < height; t++) {
       for (int i = 0; i < width; i++) {
@@ -138,7 +143,7 @@ void TileMap::load(string fileName) {
     read.close();
 
     fileLoad = fileName + "_back.txt";
-    ifstream read2(fileLoad.c_str());
+    std::ifstream read2(fileLoad.c_str());
 
     for (int t = 0; t < height; t++) {
       for (int i = 0; i < width; i++) {
@@ -157,29 +162,21 @@ void TileMap::load(string fileName) {
   }
 }
 
-// // Change animation frame
-// void tileMap::change_frame() {
-//   if (frame < 7) {
-//     frame++;
-//   } else {
-//     frame = 0;
-//   }
-// }
-// END_OF_FUNCTION(change_frame)
-
 // Return current animation frame
 long TileMap::getFrame() {
-  return frame;
+  return static_cast<long>(runningTime * (1.0 / FRAME_SECONDS));
 }
 
 // Get tileIndex generated from xml. If it has not been loaded it will
 // Return NULL!
-vector<Tile>* TileMap::getIndex() {
+std::vector<Tile>* TileMap::getIndex() {
   return &tileIndex;
 }
 
 // Draw tile map to its x and y
 void TileMap::draw_map() {
+  auto frame = getFrame();
+
   for (uint32_t i = 0; i < mapTilesBack.size(); i++) {
     if ((mapTilesBack.at(i).getX() >= x - mapTilesBack.at(i).getWidth()) &&
         (mapTilesBack.at(i).getX() < x + DisplayMode::getDrawWidth()) &&
@@ -195,28 +192,6 @@ void TileMap::draw_map() {
         (mapTiles.at(i).getY() < y + DisplayMode::getDrawHeight())) {
       if (!mapTiles.at(i).containsAttribute(spawn)) {
         mapTiles.at(i).draw(x, y, frame);
-      }
-    }
-  }
-}
-
-// Draw tile map to certain coordinates
-void TileMap::draw_map(int newX, int newY) {
-  for (uint32_t i = 0; i < mapTilesBack.size(); i++) {
-    if ((mapTilesBack.at(i).getX() >= newX - mapTilesBack.at(i).getWidth()) &&
-        (mapTilesBack.at(i).getX() < newX + DisplayMode::getDrawWidth()) &&
-        (mapTilesBack.at(i).getY() >= newY - mapTilesBack.at(i).getHeight()) &&
-        (mapTilesBack.at(i).getY() < newY + DisplayMode::getDrawHeight())) {
-      mapTilesBack.at(i).draw(newX, newY, frame);
-    }
-  }
-  for (uint32_t i = 0; i < mapTiles.size(); i++) {
-    if ((mapTiles.at(i).getX() >= newX - mapTiles.at(i).getHeight()) &&
-        (mapTiles.at(i).getX() < newX + DisplayMode::getDrawWidth()) &&
-        (mapTiles.at(i).getY() >= newY - mapTiles.at(i).getHeight()) &&
-        (mapTiles.at(i).getY() < newY + DisplayMode::getDrawHeight())) {
-      if (!mapTiles.at(i).containsAttribute(spawn)) {
-        mapTiles.at(i).draw(newX, newY, frame);
       }
     }
   }

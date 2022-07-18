@@ -1,7 +1,7 @@
 /**
  * Main
  * Allan Legemaate and Danny Van Stemp
- * This is the main for Jumping Jimothy
+ * This is the main for the game.
  * Calls state machine update and draw functions
  * 09/05/2017
  **/
@@ -25,29 +25,28 @@
 #include "./state/engine/StateEngine.h"
 
 // FPS system variables
-int fps;
-double old_time = 0;
-const float MAX_FPS = 60;
-int frames_array[100];
-int frame_index = 0;
+double t = 0.0;
+const double dt = 0.01;
+
+double currentTime = 0.0;
+double accumulator = 0.0;
 
 // Closing or naw
 bool closing = false;
-bool joystick_enabled = false;
+bool joystickEnabled = false;
 
 // Allegro events
-ALLEGRO_EVENT_QUEUE* event_queue = nullptr;
-ALLEGRO_TIMER* timer = nullptr;
+ALLEGRO_EVENT_QUEUE* eventQueue = nullptr;
 ALLEGRO_DISPLAY* display = nullptr;
 ALLEGRO_BITMAP* buffer;
 
 // Input listener wrapper classes
-MouseListener m_listener;
-KeyListener k_listener;
-JoystickListener j_listener;
+MouseListener mouseListener;
+KeyListener keyListener;
+JoystickListener joystickListener;
 
 // State engine
-StateEngine game_state;
+StateEngine gameStateManager;
 
 // Setup game
 void setup() {
@@ -88,104 +87,101 @@ void setup() {
     Logger::fatal("Screen could not be created");
   }
 
-  // Timer
-  timer = al_create_timer(1.0 / MAX_FPS);
-
   // Register events
-  event_queue = al_create_event_queue();
-  al_register_event_source(event_queue, al_get_display_event_source(display));
-  al_register_event_source(event_queue, al_get_timer_event_source(timer));
-  al_register_event_source(event_queue, al_get_keyboard_event_source());
-  al_register_event_source(event_queue, al_get_joystick_event_source());
-
-  // Timer
-  al_start_timer(timer);
+  eventQueue = al_create_event_queue();
+  al_register_event_source(eventQueue, al_get_display_event_source(display));
+  al_register_event_source(eventQueue, al_get_keyboard_event_source());
+  al_register_event_source(eventQueue, al_get_joystick_event_source());
 
   // Window title
   al_set_window_title(display, "Tile Engine");
 
   Logger::systemInformation();
 
-  joystick_enabled = al_get_num_joysticks() > 0;
+  joystickEnabled = al_get_num_joysticks() > 0;
+
+  currentTime = al_get_time();
 }
 
 // Handle events
-void update() {
-  // Event checking
+void handleEvents() {
   ALLEGRO_EVENT ev;
-  al_wait_for_event(event_queue, &ev);
+  bool hasEvent = al_get_next_event(eventQueue, &ev);
 
-  // Timer
-  if (ev.type == ALLEGRO_EVENT_TIMER) {
+  while (hasEvent) {
+    // Exit
+    if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+      closing = true;
+    }
+
+    // Keyboard
+    else if (ev.type == ALLEGRO_EVENT_KEY_DOWN ||
+             ev.type == ALLEGRO_EVENT_KEY_UP) {
+      keyListener.onEvent(ev.type, ev.keyboard.keycode);
+    }
+
+    // Joystick Button
+    else if (ev.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN ||
+             ev.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_UP) {
+      joystickListener.onEvent(ev.type, ev.joystick.button);
+    }
+
+    // Joystick Axis
+    else if (ev.type == ALLEGRO_EVENT_JOYSTICK_AXIS) {
+      joystickListener.onEvent(ev.type, ev.joystick.stick, ev.joystick.axis,
+                               ev.joystick.pos);
+    }
+
+    // Get next event
+    hasEvent = al_get_next_event(eventQueue, &ev);
+  }
+}
+
+// Update and render
+void update() {
+  const double newTime = al_get_time();
+  const double frameTime = newTime - currentTime;
+  currentTime = newTime;
+
+  accumulator += frameTime;
+
+  while (accumulator >= dt) {
+    // Drain event queue
+    handleEvents();
+
     // Update listeners
-    m_listener.update();
-    k_listener.update();
-    j_listener.update();
+    mouseListener.update();
+    keyListener.update();
+    joystickListener.update();
 
     // Update state
-    game_state.update();
+    gameStateManager.update(dt);
 
     // Exit
-    if (game_state.getStateId() == StateEngine::STATE_EXIT)
+    if (gameStateManager.getStateId() == ProgramState::EXIT) {
       closing = true;
-  }
+    }
 
-  // Exit
-  else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
-    closing = true;
-  }
-
-  // Keyboard
-  else if (ev.type == ALLEGRO_EVENT_KEY_DOWN ||
-           ev.type == ALLEGRO_EVENT_KEY_UP) {
-    k_listener.on_event(ev.type, ev.keyboard.keycode);
-  }
-
-  // Joystick Button
-  else if (ev.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN ||
-           ev.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_UP) {
-    j_listener.on_event(ev.type, ev.joystick.button);
-  }
-
-  // Joystick Axis
-  else if (ev.type == ALLEGRO_EVENT_JOYSTICK_AXIS) {
-    j_listener.on_event(ev.type, ev.joystick.stick, ev.joystick.axis,
-                        ev.joystick.pos);
+    // Update timestep
+    accumulator -= dt;
+    t += dt;
   }
 
   // Drawing
-  if (al_is_event_queue_empty(event_queue)) {
-    // Render a frame
-    al_set_target_bitmap(buffer);
-    al_clear_to_color(al_map_rgb(0, 0, 0));
-    game_state.draw();
+  // Render a frame
+  al_set_target_bitmap(buffer);
+  al_clear_to_color(al_map_rgb(0, 0, 0));
+  gameStateManager.draw();
 
-    al_set_target_backbuffer(display);
-    al_clear_to_color(al_map_rgb(0, 0, 0));
-    al_draw_scaled_bitmap(
-        buffer, 0, 0, DisplayMode::getDrawWidth(), DisplayMode::getDrawHeight(),
-        DisplayMode::getTranslationX(), DisplayMode::getTranslationY(),
-        DisplayMode::getScaleWidth(), DisplayMode::getScaleHeight(), 0);
+  al_set_target_backbuffer(display);
+  al_clear_to_color(al_map_rgb(0, 0, 0));
+  al_draw_scaled_bitmap(
+      buffer, 0, 0, DisplayMode::getDrawWidth(), DisplayMode::getDrawHeight(),
+      DisplayMode::getTranslationX(), DisplayMode::getTranslationY(),
+      DisplayMode::getScaleWidth(), DisplayMode::getScaleHeight(), 0);
 
-    // Flip (OpenGL)
-    al_flip_display();
-
-    // Update fps buffer
-    for (int i = 99; i > 0; i--) {
-      frames_array[i] = frames_array[i - 1];
-    }
-    frames_array[0] = (1.0 / (al_get_time() - old_time));
-    old_time = al_get_time();
-
-    int fps_total = 0;
-    for (int i = 0; i < 100; i++) {
-      fps_total += frames_array[i];
-    }
-
-    // FPS = average
-    fps = fps_total / 100;
-    al_set_window_title(display, std::to_string(fps).c_str());
-  }
+  // Flip (OpenGL)
+  al_flip_display();
 }
 
 // Start here
@@ -198,7 +194,7 @@ int main(int argc, char** argv) {
   setup();
 
   // Set the current state ID
-  game_state.setNextState(StateEngine::STATE_MENU);
+  gameStateManager.changeState(ProgramState::MENU);
 
   // Run game
   while (!closing) {

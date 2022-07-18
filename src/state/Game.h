@@ -1,7 +1,6 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include <allegro5/allegro.h>
 #include <string>
 #include <vector>
 
@@ -13,8 +12,6 @@
 #include "../tile/TileMap.h"
 #include "../tools.h"
 
-using namespace std;
-
 // Main game screen
 class Game : public State {
  public:
@@ -22,26 +19,15 @@ class Game : public State {
   Game();
   ~Game();
 
-  void update(StateEngine* engine);
+  void update(double delta);
   void init();
   void draw();
 
  private:
-  // Variables
-  int animationFrame;
-  static volatile int timer1;
-  bool gameBegin;
-  int totalTime[2];
+  Player player1{};
+  std::vector<Enemy> badGuy{};
 
-  int frames_done = 0;
-
-  // Objects
-  Player player1;
-  vector<Enemy> badGuy;
-
-  TileMap* tile_map;
-
-  static void gameTicker();
+  TileMap* tile_map{nullptr};
 };
 
 #endif

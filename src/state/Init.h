@@ -2,20 +2,15 @@
 #define INIT_H
 
 #include <allegro5/allegro.h>
-#include <string>
-#include <vector>
 
 #include "./engine/State.h"
 
-#include "../globals.h"
-#include "../tools.h"
-
 class Init : public State {
  public:
-  Init();
-  ~Init();
+  Init() = default;
+  ~Init() = default;
 
-  void update(StateEngine* engine);
+  void update(double delta);
   void draw();
 };
 

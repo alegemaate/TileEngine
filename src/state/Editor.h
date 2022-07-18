@@ -3,7 +3,6 @@
 
 #include "./engine/State.h"
 
-#include <allegro5/allegro.h>
 #include <allegro5/allegro_ttf.h>
 #include <string>
 #include <vector>
@@ -18,8 +17,8 @@ class Editor : public State {
   Editor();
   ~Editor();
 
-  void update(StateEngine* engine);
-  void draw();
+  void update(double delta) override;
+  void draw() override;
 
  private:
   int selectedTileType;
@@ -32,8 +31,8 @@ class Editor : public State {
   Tile* exampleTile;
 
   // Text input
-  string edittext;
-  string::iterator iter;
+  std::string edittext;
+  std::string::iterator iter;
 
   void init();
   void save();

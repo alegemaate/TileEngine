@@ -3,43 +3,37 @@
 
 class State;
 
+// Game states
+enum class ProgramState {
+  NONE,
+  INIT,
+  INTRO,
+  MENU,
+  EDIT,
+  GAME,
+  EXIT,
+};
+
 class StateEngine {
  public:
   // Update
-  void update();
+  void update(double delta);
 
   // Draw
   void draw();
 
-  // Set next state
-  void setNextState(int newState);
-
   // Get state id
-  int getStateId();
+  ProgramState getStateId() const;
 
-  // Game states
-  enum programStates {
-    STATE_NULL,
-    STATE_INIT,
-    STATE_INTRO,
-    STATE_MENU,
-    STATE_EDIT,
-    STATE_GAME,
-    STATE_EXIT,
-  };
+  // Change state
+  void changeState(ProgramState nextState);
 
  private:
-  // Change state
-  void changeState();
-
   // Current state object
   State* currentState = nullptr;
 
-  // Next state
-  int nextState = STATE_NULL;
-
   // State id
-  int stateId = STATE_NULL;
+  ProgramState stateId = ProgramState::NONE;
 };
 
 #endif  // STATE_STATE_ENGINE_H_

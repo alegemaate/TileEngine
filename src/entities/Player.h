@@ -31,14 +31,14 @@ class Player {
 
   bool getDead();
 
-  vector<Projectile> getBullets();
+  std::vector<Projectile> getBullets();
 
   void setFinished(bool newFinished);
   void setDead(bool newDead);
   void setDeathcount(int newDeathcount);
   void spawncommand(TileMap* fullMap);
 
-  void update(TileMap* fullMap);
+  void update(TileMap* fullMap, double delta);
   void draw(int tile_map_x, int tile_map_y);
 
  private:
@@ -72,7 +72,7 @@ class Player {
   int jumpKey{0};
   int shootKey{0};
 
-  vector<Projectile> bullets{};
+  std::vector<Projectile> bullets{};
   TileMap* newMap{nullptr};
 
   // 0-3 left, 4-7 right, 8-11 up 12-17 jump left 18-23 jump right 24-27 slide

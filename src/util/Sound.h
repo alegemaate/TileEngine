@@ -12,7 +12,6 @@
 #ifndef UTIL_Sound_H_
 #define UTIL_Sound_H_
 
-#include <allegro5/allegro.h>
 #include <allegro5/allegro_audio.h>
 #include <memory>
 #include <string>

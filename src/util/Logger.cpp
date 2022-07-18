@@ -13,7 +13,7 @@ void Logger::log(const int message) {
 }
 
 void Logger::warn(const std::string& message) {
-  std::cout << "\033[1;31mWarning: " << message << "\033[0m" << std::endl;
+  std::cout << "\033[1;33mWarning: " << message << "\033[0m" << std::endl;
 }
 
 void Logger::systemInformation() {

@@ -1,8 +1,6 @@
 #include "tools.h"
 
-#include <allegro5/allegro_native_dialog.h>
-
-#include "globals.h"
+#include <cstdlib>
 
 // Collision
 bool collisionAny(int xMin1,
@@ -45,12 +43,6 @@ bool collisionLeft(int xMin1, int xMax1, int xMin2, int xMax2) {
     return true;
   }
   return false;
-}
-
-// Checks if file exists
-bool fexists(const char* filename) {
-  ifstream ifile(filename);
-  return !ifile.fail();
 }
 
 // Random number generator. Use int random(lowest,highest);

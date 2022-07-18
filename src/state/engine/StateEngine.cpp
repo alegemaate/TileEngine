@@ -12,36 +12,34 @@
 
 // Draw
 void StateEngine::draw() {
-  if (currentState) {
-    currentState->draw();
+  if (!currentState) {
+    return;
   }
+
+  currentState->draw();
 }
 
 // Update
-void StateEngine::update() {
-  if (currentState) {
-    currentState->update(this);
+void StateEngine::update(double delta) {
+  if (!currentState) {
+    return;
   }
-  changeState();
-}
 
-// Set next state
-void StateEngine::setNextState(int newState) {
-  nextState = newState;
+  currentState->update(delta);
+
+  // If the state needs to be changed
+  if (currentState->getNextState() != ProgramState::NONE) {
+    changeState(currentState->getNextState());
+  }
 }
 
 // Get state id
-int StateEngine::getStateId() {
+ProgramState StateEngine::getStateId() const {
   return stateId;
 }
 
 // Change game screen
-void StateEngine::changeState() {
-  // If the state needs to be changed
-  if (nextState == STATE_NULL) {
-    return;
-  }
-
+void StateEngine::changeState(ProgramState nextState) {
   // Delete the current state
   if (currentState != nullptr) {
     delete currentState;
@@ -49,34 +47,34 @@ void StateEngine::changeState() {
 
   // Change the state
   switch (nextState) {
-    case STATE_GAME:
+    case ProgramState::GAME:
       currentState = new Game();
       Logger::log("Switched state to game.");
       break;
-    case STATE_EDIT:
+    case ProgramState::EDIT:
       currentState = new Editor();
       Logger::log("Switched state to editor.");
       break;
-    case STATE_INIT:
+    case ProgramState::INIT:
       currentState = new Init();
       Logger::log("Switched state to init.");
       break;
-    case STATE_INTRO:
+    case ProgramState::INTRO:
       currentState = new Intro();
       Logger::log("Switched state to intro.");
       break;
-    case STATE_MENU:
+    case ProgramState::MENU:
       currentState = new Menu();
       Logger::log("Switched state to menu.");
       break;
+    case ProgramState::EXIT:
+      Logger::log("Exit state provided, exiting...");
+      break;
     default:
-      currentState = nullptr;
-      Logger::log("Exiting program.");
+      Logger::warn("Unknown state provided.");
+      break;
   }
 
   // Change the current state ID
   stateId = nextState;
-
-  // NULL the next state ID
-  nextState = STATE_NULL;
 }

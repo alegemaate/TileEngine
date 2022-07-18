@@ -1,9 +1,10 @@
 #include "Menu.h"
 
 #include <allegro5/allegro_primitives.h>
-#include <allegro5/allegro_ttf.h>
 #include <string>
 
+#include "../globals.h"
+#include "../tools.h"
 #include "../util/DisplayMode.h"
 #include "../util/KeyListener.h"
 #include "../util/Logger.h"
@@ -26,20 +27,13 @@ Menu::Menu() {
   click = Sound("sounds/click.wav");
 
   // Load font
-  font = al_load_ttf_font("fonts/opensans.ttf", 24, 0);
-
-  // Sets Font
-  if (!font) {
-    Logger::fatal(
-        "Cannot find font fonts/opensans.ttf \n Please check your files and "
-        "try again");
-  }
+  font = Font("fonts/opensans.ttf", 24);
 
   // Variables
   newSelectorY = DisplayMode::getDrawHeight() - 323;
   selectorY = DisplayMode::getDrawHeight() - 323;
   selectorX = 60;
-  mouse_control = false;
+  mouseControl = false;
   selectorHovering = 0;
 
   // Create map for live background
@@ -54,21 +48,15 @@ Menu::Menu() {
   levelOn = 0;
 }
 
-void Menu::update(StateEngine* engine) {
-  // Disable/Enable mouse control on input
-  if (KeyListener::key[ALLEGRO_KEY_UP] || KeyListener::key[ALLEGRO_KEY_DOWN] ||
-      KeyListener::key[ALLEGRO_KEY_LEFT] ||
-      KeyListener::key[ALLEGRO_KEY_RIGHT] || KeyListener::key[ALLEGRO_KEY_W] ||
-      KeyListener::key[ALLEGRO_KEY_A] || KeyListener::key[ALLEGRO_KEY_S] ||
-      KeyListener::key[ALLEGRO_KEY_D]) {
-    mouse_control = false;
-  } else if (MouseListener::mouse_x != old_mouse_x ||
-             MouseListener::mouse_y != old_mouse_y) {
-    mouse_control = true;
-  }
+void Menu::update(double delta) {
+  tile_map->update(delta);
 
-  old_mouse_x = MouseListener::mouse_x;
-  old_mouse_y = MouseListener::mouse_y;
+  // Disable/Enable mouse control on input
+  if (KeyListener::anyKeyPressed) {
+    mouseControl = false;
+  } else if (MouseListener::mouse_moved) {
+    mouseControl = true;
+  }
 
   menuOpen = false;
 
@@ -101,30 +89,32 @@ void Menu::update(StateEngine* engine) {
     }
     selectorY += selectorVelocity;
   }
-  if ((KeyListener::key[ALLEGRO_KEY_W] || KeyListener::key[ALLEGRO_KEY_UP]) &&
-      step > 10) {
-    if (selectorHovering != 0)
+
+  if (KeyListener::keyPressed[ALLEGRO_KEY_W] ||
+      KeyListener::keyPressed[ALLEGRO_KEY_UP]) {
+    if (selectorHovering != 0) {
       selectorHovering--;
-    else
+    } else {
       selectorHovering = 3;
-    step = 0;
+    }
   }
-  if ((KeyListener::key[ALLEGRO_KEY_S] || KeyListener::key[ALLEGRO_KEY_DOWN]) &&
-      step > 10) {
-    if (selectorHovering != 3)
+
+  if (KeyListener::keyPressed[ALLEGRO_KEY_S] ||
+      KeyListener::keyPressed[ALLEGRO_KEY_DOWN]) {
+    if (selectorHovering != 3) {
       selectorHovering++;
-    else
+    } else {
       selectorHovering = 0;
-    step = 0;
+    }
   }
 
   // Hover play
-  if ((mouse_control &&
+  if ((mouseControl &&
        collisionAny(MouseListener::mouse_x, MouseListener::mouse_x, 60, 270,
                     MouseListener::mouse_y, MouseListener::mouse_y,
                     DisplayMode::getDrawHeight() - 323,
                     DisplayMode::getDrawHeight() - 278)) ||
-      (!mouse_control && (selectorHovering == 0))) {
+      (!mouseControl && (selectorHovering == 0))) {
     if (newSelectorY != DisplayMode::getDrawHeight() - 323) {
       newSelectorY = DisplayMode::getDrawHeight() - 323;
       selectorX = 60;
@@ -133,12 +123,12 @@ void Menu::update(StateEngine* engine) {
   }
 
   // Hover edit
-  else if ((mouse_control &&
+  else if ((mouseControl &&
             collisionAny(MouseListener::mouse_x, MouseListener::mouse_x, 60,
                          270, MouseListener::mouse_y, MouseListener::mouse_y,
                          DisplayMode::getDrawHeight() - 260,
                          DisplayMode::getDrawHeight() - 215)) ||
-           (!mouse_control && (selectorHovering == 1))) {
+           (!mouseControl && (selectorHovering == 1))) {
     if (newSelectorY != DisplayMode::getDrawHeight() - 260) {
       newSelectorY = DisplayMode::getDrawHeight() - 260;
       selectorX = 60;
@@ -147,12 +137,12 @@ void Menu::update(StateEngine* engine) {
   }
 
   // Hover help
-  else if ((mouse_control &&
+  else if ((mouseControl &&
             collisionAny(MouseListener::mouse_x, MouseListener::mouse_x, 60,
                          270, MouseListener::mouse_y, MouseListener::mouse_y,
                          DisplayMode::getDrawHeight() - 197,
                          DisplayMode::getDrawHeight() - 152)) ||
-           (!mouse_control && (selectorHovering == 2))) {
+           (!mouseControl && selectorHovering == 2)) {
     if (newSelectorY != DisplayMode::getDrawHeight() - 197) {
       newSelectorY = DisplayMode::getDrawHeight() - 197;
       selectorX = 60;
@@ -162,12 +152,12 @@ void Menu::update(StateEngine* engine) {
   }
 
   // Hover exit
-  else if ((mouse_control &&
+  else if ((mouseControl &&
             collisionAny(MouseListener::mouse_x, MouseListener::mouse_x, 60,
                          270, MouseListener::mouse_y, MouseListener::mouse_y,
                          DisplayMode::getDrawHeight() - 132,
                          DisplayMode::getDrawHeight() - 87)) ||
-           (!mouse_control && (selectorHovering == 3))) {
+           (!mouseControl && selectorHovering == 3)) {
     if (newSelectorY != DisplayMode::getDrawHeight() - 132) {
       newSelectorY = DisplayMode::getDrawHeight() - 132;
       selectorX = 60;
@@ -177,14 +167,13 @@ void Menu::update(StateEngine* engine) {
 
   // Select button
   // level select left
-  if (((collisionAny(MouseListener::mouse_x, MouseListener::mouse_x,
-                     DisplayMode::getDrawWidth() - 180,
-                     DisplayMode::getDrawWidth() - 140, MouseListener::mouse_y,
-                     MouseListener::mouse_y, 80, 120) &&
-        MouseListener::mouse_button & 1) ||
-       (KeyListener::key[ALLEGRO_KEY_A] ||
-        KeyListener::key[ALLEGRO_KEY_LEFT])) &&
-      step > 10) {
+  if ((collisionAny(MouseListener::mouse_x, MouseListener::mouse_x,
+                    DisplayMode::getDrawWidth() - 180,
+                    DisplayMode::getDrawWidth() - 140, MouseListener::mouse_y,
+                    MouseListener::mouse_y, 80, 120) &&
+       MouseListener::mouse_pressed & 1) ||
+      (KeyListener::keyPressed[ALLEGRO_KEY_A] ||
+       KeyListener::keyPressed[ALLEGRO_KEY_LEFT])) {
     click.play();
     if (levelOn > 0) {
       levelOn--;
@@ -203,17 +192,15 @@ void Menu::update(StateEngine* engine) {
     tile_map->y =
         random(0, (tile_map->height * 64) - DisplayMode::getDrawHeight());
     tile_map->x = 0;
-    step = 0;
   }
 
-  if (((collisionAny(MouseListener::mouse_x, MouseListener::mouse_x,
-                     DisplayMode::getDrawWidth() - 80,
-                     DisplayMode::getDrawWidth() - 40, MouseListener::mouse_y,
-                     MouseListener::mouse_y, 80, 120) &&
-        MouseListener::mouse_button & 1) ||
-       (KeyListener::key[ALLEGRO_KEY_D] ||
-        KeyListener::key[ALLEGRO_KEY_RIGHT])) &&
-      step > 10) {
+  if ((collisionAny(MouseListener::mouse_x, MouseListener::mouse_x,
+                    DisplayMode::getDrawWidth() - 80,
+                    DisplayMode::getDrawWidth() - 40, MouseListener::mouse_y,
+                    MouseListener::mouse_y, 80, 120) &&
+       MouseListener::mouse_pressed & 1) ||
+      (KeyListener::keyPressed[ALLEGRO_KEY_D] ||
+       KeyListener::keyPressed[ALLEGRO_KEY_RIGHT])) {
     // level select right
     click.play();
     if (levelOn < 3) {
@@ -233,39 +220,34 @@ void Menu::update(StateEngine* engine) {
     tile_map->y =
         random(0, (tile_map->height * 64) - DisplayMode::getDrawHeight());
     tile_map->x = 0;
-    step = 0;
   }
   // Start
-  if (((collisionAny(MouseListener::mouse_x, MouseListener::mouse_x, 60, 270,
-                     MouseListener::mouse_y, MouseListener::mouse_y,
-                     DisplayMode::getDrawHeight() - 323,
-                     DisplayMode::getDrawHeight() - 278) &&
-        MouseListener::mouse_button & 1) ||
-       ((KeyListener::key[ALLEGRO_KEY_ENTER]) && selectorHovering == 0)) &&
-      step > 10) {
-    engine->setNextState(StateEngine::STATE_GAME);
+  if ((collisionAny(MouseListener::mouse_x, MouseListener::mouse_x, 60, 270,
+                    MouseListener::mouse_y, MouseListener::mouse_y,
+                    DisplayMode::getDrawHeight() - 323,
+                    DisplayMode::getDrawHeight() - 278) &&
+       MouseListener::mouse_pressed & 1) ||
+      ((KeyListener::keyPressed[ALLEGRO_KEY_ENTER]) && selectorHovering == 0)) {
+    setNextState(ProgramState::GAME);
   }
   // Edit
-  if (((collisionAny(MouseListener::mouse_x, MouseListener::mouse_x, 60, 270,
-                     MouseListener::mouse_y, MouseListener::mouse_y,
-                     DisplayMode::getDrawHeight() - 260,
-                     DisplayMode::getDrawHeight() - 215) &&
-        MouseListener::mouse_button & 1) ||
-       ((KeyListener::key[ALLEGRO_KEY_ENTER]) && selectorHovering == 1)) &&
-      step > 10) {
-    engine->setNextState(StateEngine::STATE_EDIT);
+  if ((collisionAny(MouseListener::mouse_x, MouseListener::mouse_x, 60, 270,
+                    MouseListener::mouse_y, MouseListener::mouse_y,
+                    DisplayMode::getDrawHeight() - 260,
+                    DisplayMode::getDrawHeight() - 215) &&
+       MouseListener::mouse_pressed & 1) ||
+      ((KeyListener::keyPressed[ALLEGRO_KEY_ENTER]) && selectorHovering == 1)) {
+    setNextState(ProgramState::EDIT);
   }
   // Quit
-  if (((collisionAny(MouseListener::mouse_x, MouseListener::mouse_x, 60, 270,
-                     MouseListener::mouse_y, MouseListener::mouse_y,
-                     DisplayMode::getDrawHeight() - 132,
-                     DisplayMode::getDrawHeight() - 87) &&
-        MouseListener::mouse_button & 1) ||
-       ((KeyListener::key[ALLEGRO_KEY_ENTER]) && selectorHovering == 3)) &&
-      step > 10) {
-    engine->setNextState(StateEngine::STATE_EXIT);
+  if ((collisionAny(MouseListener::mouse_x, MouseListener::mouse_x, 60, 270,
+                    MouseListener::mouse_y, MouseListener::mouse_y,
+                    DisplayMode::getDrawHeight() - 132,
+                    DisplayMode::getDrawHeight() - 87) &&
+       MouseListener::mouse_pressed & 1) ||
+      ((KeyListener::keyPressed[ALLEGRO_KEY_ENTER]) && selectorHovering == 3)) {
+    setNextState(ProgramState::EXIT);
   }
-  step++;
 }
 
 void Menu::draw() {
@@ -285,8 +267,8 @@ void Menu::draw() {
   // Level selection
   levelSelectLeft.draw(DisplayMode::getDrawWidth() - 180, 80);
   levelSelectNumber.draw(DisplayMode::getDrawWidth() - 160, 80);
-  al_draw_text(font, al_map_rgb(0, 0, 0), DisplayMode::getDrawWidth() - 112, 73,
-               0, std::to_string(levelOn + 1).c_str());
+  font.draw(DisplayMode::getDrawWidth() - 112, 73, al_map_rgb(0, 0, 0),
+            std::to_string(levelOn + 1));
   levelSelectRight.draw(DisplayMode::getDrawWidth() - 80, 80);
 
   // Hover select left
@@ -308,13 +290,13 @@ void Menu::draw() {
   cursor[0].draw(MouseListener::mouse_x, MouseListener::mouse_y);
 
   // Select button
-  if (MouseListener::mouse_button & 1 || KeyListener::key[ALLEGRO_KEY_ENTER]) {
+  if (MouseListener::mouse_pressed & 1 || KeyListener::key[ALLEGRO_KEY_ENTER]) {
     if (selectorY == 610) {
       do {
         menu.draw(0, 0);
         help.draw(0, 0);
       } while (!KeyListener::key[ALLEGRO_KEY_ESCAPE] &&
-               !(MouseListener::mouse_button & 1));
+               !(MouseListener::mouse_pressed & 1));
     }
   }
   if (menuOpen) {

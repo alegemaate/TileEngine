@@ -27,8 +27,9 @@ void MouseListener::update() {
 
   mouse_moved = false;
 
-  if (old_mouse_x != mouse_x || old_mouse_y != mouse_y)
+  if (old_mouse_x != mouse_x || old_mouse_y != mouse_y) {
     mouse_moved = true;
+  }
 
   old_mouse_x = state.x;
   old_mouse_y = state.y;

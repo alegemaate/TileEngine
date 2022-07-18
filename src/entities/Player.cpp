@@ -159,7 +159,7 @@ bool Player::getDead() {
 }
 
 // Get bullets
-vector<Projectile> Player::getBullets() {
+std::vector<Projectile> Player::getBullets() {
   return bullets;
 }
 
@@ -238,7 +238,7 @@ void Player::spawncommand(TileMap* fullMap) {
 }
 
 // Movement
-void Player::update(TileMap* fullMap) {
+void Player::update(TileMap* fullMap, double delta) {
   // Collision stuff
   bool canMoveLeft = true;
   bool canMoveRight = true;

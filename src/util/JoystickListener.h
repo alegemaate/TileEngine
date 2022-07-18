@@ -15,14 +15,11 @@
 
 class JoystickListener {
  public:
-  JoystickListener(){};
-  virtual ~JoystickListener(){};
-
-  void on_event(ALLEGRO_EVENT_TYPE event_type, const int keycode);
-  void on_event(ALLEGRO_EVENT_TYPE event_type,
-                const int stick,
-                const int axis,
-                const float position);
+  void onEvent(ALLEGRO_EVENT_TYPE event_type, const int keycode);
+  void onEvent(ALLEGRO_EVENT_TYPE event_type,
+               const int stick,
+               const int axis,
+               const float position);
   void update();
 
   static const int JOY_MAX_STICKS = _AL_MAX_JOYSTICK_STICKS;

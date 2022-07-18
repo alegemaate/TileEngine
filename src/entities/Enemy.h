@@ -61,7 +61,7 @@ class Enemy {
   int yVelocity;
   int walking_counter;
 
-  vector<Projectile> bullets;
+  std::vector<Projectile> bullets;
   TileMap* newMap;
 
   // 0-3 left, 4-7 right, 8 jump left 9 jump right 10 dead

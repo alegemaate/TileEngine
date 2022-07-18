@@ -21,10 +21,16 @@ class State {
   virtual void draw() = 0;
 
   // Update logic
-  virtual void update(StateEngine* engine) = 0;
+  virtual void update(double delta) = 0;
 
   // Change state
-  void setNextState(StateEngine* engine, int state);
+  void setNextState(ProgramState state);
+
+  // Get next state
+  ProgramState getNextState() const;
+
+ private:
+  ProgramState nextState = ProgramState::NONE;
 };
 
 #endif  // STATE_STATE_H_

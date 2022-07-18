@@ -1,12 +1,8 @@
 #include "Init.h"
 
-Init::Init() {}
-
-Init::~Init() {}
-
-void Init::update(StateEngine* engine) {
+void Init::update(double delta) {
   // Change to splash screen
-  engine->setNextState(StateEngine::STATE_INTRO);
+  setNextState(ProgramState::INTRO);
 }
 
 void Init::draw() {}

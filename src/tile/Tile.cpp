@@ -1,7 +1,9 @@
 #include "Tile.h"
 
+#include "../globals.h"
+
 // Automatic tile creator, when in doubt, use this one
-Tile::Tile(int newType, vector<Tile>* newTileSet) {
+Tile::Tile(int newType, std::vector<Tile>* newTileSet) {
   setTileSet(newTileSet);
   setType(newType);
 }
@@ -10,7 +12,10 @@ Tile::Tile(int newType, vector<Tile>* newTileSet) {
 // example before it is loaded) In order to work fully, it must be called
 // alongside setImages(...); and addAttribute(...); If this is used, it is not
 // possible to change types using setType unless setTileSet(...) is called first
-Tile::Tile(int newType, bool newParticles, bool newLighting, string newName) {
+Tile::Tile(int newType,
+           bool newParticles,
+           bool newLighting,
+           std::string newName) {
   type = newType;
   particlesEnabled = newParticles;
   lightingEnabled = newLighting;
@@ -53,7 +58,7 @@ int Tile::getType() {
 
 // Gets a vector containing any attributes of the tile
 // (e.g. may return a vector containing 2 attributes, gas and harmful)
-vector<int> Tile::getAttribute() {
+std::vector<int> Tile::getAttribute() {
   return attribute;
 }
 
@@ -156,7 +161,7 @@ void Tile::draw(int xOffset, int yOffset, int frame) {
 
 // Gives the tile an index of all tiles in the tile map, used when assigning
 // type
-void Tile::setTileSet(vector<Tile>* newTileSet) {
+void Tile::setTileSet(std::vector<Tile>* newTileSet) {
   tileSet = newTileSet;
 }
 

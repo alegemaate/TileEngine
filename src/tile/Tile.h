@@ -2,25 +2,21 @@
 #define TILE_H
 
 #include <allegro5/allegro.h>
-#include <algorithm>
-#include <iterator>
 #include <vector>
 
-#include "../globals.h"
-#include "../tools.h"
 #include "../util/Bitmap.h"
 
 class Tile {
  public:
   // Automatic tile creator, when in doubt, use this one
-  Tile(int newType, vector<Tile>* newTileSet);
+  Tile(int newType, std::vector<Tile>* newTileSet);
 
   // Manual tile creator, must be used when no tileSet has been created (for
   // example before it is loaded) In order to work fully, it must be called
   // alongside setImages(...); and addAttribute(...); If this is used, it is not
   // possible to change types using setType unless setTileSet(...) is called
   // first
-  Tile(int newType, bool newParticles, bool newLighting, string newName);
+  Tile(int newType, bool newParticles, bool newLighting, std::string newName);
 
   // Destroy tile
   ~Tile();
@@ -42,7 +38,7 @@ class Tile {
 
   // Gets a vector containing any attributes of the tile
   // (e.g. may return a vector containing 2 attributes, gas and harmful)
-  vector<int> getAttribute();
+  std::vector<int> getAttribute();
 
   // Returns true if the tile contains the given attribute (e.g. solid, gas)
   bool containsAttribute(int newAttribute);
@@ -68,7 +64,7 @@ class Tile {
 
   // Gives the tile an index of all tiles in the tile map, used when assigning
   // type
-  void setTileSet(vector<Tile>* newTileSet);
+  void setTileSet(std::vector<Tile>* newTileSet);
 
  private:
   // Position

@@ -1,12 +1,11 @@
 #include "State.h"
 
-#include "../../util/Logger.h"
-
-/*********
- * STATE
- *********/
-
 // Change state
-void State::setNextState(StateEngine* engine, int state) {
-  engine->setNextState(state);
+void State::setNextState(ProgramState state) {
+  this->nextState = state;
+}
+
+// Get next state
+ProgramState State::getNextState() const {
+  return this->nextState;
 }

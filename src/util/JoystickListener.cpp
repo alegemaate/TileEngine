@@ -13,8 +13,8 @@ bool JoystickListener::stickReleased[JOY_MAX_STICK_BOOLEANS] = {false};
 bool JoystickListener::lastTicksStick[JOY_MAX_STICK_BOOLEANS] = {false};
 
 // For allegro 5, we use events
-void JoystickListener::on_event(ALLEGRO_EVENT_TYPE event_type,
-                                const int buttoncode) {
+void JoystickListener::onEvent(ALLEGRO_EVENT_TYPE event_type,
+                               const int buttoncode) {
   // Button down
   if (event_type == ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN) {
     button[buttoncode] = true;
@@ -27,10 +27,10 @@ void JoystickListener::on_event(ALLEGRO_EVENT_TYPE event_type,
 }
 
 // For allegro 5, we use events
-void JoystickListener::on_event(ALLEGRO_EVENT_TYPE event_type,
-                                const int stick,
-                                const int axis,
-                                const float position) {
+void JoystickListener::onEvent(ALLEGRO_EVENT_TYPE event_type,
+                               const int stick,
+                               const int axis,
+                               const float position) {
   // Axis moved
   if (event_type == ALLEGRO_EVENT_JOYSTICK_AXIS) {
     const float tolerance = 0.6f;

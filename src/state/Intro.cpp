@@ -3,10 +3,8 @@
 #include <allegro5/allegro_primitives.h>
 #include <string>
 
-#include "../tools.h"
 #include "../util/DisplayMode.h"
 #include "../util/KeyListener.h"
-#include "../util/Logger.h"
 
 Intro::Intro() {
   // Sound
@@ -28,13 +26,13 @@ Intro::Intro() {
   timer.start();
 }
 
-void Intro::update(StateEngine* engine) {
+void Intro::update(double delta) {
   // Set animation frame
   frame = timer.getElapsedTime<milliseconds>() / 100;
 
   // Wait and then go to the menu
   if (frame > 100 || KeyListener::keyPressed[ALLEGRO_KEY_SPACE]) {
-    engine->setNextState(StateEngine::STATE_MENU);
+    setNextState(ProgramState::MENU);
   }
 }
 

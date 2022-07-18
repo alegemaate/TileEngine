@@ -1,6 +1,7 @@
 #include "Editor.h"
 
 #include <allegro5/allegro_primitives.h>
+#include <fstream>
 
 #include "../util/DisplayMode.h"
 #include "../util/KeyListener.h"
@@ -77,9 +78,8 @@ void Editor::save() {
       if (scancode == ALLEGRO_KEY_ENTER) {
         // Save fronts
         int widthCounter;
-        string finalFile = "data/" + edittext;
-        ofstream saveRaw1;
-        saveRaw1.open(finalFile.c_str());
+        std::string finalFile = "data/" + edittext;
+        std::ofstream saveRaw1(finalFile.c_str());
 
         widthCounter = 0;
         for (uint32_t i = 0; i < tile_map->mapTiles.size(); i++) {
@@ -96,8 +96,7 @@ void Editor::save() {
         // Save backs
         finalFile =
             "data/" + edittext.substr(0, edittext.size() - 4) + "_back.txt";
-        ofstream saveRaw2;
-        saveRaw2.open(finalFile.c_str());
+        std::ofstream saveRaw2(finalFile.c_str());
 
         widthCounter = 0;
         for (uint32_t i = 0; i < tile_map->mapTilesBack.size(); i++) {
@@ -160,7 +159,8 @@ void Editor::open() {
         }
       }
       if (scancode == ALLEGRO_KEY_ENTER) {
-        string finalFile = "data/" + edittext.substr(0, edittext.size() - 4);
+        std::string finalFile =
+            "data/" + edittext.substr(0, edittext.size() - 4);
         tile_map->load(finalFile);
         opening = false;
       }
@@ -168,10 +168,12 @@ void Editor::open() {
   }
 }
 
-void Editor::update(StateEngine* engine) {
+void Editor::update(double delta) {
+  tile_map->update(delta);
+
   // Back to menu
   if (KeyListener::keyPressed[ALLEGRO_KEY_M] && !saving && !opening) {
-    engine->setNextState(StateEngine::STATE_MENU);
+    setNextState(ProgramState::MENU);
   }
 
   // Close menu

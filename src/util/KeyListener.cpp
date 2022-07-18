@@ -10,7 +10,7 @@ bool KeyListener::anyKeyPressed = false;
 bool KeyListener::anyKeyJustPressed = false;
 
 // For allegro 5, we use events
-void KeyListener::on_event(ALLEGRO_EVENT_TYPE event_type, const int keycode) {
+void KeyListener::onEvent(ALLEGRO_EVENT_TYPE event_type, const int keycode) {
   // Key down
   if (event_type == ALLEGRO_EVENT_KEY_DOWN) {
     key[keycode] = true;

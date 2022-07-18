@@ -1,18 +1,11 @@
 #ifndef TILEMAP_H
 #define TILEMAP_H
 
-#define FRAME_MILASECONDS 100
+#define FRAME_SECONDS 0.10
 
-#include <allegro5/allegro.h>
-#include <fstream>
-#include <iostream>
 #include <map>
-#include <sstream>
 #include <string>
 #include <vector>
-
-#include "../globals.h"
-#include "../tools.h"
 
 #include "./Tile.h"
 
@@ -21,9 +14,12 @@
 class TileMap {
  public:
   // Creates map and loads level from fileName
-  TileMap(string fileName);
+  TileMap(std::string fileName);
   // Destroy map
   ~TileMap();
+
+  // Update map
+  void update(double delta);
 
   // Holds all map tiles in the colliding layer
   std::vector<Tile> mapTiles;
@@ -41,7 +37,7 @@ class TileMap {
   int height;
 
   // Manually load new file
-  void load(string fileName);
+  void load(std::string fileName);
 
   // Frame, for animations
   long getFrame();
@@ -52,17 +48,14 @@ class TileMap {
 
   // Draw map
   void draw_map();
-  void draw_map(int newX, int newY);
 
  private:
+  static std::map<std::string, int> TILE_TYPE_LOOKUP;
+
   // Load starting tiles
   void load_tiles();
 
-  // Animation variables
-  static volatile long frame;
-  static void change_frame();
-
-  static std::map<std::string, int> TILE_TYPE_LOOKUP;
+  double runningTime{0.0};
 };
 
 #endif

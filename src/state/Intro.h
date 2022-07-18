@@ -13,8 +13,6 @@
 
 #include "./engine/State.h"
 
-#include "../globals.h"
-#include "../tools.h"
 #include "../util/Bitmap.h"
 #include "../util/Sound.h"
 #include "../util/Timer.h"
@@ -40,9 +38,9 @@ class Intro : public State {
   /**
    * @brief Update the Intro state
    *
-   * @param engine Pointer to state engine
+   * @param delta Time since last update
    */
-  void update(StateEngine* engine) override;
+  void update(double delta) override;
 
   /**
    * @brief Draw the Intro state

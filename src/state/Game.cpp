@@ -7,10 +7,8 @@
 #include "../util/Logger.h"
 #include "../util/MouseListener.h"
 
-volatile int Game::timer1 = 00;
-
 // Create game state
-Game::Game() : frames_done(0) {
+Game::Game() {
   // Creates a random number generator (based on time)
   srand(time(NULL));
 
@@ -71,16 +69,14 @@ void Game::init() {
 }
 
 // Update game
-void Game::update(StateEngine* engine) {
-  frames_done++;
+void Game::update(double delta) {
+  tile_map->update(delta);
 
   // Character movements (runs only every 2nd loop)
-  if (frames_done % 2 == 0) {
-    player1.update(tile_map);
+  player1.update(tile_map, delta);
 
-    for (uint32_t i = 0; i < badGuy.size(); i++) {
-      // badGuy.at(i).update(tile_map, &player1);
-    }
+  for (uint32_t i = 0; i < badGuy.size(); i++) {
+    // badGuy.at(i).update(tile_map, &player1);
   }
 
   // Scroll Map
@@ -179,7 +175,7 @@ void Game::update(StateEngine* engine) {
 
   //  Back to menu
   if (KeyListener::keyPressed[ALLEGRO_KEY_M]) {
-    engine->setNextState(StateEngine::STATE_MENU);
+    setNextState(ProgramState::MENU);
   }
 }
 
