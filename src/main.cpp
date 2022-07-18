@@ -190,11 +190,15 @@ void update() {
 
 // Start here
 int main(int argc, char** argv) {
+  // Ignore argc, argv
+  (void)argc;
+  (void)argv;
+
   // Basic init
   setup();
 
   // Set the current state ID
-  game_state.setNextState(StateEngine::STATE_INIT);
+  game_state.setNextState(StateEngine::STATE_MENU);
 
   // Run game
   while (!closing) {

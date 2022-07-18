@@ -1,0 +1,405 @@
+[
+  {
+    "name": "air",
+    "id": 0,
+    "types": [
+      "gas"
+    ],
+    "images": [
+      "images/blocks/air.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_blue_top",
+    "id": 1,
+    "types": [
+      "solid"
+    ],
+    "images": [
+      "images/blocks/blue_top.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_blue_bottom",
+    "id": 2,
+    "types": [
+      "solid"
+    ],
+    "images": [
+      "images/blocks/blue_bottom.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_brick_blue",
+    "id": 3,
+    "types": [
+      "solid"
+    ],
+    "images": [
+      "images/blocks/brick_blue.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_brick_red",
+    "id": 4,
+    "types": [
+      "solid"
+    ],
+    "images": [
+      "images/blocks/brick_red.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_lollypop",
+    "id": 5,
+    "types": [
+      "item",
+      "gas"
+    ],
+    "images": [
+      "images/blocks/lollypop.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_lava",
+    "id": 6,
+    "types": [
+      "liquid"
+    ],
+    "images": [
+      "images/blocks/lava1.png",
+      "images/blocks/lava2.png",
+      "images/blocks/lava3.png",
+      "images/blocks/lava4.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_light_pillar",
+    "id": 7,
+    "types": [
+      "gas"
+    ],
+    "images": [
+      "images/blocks/light_pillar1.png",
+      "images/blocks/light_pillar2.png",
+      "images/blocks/light_pillar3.png",
+      "images/blocks/light_pillar4.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_zapper",
+    "id": 8,
+    "types": [
+      "harmful",
+      "gas"
+    ],
+    "images": [
+      "images/blocks/zapper1.png",
+      "images/blocks/zapper2.png",
+      "images/blocks/zapper3.png",
+      "images/blocks/zapper4.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_brick_green",
+    "id": 9,
+    "types": [
+      "solid"
+    ],
+    "images": [
+      "images/blocks/brick_yellow.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_brick_green",
+    "id": 10,
+    "types": [
+      "solid"
+    ],
+    "images": [
+      "images/blocks/brick_green.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_green_light",
+    "id": 11,
+    "types": [
+      "gas"
+    ],
+    "images": [
+      "images/blocks/green_light1.png",
+      "images/blocks/green_light2.png",
+      "images/blocks/green_light1.png",
+      "images/blocks/green_light2.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_red_light",
+    "id": 12,
+    "types": [
+      "gas"
+    ],
+    "images": [
+      "images/blocks/red_light1.png",
+      "images/blocks/red_light2.png",
+      "images/blocks/red_light3.png",
+      "images/blocks/red_light4.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_id",
+    "id": 13,
+    "types": [
+      "gas"
+    ],
+    "images": [
+      "images/blocks/id1.png",
+      "images/blocks/id2.png",
+      "images/blocks/id3.png",
+      "images/blocks/id4.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_old_vorticon",
+    "id": 14,
+    "types": [
+      "gas"
+    ],
+    "images": [
+      "images/blocks/vorticon_old.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_happy",
+    "id": 15,
+    "types": [
+      "solid"
+    ],
+    "images": [
+      "images/blocks/happy.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_finish",
+    "id": 16,
+    "types": [
+      "finish"
+    ],
+    "images": [],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_back_grey",
+    "id": 100,
+    "types": [
+      "gas"
+    ],
+    "images": [
+      "images/blocks/backs/grey.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_back_grey_shadow_top",
+    "id": 101,
+    "types": [
+      "gas"
+    ],
+    "images": [
+      "images/blocks/backs/grey_shadow_top.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_back_grey_shadow_top_right",
+    "id": 102,
+    "types": [
+      "gas"
+    ],
+    "images": [
+      "images/blocks/backs/grey_shadow_top_right.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_back_grey_shadow_top_left",
+    "id": 103,
+    "types": [
+      "gas"
+    ],
+    "images": [
+      "images/blocks/backs/grey_shadow_top_left.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_back_grey_shadow_left",
+    "id": 104,
+    "types": [
+      "gas"
+    ],
+    "images": [
+      "images/blocks/backs/grey_shadow_left.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_back_grey_shadow_bottom_left",
+    "id": 105,
+    "types": [
+      "gas"
+    ],
+    "images": [
+      "images/blocks/backs/grey_shadow_bottom_left.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_back_grey_shadow_top_left_corner",
+    "id": 106,
+    "types": [
+      "gas"
+    ],
+    "images": [
+      "images/blocks/backs/grey_shadow_top_left_corner.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_back_grey_dark",
+    "id": 107,
+    "types": [
+      "gas"
+    ],
+    "images": [
+      "images/blocks/backs/grey_dark.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_back_grey_dark_top_left",
+    "id": 108,
+    "types": [
+      "gas"
+    ],
+    "images": [
+      "images/blocks/backs/grey_dark_top_left.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_back_grey_dark_top_right",
+    "id": 109,
+    "types": [
+      "gas"
+    ],
+    "images": [
+      "images/blocks/backs/grey_dark_top_right.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_back_lamp",
+    "id": 110,
+    "types": [
+      "gas"
+    ],
+    "images": [
+      "images/blocks/backs/lamp.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_spawn_player",
+    "id": 199,
+    "types": [
+      "spawn",
+      "gas"
+    ],
+    "images": [
+      "images/blocks/spawn.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_spawn_vorticon",
+    "id": 200,
+    "types": [
+      "gas"
+    ],
+    "images": [
+      "images/enemys/vorticon/left_1.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_spawn_robot",
+    "id": 201,
+    "types": [
+      "gas"
+    ],
+    "images": [
+      "images/enemys/robot/left_1.png"
+    ],
+    "particles": false,
+    "lighting": false
+  },
+  {
+    "name": "tile_spawn_danny",
+    "id": 202,
+    "types": [
+      "gas"
+    ],
+    "images": [
+      "images/enemys/danny/left_1.png"
+    ],
+    "particles": false,
+    "lighting": false
+  }
+]

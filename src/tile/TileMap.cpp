@@ -1,10 +1,26 @@
 #include "TileMap.h"
 
-#include "../rapidxml/rapidxml.hpp"
-#include "../rapidxml/rapidxml_print.hpp"
+#include <nlohmann/json.hpp>
 
 #include "../util/DisplayMode.h"
 #include "../util/Logger.h"
+
+std::map<std::string, int> TileMap::TILE_TYPE_LOOKUP = {
+    {"gas", 0},
+    {"solid", 1},
+    {"liquid", 2},
+    {"climb", 3},
+    {"harmful", 4},
+    {"interactive", 5},
+    {"item", 6},
+    {"spawn", 7},
+    {"half_block_top", 8},
+    {"half_block_bottom", 9},
+    {"quarter_block_top", 10},
+    {"quarter_block_bottom", 11},
+    {"light", 12},
+    {"finish", 13},
+};
 
 volatile long TileMap::frame = 0;
 
@@ -33,119 +49,51 @@ TileMap::~TileMap() {
 // Manually load new file
 void TileMap::load_tiles() {
   // Read tiles
-  rapidxml::xml_document<> doc;
-  ifstream file;
+  ifstream file("data/tiles.json");
 
   // Check exist
-  if (fexists("data/tiles.xml")) {
-    file.open("data/tiles.xml");
-  } else {
+  if (!file.is_open()) {
     Logger::fatal(
         "Cannot find file /data/tiles.xml \n Please check your files and try "
         "again");
   }
 
-  std::stringstream buffer;
-  buffer << file.rdbuf();
-  std::string content(buffer.str());
-  doc.parse<0>(&content[0]);
-
-  rapidxml::xml_node<>* loadingTiles = doc.first_node();
+  nlohmann::json tiles;
+  file >> tiles;
 
   // Load blocks
-  for (rapidxml::xml_node<>* cTile = loadingTiles->first_node("tile"); cTile;
-       cTile = cTile->next_sibling()) {
-    // Read xml variables
-    string tileName = cTile->first_node("name")->value();
-    int tileId = atoi(cTile->first_node("id")->value());
-
-    bool tileParticlesEnabled =
-        cTile->first_node("particles")->value() == "true" ? true : false;
-    bool tileLightingEnabled =
-        cTile->first_node("lighting")->value() == "true" ? true : false;
-
-    Tile newTile(tileId, tileParticlesEnabled, tileLightingEnabled, tileName);
+  for (auto& tileData : tiles) {
+    Tile tile(tileData["id"].get<int>(), tileData["particles"].get<bool>(),
+              tileData["lighting"].get<bool>(),
+              tileData["name"].get<std::string>());
 
     // Attributes
-    for (rapidxml::xml_node<>* bTile =
-             cTile->first_node("types")->first_node("type");
-         bTile; bTile = bTile->next_sibling()) {
-      string tileType = bTile->value();
-      int tileTypeInt = 0;
-      // Type
-      if (tileType == "gas")
-        tileTypeInt = 0;
-      else if (tileType == "solid")
-        tileTypeInt = 1;
-      else if (tileType == "liquid")
-        tileTypeInt = 2;
-      else if (tileType == "climb")
-        tileTypeInt = 3;
-      else if (tileType == "harmful")
-        tileTypeInt = 4;
-      else if (tileType == "interactive")
-        tileTypeInt = 5;
-      else if (tileType == "item")
-        tileTypeInt = 6;
-      else if (tileType == "spawn")
-        tileTypeInt = 7;
-      else if (tileType == "half_block_top")
-        tileTypeInt = 8;
-      else if (tileType == "half_block_bottom")
-        tileTypeInt = 9;
-      else if (tileType == "quarter_block_top")
-        tileTypeInt = 10;
-      else if (tileType == "quarter_block_bottom")
-        tileTypeInt = 11;
-      else if (tileType == "light")
-        tileTypeInt = 12;
-      else if (tileType == "finish")
-        tileTypeInt = 13;
-      else
-        Logger::fatal(("Unknown type (" + tileType +
-                       ") in node: type for tile: " + tileName)
-                          .c_str());
+    for (auto& tileDataType : tileData["types"]) {
+      std::string tileTypeStr = tileDataType.get<std::string>();
 
-      newTile.addAttribute(tileTypeInt);
-    }
+      // Check if type is valid
+      if (TILE_TYPE_LOOKUP.find(tileTypeStr) == TILE_TYPE_LOOKUP.end()) {
+        Logger::fatal(
+            "Unknown type (" + tileTypeStr +
+            ") in node: type for tile: " + tileData["name"].get<std::string>());
+      }
 
-    // Images
-    int counter = 0;
-    string images[8];
-    for (rapidxml::xml_node<>* bTile =
-             cTile->first_node("images")->first_node("image");
-         bTile; bTile = bTile->next_sibling()) {
-      images[counter] = bTile->value();
-      counter++;
+      // Add type
+      tile.addAttribute(TILE_TYPE_LOOKUP[tileTypeStr]);
     }
 
     // Set images
-    if (images[0].length() > 0) {
-      if (images[1].length() > 0) {
-        if (images[4].length() > 0) {
-          newTile.setImages(al_load_bitmap(images[0].c_str()),
-                            al_load_bitmap(images[1].c_str()),
-                            al_load_bitmap(images[2].c_str()),
-                            al_load_bitmap(images[3].c_str()),
-                            al_load_bitmap(images[4].c_str()),
-                            al_load_bitmap(images[5].c_str()),
-                            al_load_bitmap(images[6].c_str()),
-                            al_load_bitmap(images[7].c_str()));
-        } else {
-          newTile.setImages(al_load_bitmap(images[0].c_str()),
-                            al_load_bitmap(images[1].c_str()),
-                            al_load_bitmap(images[2].c_str()),
-                            al_load_bitmap(images[3].c_str()));
-        }
-      } else {
-        newTile.setImages(al_load_bitmap(images[0].c_str()));
-      }
-    } else {
-      Logger::fatal(("Need images for tile: " + tileName).c_str());
+    std::vector<Bitmap> images;
+    for (const auto& tileDataImage : tileData["images"]) {
+      images.push_back(Bitmap(tileDataImage.get<std::string>()));
+    }
+
+    if (images.size() > 0) {
+      tile.setFrames(images);
     }
 
     // Index for other tiles to reference
-    tileIndex.push_back(newTile);
+    tileIndex.push_back(tile);
   }
 }
 
@@ -237,7 +185,7 @@ void TileMap::draw_map() {
         (mapTilesBack.at(i).getX() < x + DisplayMode::getDrawWidth()) &&
         (mapTilesBack.at(i).getY() >= y - mapTilesBack.at(i).getHeight()) &&
         (mapTilesBack.at(i).getY() < y + DisplayMode::getDrawHeight())) {
-      mapTilesBack.at(i).draw_tile(x, y, frame);
+      mapTilesBack.at(i).draw(x, y, frame);
     }
   }
   for (uint32_t i = 0; i < mapTiles.size(); i++) {
@@ -246,7 +194,7 @@ void TileMap::draw_map() {
         (mapTiles.at(i).getY() >= y - mapTiles.at(i).getHeight()) &&
         (mapTiles.at(i).getY() < y + DisplayMode::getDrawHeight())) {
       if (!mapTiles.at(i).containsAttribute(spawn)) {
-        mapTiles.at(i).draw_tile(x, y, frame);
+        mapTiles.at(i).draw(x, y, frame);
       }
     }
   }
@@ -259,7 +207,7 @@ void TileMap::draw_map(int newX, int newY) {
         (mapTilesBack.at(i).getX() < newX + DisplayMode::getDrawWidth()) &&
         (mapTilesBack.at(i).getY() >= newY - mapTilesBack.at(i).getHeight()) &&
         (mapTilesBack.at(i).getY() < newY + DisplayMode::getDrawHeight())) {
-      mapTilesBack.at(i).draw_tile(newX, newY, frame);
+      mapTilesBack.at(i).draw(newX, newY, frame);
     }
   }
   for (uint32_t i = 0; i < mapTiles.size(); i++) {
@@ -268,7 +216,7 @@ void TileMap::draw_map(int newX, int newY) {
         (mapTiles.at(i).getY() >= newY - mapTiles.at(i).getHeight()) &&
         (mapTiles.at(i).getY() < newY + DisplayMode::getDrawHeight())) {
       if (!mapTiles.at(i).containsAttribute(spawn)) {
-        mapTiles.at(i).draw_tile(newX, newY, frame);
+        mapTiles.at(i).draw(newX, newY, frame);
       }
     }
   }

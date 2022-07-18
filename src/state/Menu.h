@@ -48,7 +48,6 @@ class Menu : public State {
   bool mouse_control;
 
   // Live background
-  int animationFrame;
   TileMap* tile_map;
   string scrollDirection;
 

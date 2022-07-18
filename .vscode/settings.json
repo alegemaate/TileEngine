@@ -67,6 +67,11 @@
     "type_traits": "cpp",
     "typeinfo": "cpp",
     "utility": "cpp",
-    "*.keepme": "cpp"
+    "*.keepme": "cpp",
+    "__tree": "cpp",
+    "forward_list": "cpp",
+    "map": "cpp",
+    "numeric": "cpp",
+    "valarray": "cpp"
   }
 }

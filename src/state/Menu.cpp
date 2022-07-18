@@ -90,7 +90,7 @@ void Menu::update(StateEngine* engine) {
 
   // Move selector
   if (selectorY != newSelectorY) {
-    int selectorVelocity;
+    int selectorVelocity = 0;
     if (newSelectorY != selectorY) {
       selectorVelocity = (newSelectorY - selectorY) / 6;
       if (newSelectorY - selectorY < 0) {

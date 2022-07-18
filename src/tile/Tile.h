@@ -3,12 +3,12 @@
 
 #include <allegro5/allegro.h>
 #include <algorithm>
-#include <iostream>
 #include <iterator>
 #include <vector>
 
 #include "../globals.h"
 #include "../tools.h"
+#include "../util/Bitmap.h"
 
 class Tile {
  public:
@@ -40,9 +40,6 @@ class Tile {
   // Get tile type
   int getType();
 
-  // Get animation type (0 = 1 frame, 1 = 4 frame, 8 = 8 frame)
-  int getAnimated();
-
   // Gets a vector containing any attributes of the tile
   // (e.g. may return a vector containing 2 attributes, gas and harmful)
   vector<int> getAttribute();
@@ -53,9 +50,6 @@ class Tile {
   // Add an attribute to the tile (e.g. solid, harmful)
   void addAttribute(int newAttribute);
 
-  // Returns images[0], even if it is NOT loaded in which case it returns NULL
-  ALLEGRO_BITMAP* getImage();
-
   // Set tile type and automatically assigns attributes/images/ect...
   // Warning! tileSet must have been initialized else this will not work!
   void setType(int newType);
@@ -63,23 +57,14 @@ class Tile {
   // Set tile to an index number forward or back
   bool changeType(int changeValue);
 
-  // Set images (and automatically changes animation to 0, 1 or 2)
-  void setImages(ALLEGRO_BITMAP* image1);
-  void setImages(ALLEGRO_BITMAP* image1,
-                 ALLEGRO_BITMAP* image2,
-                 ALLEGRO_BITMAP* image3,
-                 ALLEGRO_BITMAP* image4);
-  void setImages(ALLEGRO_BITMAP* image1,
-                 ALLEGRO_BITMAP* image2,
-                 ALLEGRO_BITMAP* image3,
-                 ALLEGRO_BITMAP* image4,
-                 ALLEGRO_BITMAP* image5,
-                 ALLEGRO_BITMAP* image6,
-                 ALLEGRO_BITMAP* image7,
-                 ALLEGRO_BITMAP* image8);
+  // Set images
+  void setFrames(std::vector<Bitmap> frames);
+
+  // Get images
+  std::vector<Bitmap> getFrames();
 
   // Draws tile. If no images are assigned it prints out the type number instead
-  void draw_tile(int xOffset, int yOffset, int newFrame);
+  void draw(int xOffset, int yOffset, int newFrame);
 
   // Gives the tile an index of all tiles in the tile map, used when assigning
   // type
@@ -87,37 +72,36 @@ class Tile {
 
  private:
   // Position
-  int x, y;
+  int x{0};
+  int y{0};
   // Starting position
-  int initialX, initialY;
+  int initialX{0};
+  int initialY{0};
 
   // Size
-  int width;
-  int height;
+  int width{0};
+  int height{0};
 
   // Type
-  int type;
+  int type{0};
 
   // Particles enabled (fire/water effects)
-  bool particlesEnabled;
+  bool particlesEnabled{false};
 
   // Lighting enabled (if it emits light)
-  bool lightingEnabled;
+  bool lightingEnabled{false};
 
   // Name of tile
-  string name;
+  std::string name;
 
   // Attributes
-  vector<int> attribute;
+  std::vector<int> attribute;
 
   // Pointer to all tile types used as reference
-  vector<Tile>* tileSet;
+  std::vector<Tile>* tileSet;
 
   // Images
-  ALLEGRO_BITMAP* images[8];
-
-  // Type of animation 0 = 1 frame, 1 = 4 frame, 2 = 8 frame
-  int animated;
+  std::vector<Bitmap> frames;
 
   // Sets dimensions to images[0]'s dimensions
   void setDimensions();

@@ -387,7 +387,7 @@ void Editor::draw() {
   } else {
     // Draw tiles
     tile_map->draw_map();
-    exampleTile->draw_tile(0, 0, 0);
+    exampleTile->draw(0, 0, 0);
 
     // Map info
     al_draw_textf(font, al_map_rgb(255, 255, 255), 0, 80, 0,

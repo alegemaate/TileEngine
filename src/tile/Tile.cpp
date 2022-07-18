@@ -51,11 +51,6 @@ int Tile::getType() {
   return type;
 }
 
-// Get animation type (0 = 1 frame, 1 = 4 frame, 8 = 8 frame)
-int Tile::getAnimated() {
-  return animated;
-}
-
 // Gets a vector containing any attributes of the tile
 // (e.g. may return a vector containing 2 attributes, gas and harmful)
 vector<int> Tile::getAttribute() {
@@ -76,11 +71,6 @@ void Tile::addAttribute(int newAttribute) {
   attribute.push_back(newAttribute);
 }
 
-// Returns images[0], even if it is NOT loaded in which case it returns NULL
-ALLEGRO_BITMAP* Tile::getImage() {
-  return images[0];
-}
-
 // Set tile type and automatically assigns attributes/images/ect...
 // Warning! tileSet must have been initialized else this will not work!
 void Tile::setType(int newType) {
@@ -97,35 +87,20 @@ void Tile::setType(int newType) {
   // Remove all attributes
   attribute.clear();
 
-  // Match found
-  bool matchFound = false;
+  // Find tile in tileSet
 
   // Find matching index tile
   for (uint32_t i = 0; i < tileSet->size(); i++) {
     if (tileSet->at(i).getType() == type) {
       tileToCopy = &(tileSet->at(i));
-      matchFound = true;
-      break;
-    }
-  }
 
-  if (matchFound) {
-    // Set attributes to ones found in the index
-    for (uint32_t t = 0; t < tileToCopy->getAttribute().size(); t++) {
-      attribute.push_back(tileToCopy->getAttribute().at(t));
-    }
+      // Set attributes to ones found in the index
+      for (uint32_t t = 0; t < tileToCopy->getAttribute().size(); t++) {
+        attribute.push_back(tileToCopy->getAttribute().at(t));
+      }
 
-    // Sets images
-    if (tileToCopy->getAnimated() == 2) {
-      setImages(tileToCopy->images[0], tileToCopy->images[1],
-                tileToCopy->images[2], tileToCopy->images[3],
-                tileToCopy->images[4], tileToCopy->images[5],
-                tileToCopy->images[6], tileToCopy->images[7]);
-    } else if (tileToCopy->getAnimated() == 1) {
-      setImages(tileToCopy->images[0], tileToCopy->images[1],
-                tileToCopy->images[2], tileToCopy->images[3]);
-    } else {
-      setImages(tileToCopy->images[0]);
+      // Sets images
+      setFrames(tileToCopy->getFrames());
     }
   }
 }
@@ -160,83 +135,23 @@ bool Tile::changeType(int changeValue) {
 }
 
 // Set images (and automatically changes animation to 0, 1 or 2)
-void Tile::setImages(ALLEGRO_BITMAP* image1,
-                     ALLEGRO_BITMAP* image2,
-                     ALLEGRO_BITMAP* image3,
-                     ALLEGRO_BITMAP* image4,
-                     ALLEGRO_BITMAP* image5,
-                     ALLEGRO_BITMAP* image6,
-                     ALLEGRO_BITMAP* image7,
-                     ALLEGRO_BITMAP* image8) {
-  images[0] = image1;
-  images[1] = image2;
-  images[2] = image3;
-  images[3] = image4;
-  images[4] = image5;
-  images[5] = image6;
-  images[6] = image7;
-  images[7] = image8;
-  animated = 2;
-  setDimensions();
-}
-void Tile::setImages(ALLEGRO_BITMAP* image1,
-                     ALLEGRO_BITMAP* image2,
-                     ALLEGRO_BITMAP* image3,
-                     ALLEGRO_BITMAP* image4) {
-  images[0] = image1;
-  images[1] = image2;
-  images[2] = image3;
-  images[3] = image4;
-  animated = 1;
-  setDimensions();
-}
-void Tile::setImages(ALLEGRO_BITMAP* image1) {
-  images[0] = image1;
-  animated = 0;
+void Tile::setFrames(std::vector<Bitmap> frames) {
+  this->frames = frames;
   setDimensions();
 }
 
+// Get frames
+std::vector<Bitmap> Tile::getFrames() {
+  return frames;
+}
+
 // Draws tile. If no images are assigned it prints out the type number instead
-void Tile::draw_tile(int xOffset, int yOffset, int newFrame) {
-  if (images[0] != NULL) {
-    // Not animated
-    if (animated == 0) {
-      al_draw_bitmap(images[0], x - xOffset, y - yOffset, 0);
-    }
-    // Animated?
-    else if (animated == 1) {
-      if (newFrame > 3) {
-        newFrame = newFrame - 4;
-      }
-      if (images[newFrame] != NULL) {
-        al_draw_bitmap(images[newFrame], x - xOffset, y - yOffset, 0);
-      }
-      // else {
-      //   textprintf_ex(tempSprite, font, x - xOffset, y - yOffset,
-      //                 makecol(0, 0, 0), -1, "frame");
-      //   textprintf_ex(tempSprite, font, x - xOffset, y - yOffset + 20,
-      //                 makecol(0, 0, 0), -1, "%i NA", newFrame + 1);
-      // }
-    } else if (animated == 2) {
-      if (images[newFrame] != NULL) {
-        al_draw_bitmap(images[newFrame], x - xOffset, y - yOffset, 0);
-      }
-      // else {
-      //   textprintf_ex(tempSprite, font, x - xOffset, y - yOffset,
-      //                 makecol(0, 0, 0), -1, "frame");
-      //   textprintf_ex(tempSprite, font, x - xOffset, y - yOffset + 20,
-      //                 makecol(0, 0, 0), -1, "%i NA", newFrame + 1);
-      // }
-    }
+void Tile::draw(int xOffset, int yOffset, int frame) {
+  if (frames.size() == 0) {
+    return;
   }
-  // Image not available? draw debug
-  else {
-    // textprintf_ex(tempSprite, font, x - xOffset, y - yOffset, makecol(0, 0,
-    // 0),
-    //               -1, "Image");
-    // textprintf_ex(tempSprite, font, x - xOffset, y - yOffset + 20,
-    //               makecol(0, 0, 0), -1, "%i NA", type);
-  }
+
+  frames[frame % frames.size()].draw(x - xOffset, y - yOffset);
 }
 
 // Gives the tile an index of all tiles in the tile map, used when assigning
@@ -247,19 +162,22 @@ void Tile::setTileSet(vector<Tile>* newTileSet) {
 
 // Sets dimensions to images[0]'s dimensions
 void Tile::setDimensions() {
-  if (images[0] != NULL) {
-    width = al_get_bitmap_width(images[0]);
-    height = al_get_bitmap_width(images[0]);
-    if (containsAttribute(half_block_top)) {
-      height = 32;
-    } else if (containsAttribute(half_block_bottom)) {
-      height = 32;
-      y += height;
-    } else if (containsAttribute(quarter_block_top)) {
-      height = 16;
-    } else if (containsAttribute(quarter_block_bottom)) {
-      height = 16;
-      y += 48;
-    }
+  if (frames.size() == 0) {
+    return;
+  }
+
+  width = frames[0].getWidth();
+  height = frames[0].getHeight();
+
+  if (containsAttribute(half_block_top)) {
+    height = 32;
+  } else if (containsAttribute(half_block_bottom)) {
+    height = 32;
+    y += height;
+  } else if (containsAttribute(quarter_block_top)) {
+    height = 16;
+  } else if (containsAttribute(quarter_block_bottom)) {
+    height = 16;
+    y += 48;
   }
 }

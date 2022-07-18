@@ -6,6 +6,7 @@
 #include <allegro5/allegro.h>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -14,8 +15,6 @@
 #include "../tools.h"
 
 #include "./Tile.h"
-
-using namespace std;
 
 // Tile map is the container of all of the tiles
 // It loads the set of tiles from the tiles.xml file on creation
@@ -27,11 +26,11 @@ class TileMap {
   ~TileMap();
 
   // Holds all map tiles in the colliding layer
-  vector<Tile> mapTiles;
+  std::vector<Tile> mapTiles;
   // Holds all map tiles in background layer
-  vector<Tile> mapTilesBack;
+  std::vector<Tile> mapTilesBack;
   // Filled on creation of tile map, holds 1 of each type of block
-  vector<Tile> tileIndex;
+  std::vector<Tile> tileIndex;
 
   // Position of map (for drawing)
   int x;
@@ -49,7 +48,7 @@ class TileMap {
 
   // Get tileIndex generated from xml. If it has not been loaded it will
   // Return NULL!
-  vector<Tile>* getIndex();
+  std::vector<Tile>* getIndex();
 
   // Draw map
   void draw_map();
@@ -62,6 +61,8 @@ class TileMap {
   // Animation variables
   static volatile long frame;
   static void change_frame();
+
+  static std::map<std::string, int> TILE_TYPE_LOOKUP;
 };
 
 #endif
