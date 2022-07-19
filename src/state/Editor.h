@@ -14,31 +14,30 @@
 
 class Editor : public State {
  public:
-  Editor();
-  ~Editor();
+  Editor(KeyListener& keyboardListener,
+         MouseListener& mouseListener,
+         JoystickListener& joystickListener);
 
+  void init() override;
   void update(double delta) override;
   void draw() override;
 
  private:
-  int selectedTileType;
-  int layer;
+  void initMap();
+  void saveMap();
+  void openMap();
 
-  bool saving;
-  bool opening;
+  int selectedTileType{0};
+  int layer{1};
 
-  TileMap* tile_map;
-  Tile* exampleTile;
+  TileMap* tile_map{nullptr};
+  Tile* exampleTile{nullptr};
 
-  // Text input
-  std::string edittext;
-  std::string::iterator iter;
+  ALLEGRO_FONT* font{nullptr};
 
-  void init();
-  void save();
-  void open();
-
-  ALLEGRO_FONT* font;
+  KeyListener& keyboardListener;
+  MouseListener& mouseListener;
+  JoystickListener& joystickListener;
 };
 
 #endif  // EDITOR_H

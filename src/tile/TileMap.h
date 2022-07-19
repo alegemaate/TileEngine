@@ -39,6 +39,9 @@ class TileMap {
   // Manually load new file
   void load(std::string fileName);
 
+  // Save map to file
+  void save(std::string fileName);
+
   // Frame, for animations
   long getFrame();
 
@@ -50,7 +53,22 @@ class TileMap {
   void draw_map();
 
  private:
-  static std::map<std::string, int> TILE_TYPE_LOOKUP;
+  const std::map<std::string, int> TILE_TYPE_LOOKUP{
+      {"gas", 0},
+      {"solid", 1},
+      {"liquid", 2},
+      {"climb", 3},
+      {"harmful", 4},
+      {"interactive", 5},
+      {"item", 6},
+      {"spawn", 7},
+      {"half_block_top", 8},
+      {"half_block_bottom", 9},
+      {"quarter_block_top", 10},
+      {"quarter_block_bottom", 11},
+      {"light", 12},
+      {"finish", 13},
+  };
 
   // Load starting tiles
   void load_tiles();

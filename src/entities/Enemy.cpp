@@ -171,7 +171,7 @@ void Enemy::setDead(bool newDead) {
 void Enemy::draw(int tile_map_x, int tile_map_y) {
   if (!dead) {
     if (jumping || canFall) {
-      if (characterDir == LEFT) {
+      if (characterDir == CHARACTER_LEFT) {
         enemy_images[8].draw(x - tile_map_x, y - tile_map_y);
       } else {
         enemy_images[9].draw(x - tile_map_x, y - tile_map_y);
@@ -374,9 +374,9 @@ void Enemy::update(TileMap* fullMap, Player* newPlayer) {
       if (walking_counter == 0) {
         if (random(0, walkChance) == 0 && walkChance != 0) {
           if (random(0, 1) == 0) {
-            characterDir = RIGHT;
+            characterDir = CHARACTER_RIGHT;
           } else {
-            characterDir = LEFT;
+            characterDir = CHARACTER_LEFT;
           }
           walking_counter = random(minSteps, maxSteps);
         }
@@ -387,7 +387,7 @@ void Enemy::update(TileMap* fullMap, Player* newPlayer) {
 
       Logger::log("here 5");
       // Move right
-      if (characterDir == RIGHT && walking_counter > 0) {
+      if (characterDir == CHARACTER_RIGHT && walking_counter > 0) {
         if (canMoveRight) {
           x += speed;
           walking_animation_sequence++;
@@ -403,7 +403,7 @@ void Enemy::update(TileMap* fullMap, Player* newPlayer) {
       }
 
       // Move left
-      if (characterDir == LEFT && walking_counter > 0) {
+      if (characterDir == CHARACTER_LEFT && walking_counter > 0) {
         if (canMoveLeft) {
           x -= speed;
           walking_animation_sequence++;

@@ -23,9 +23,9 @@
 
 // Character directions
 //  0-3 left, 4-7 right, 8-11 up
-#define LEFT 0
-#define RIGHT 4
-#define UP 8
+#define CHARACTER_LEFT 0
+#define CHARACTER_RIGHT 4
+#define CHARACTER_UP 8
 
 // Enemies
 #define enemy_vorticon 0

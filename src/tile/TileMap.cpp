@@ -7,23 +7,6 @@
 #include "../util/DisplayMode.h"
 #include "../util/Logger.h"
 
-std::map<std::string, int> TileMap::TILE_TYPE_LOOKUP = {
-    {"gas", 0},
-    {"solid", 1},
-    {"liquid", 2},
-    {"climb", 3},
-    {"harmful", 4},
-    {"interactive", 5},
-    {"item", 6},
-    {"spawn", 7},
-    {"half_block_top", 8},
-    {"half_block_bottom", 9},
-    {"quarter_block_top", 10},
-    {"quarter_block_bottom", 11},
-    {"light", 12},
-    {"finish", 13},
-};
-
 // Creates map and loads level from fileName
 TileMap::TileMap(std::string fileName) {
   x = 0;
@@ -84,7 +67,7 @@ void TileMap::load_tiles() {
       }
 
       // Add type
-      tile.addAttribute(TILE_TYPE_LOOKUP[tileTypeStr]);
+      tile.addAttribute(TILE_TYPE_LOOKUP.at(tileTypeStr));
     }
 
     // Set images
@@ -105,8 +88,14 @@ void TileMap::load_tiles() {
 // Manually load new file
 void TileMap::load(std::string fileName) {
   // Change size
-  std::string fileLoad = fileName + ".txt";
+  std::string fileLoad = fileName;
   std::ifstream findSize(fileLoad.c_str());
+
+  if (findSize.fail()) {
+    Logger::warn("Could not open file " + fileName);
+    return;
+  }
+
   width = 0;
   height = 0;
   int data;
@@ -124,7 +113,7 @@ void TileMap::load(std::string fileName) {
     mapTiles.clear();
     mapTilesBack.clear();
 
-    fileLoad = fileName + ".txt";
+    fileLoad = fileName;
     std::ifstream read(fileLoad.c_str());
 
     for (int t = 0; t < height; t++) {
@@ -142,7 +131,7 @@ void TileMap::load(std::string fileName) {
     }
     read.close();
 
-    fileLoad = fileName + "_back.txt";
+    fileLoad = fileName.substr(0, fileName.size() - 4) + "_back.txt";
     std::ifstream read2(fileLoad.c_str());
 
     for (int t = 0; t < height; t++) {
@@ -160,6 +149,42 @@ void TileMap::load(std::string fileName) {
     }
     read2.close();
   }
+}
+
+// Manually load new file
+void TileMap::save(std::string fileName) {
+  // Save fronts
+  int widthCounter;
+  std::string finalFile = fileName;
+  std::ofstream saveRaw1(finalFile.c_str());
+
+  widthCounter = 0;
+  for (uint32_t i = 0; i < mapTiles.size(); i++) {
+    widthCounter++;
+    if (widthCounter == width) {
+      saveRaw1 << mapTiles.at(i).getType() << "\n";
+      widthCounter = 0;
+    } else {
+      saveRaw1 << mapTiles.at(i).getType() << " ";
+    }
+  }
+  saveRaw1.close();
+
+  // Save backs
+  finalFile = fileName.substr(0, fileName.size() - 4) + "_back.txt";
+  std::ofstream saveRaw2(finalFile.c_str());
+
+  widthCounter = 0;
+  for (uint32_t i = 0; i < mapTilesBack.size(); i++) {
+    widthCounter++;
+    if (widthCounter == width) {
+      saveRaw2 << mapTilesBack.at(i).getType() << "\n";
+      widthCounter = 0;
+    } else {
+      saveRaw2 << mapTilesBack.at(i).getType() << " ";
+    }
+  }
+  saveRaw2.close();
 }
 
 // Return current animation frame

@@ -1,62 +1,91 @@
 #include "KeyListener.h"
 
-bool KeyListener::key[ALLEGRO_KEY_MAX] = {false};
-bool KeyListener::keyPressed[ALLEGRO_KEY_MAX] = {false};
-bool KeyListener::keyReleased[ALLEGRO_KEY_MAX] = {false};
-bool KeyListener::lastTicksKey[ALLEGRO_KEY_MAX] = {false};
-int KeyListener::lastKeyPressed = -1;
-int KeyListener::lastKeyReleased = -1;
-bool KeyListener::anyKeyPressed = false;
-bool KeyListener::anyKeyJustPressed = false;
+#include <type_traits>
 
 // For allegro 5, we use events
-void KeyListener::onEvent(ALLEGRO_EVENT_TYPE event_type, const int keycode) {
-  // Key down
+void KeyListener::onEvent(const ALLEGRO_EVENT_TYPE event_type,
+                          const int keyCode) {
   if (event_type == ALLEGRO_EVENT_KEY_DOWN) {
-    key[keycode] = true;
+    state[keyCode] = true;
   } else if (event_type == ALLEGRO_EVENT_KEY_UP) {
-    key[keycode] = false;
+    state[keyCode] = false;
   }
 }
 
 // Check those keys!
 void KeyListener::update() {
   // Reset last key
-  lastKeyPressed = -1;
-  lastKeyReleased = -1;
-
-  anyKeyPressed = false;
-  anyKeyJustPressed = false;
+  lastPressed = Key::UNKNOWN;
+  lastReleased = Key::UNKNOWN;
 
   // Check key just pressed
   for (int i = 0; i < ALLEGRO_KEY_MAX; i++) {
     // Clear old values
-    keyPressed[i] = false;
-    keyReleased[i] = false;
-
-    if (key[i]) {
-      anyKeyPressed = true;
-    }
+    pressedState.set(i, false);
+    releasedState.set(i, false);
 
     // Pressed since last tick?
-    if (key[i] == true && lastTicksKey[i] == false) {
-      keyPressed[i] = true;
-      anyKeyJustPressed = true;
-      lastKeyPressed = i;
+    if (state.test(i) == true && previousState.test(i) == false) {
+      pressedState.set(i, true);
+      lastPressed = static_cast<Key>(i);
     }
 
     // Released since last tick?
-    if (key[i] == false && lastTicksKey[i] == true) {
-      keyReleased[i] = true;
-      lastKeyReleased = i;
+    if (state.test(i) == false && previousState.test(i) == true) {
+      releasedState.set(i, true);
+      lastReleased = static_cast<Key>(i);
     }
   }
 
   // Get new values
   for (int i = 0; i < ALLEGRO_KEY_MAX; i++) {
-    // Key changed
-    if (lastTicksKey[i] != key[i]) {
-      lastTicksKey[i] = key[i];
+    previousState = state;
+  }
+}
+
+bool KeyListener::wasReleased(const Key key) const {
+  const int keyCode = static_cast<std::underlying_type<Key>::type>(key);
+  return releasedState.test(keyCode);
+}
+
+bool KeyListener::wasPressed(const Key key) const {
+  const int keyCode = static_cast<std::underlying_type<Key>::type>(key);
+  return pressedState.test(keyCode);
+}
+
+bool KeyListener::isDown(const Key key) const {
+  const int keyCode = static_cast<std::underlying_type<Key>::type>(key);
+  return state.test(keyCode);
+}
+
+Key KeyListener::getLastPressed() const {
+  return lastPressed;
+}
+
+bool KeyListener::isAnyDown() const {
+  return state.count() > 0;
+}
+
+bool KeyListener::wasAnyPressed() const {
+  return pressedState.count() > 0;
+}
+
+bool KeyListener::wasAnyReleased() const {
+  return releasedState.count() > 0;
+}
+
+char KeyListener::toAscii(const Key key) const {
+  const int keyCode = static_cast<std::underlying_type<Key>::type>(key);
+
+  // a letter key was pressed; add it to the string
+  if (keyCode < asciiMap.size() && keyCode >= 0) {
+    if (isDown(Key::LSHIFT) || isDown(Key::RSHIFT)) {
+      return asciiShiftMap.at(keyCode);
+    } else {
+      return asciiMap.at(keyCode);
     }
   }
+
+  // No character
+  return '\0';
 }

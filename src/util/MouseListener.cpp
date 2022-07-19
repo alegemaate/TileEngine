@@ -2,16 +2,7 @@
 #include "DisplayMode.h"
 
 #include <allegro5/allegro.h>
-
-int MouseListener::mouse_x = 0;
-int MouseListener::mouse_y = 0;
-int MouseListener::old_mouse_x = 0;
-int MouseListener::old_mouse_y = 0;
-unsigned char MouseListener::mouse_button = 0;
-unsigned char MouseListener::mouse_pressed = 0;
-unsigned char MouseListener::mouse_released = 0;
-unsigned char MouseListener::mouse_old = 0;
-bool MouseListener::mouse_moved = false;
+#include <type_traits>
 
 // Check those buttons!
 void MouseListener::update() {
@@ -31,11 +22,11 @@ void MouseListener::update() {
     mouse_moved = true;
   }
 
-  old_mouse_x = state.x;
-  old_mouse_y = state.y;
+  old_mouse_x = mouse_x;
+  old_mouse_y = mouse_y;
 
   // Check button just pressed
-  for (int i = 0; i < MAX_MOUSE_BUTTONS; i++) {
+  for (int i = 0; i < 4; i++) {
     // Clear old values
     mouse_pressed &= ~(1 << i);
     mouse_released &= ~(1 << i);
@@ -59,4 +50,34 @@ void MouseListener::update() {
       mouse_old ^= 1 << i;
     }
   }
+}
+
+int MouseListener::getX() const {
+  return mouse_x;
+}
+
+int MouseListener::getY() const {
+  return mouse_y;
+}
+
+bool MouseListener::didMove() const {
+  return mouse_moved;
+}
+
+bool MouseListener::wasPressed(MouseButton button) const {
+  const int buttonCode =
+      static_cast<std::underlying_type<MouseButton>::type>(button);
+  return (mouse_pressed >> buttonCode) & 1;
+}
+
+bool MouseListener::wasReleased(MouseButton button) const {
+  const int buttonCode =
+      static_cast<std::underlying_type<MouseButton>::type>(button);
+  return (mouse_released >> buttonCode) & 1;
+}
+
+bool MouseListener::isDown(MouseButton button) const {
+  const int buttonCode =
+      static_cast<std::underlying_type<MouseButton>::type>(button);
+  return (mouse_button >> buttonCode) & 1;
 }

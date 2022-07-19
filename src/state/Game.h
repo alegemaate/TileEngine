@@ -11,23 +11,36 @@
 #include "../globals.h"
 #include "../tile/TileMap.h"
 #include "../tools.h"
+#include "../util/JoystickListener.h"
+#include "../util/KeyListener.h"
+#include "../util/MouseListener.h"
 
 // Main game screen
 class Game : public State {
  public:
-  // Main loop functions
-  Game();
-  ~Game();
+  /**
+   * @brief Construct a new Game object
+   *
+   */
+  Game(KeyListener& keyboardListener,
+       MouseListener& mouseListener,
+       JoystickListener& joystickListener);
 
-  void update(double delta);
   void init();
+  void update(double delta);
   void draw();
 
  private:
-  Player player1{};
+  void initGame();
+
+  Player* player1{nullptr};
   std::vector<Enemy> badGuy{};
 
   TileMap* tile_map{nullptr};
+
+  KeyListener& keyboardListener;
+  MouseListener& mouseListener;
+  JoystickListener& joystickListener;
 };
 
 #endif

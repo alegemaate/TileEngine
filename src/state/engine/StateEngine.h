@@ -1,6 +1,10 @@
 #ifndef STATE_STATE_ENGINE_H_
 #define STATE_STATE_ENGINE_H_
 
+#include "../../util/JoystickListener.h"
+#include "../../util/KeyListener.h"
+#include "../../util/MouseListener.h"
+
 class State;
 
 // Game states
@@ -16,6 +20,9 @@ enum class ProgramState {
 
 class StateEngine {
  public:
+  // Process events
+  void processEvent(const ALLEGRO_EVENT& event);
+
   // Update
   void update(double delta);
 
@@ -30,10 +37,15 @@ class StateEngine {
 
  private:
   // Current state object
-  State* currentState = nullptr;
+  State* currentState{nullptr};
 
   // State id
-  ProgramState stateId = ProgramState::NONE;
+  ProgramState stateId{ProgramState::NONE};
+
+  // Listeners
+  KeyListener keyboardListener{};
+  MouseListener mouseListener{};
+  JoystickListener joystickListener{};
 };
 
 #endif  // STATE_STATE_ENGINE_H_

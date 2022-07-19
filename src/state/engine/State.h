@@ -17,6 +17,9 @@ class State {
   // Virtual destructor
   virtual ~State(){};
 
+  // Initialise state
+  virtual void init() = 0;
+
   // Draw to screen
   virtual void draw() = 0;
 

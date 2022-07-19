@@ -6,7 +6,10 @@
 #include "../util/DisplayMode.h"
 #include "../util/KeyListener.h"
 
-Intro::Intro() {
+Intro::Intro(KeyListener& keyboardListener)
+    : keyboardListener(keyboardListener) {}
+
+void Intro::init() {
   // Sound
   introSound = Sound("sounds/intro.wav");
 
@@ -31,7 +34,7 @@ void Intro::update(double delta) {
   frame = timer.getElapsedTime<milliseconds>() / 100;
 
   // Wait and then go to the menu
-  if (frame > 100 || KeyListener::keyPressed[ALLEGRO_KEY_SPACE]) {
+  if (frame > 100 || keyboardListener.wasPressed(Key::SPACE)) {
     setNextState(ProgramState::MENU);
   }
 }

@@ -14,6 +14,7 @@
 #include "./engine/State.h"
 
 #include "../util/Bitmap.h"
+#include "../util/KeyListener.h"
 #include "../util/Sound.h"
 #include "../util/Timer.h"
 
@@ -27,13 +28,13 @@ class Intro : public State {
    * @brief Construct a new Intro object
    *
    */
-  Intro();
+  Intro(KeyListener& keyboardListener);
 
   /**
-   * @brief Destroy the Intro object
+   * @brief Init the Intro state
    *
    */
-  ~Intro() = default;
+  void init() override;
 
   /**
    * @brief Update the Intro state
@@ -79,6 +80,12 @@ class Intro : public State {
    *
    */
   uint8_t frame{0};
+
+  /**
+   * @brief Keyboard listener provided to skip intro
+   *
+   */
+  KeyListener& keyboardListener;
 };
 
 #endif  // INTRO_H

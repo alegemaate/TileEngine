@@ -9,16 +9,24 @@
 #include "../tile/TileMap.h"
 #include "../util/Bitmap.h"
 #include "../util/Font.h"
+#include "../util/JoystickListener.h"
+#include "../util/KeyListener.h"
+#include "../util/MouseListener.h"
 #include "../util/Sound.h"
 
 class Menu : public State {
  public:
-  // Main loop functions
-  Menu();
-  ~Menu() = default;
+  /**
+   * @brief Construct a new Menu object
+   *
+   */
+  Menu(KeyListener& keyboardListener,
+       MouseListener& mouseListener,
+       JoystickListener& joystickListener);
 
-  void update(double delta);
-  void draw();
+  void init() override;
+  void update(double delta) override;
+  void draw() override;
 
  private:
   // Menu/GUI
@@ -47,6 +55,10 @@ class Menu : public State {
   bool menuOpen;
 
   Font font;
+
+  KeyListener& keyboardListener;
+  MouseListener& mouseListener;
+  JoystickListener& joystickListener;
 };
 
 #endif  // MENU_H

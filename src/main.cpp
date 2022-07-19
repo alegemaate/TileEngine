@@ -15,10 +15,7 @@
 #include <allegro5/allegro_ttf.h>
 
 #include "util/DisplayMode.h"
-#include "util/JoystickListener.h"
-#include "util/KeyListener.h"
 #include "util/Logger.h"
-#include "util/MouseListener.h"
 
 #include "tools.h"
 
@@ -40,13 +37,8 @@ ALLEGRO_EVENT_QUEUE* eventQueue = nullptr;
 ALLEGRO_DISPLAY* display = nullptr;
 ALLEGRO_BITMAP* buffer;
 
-// Input listener wrapper classes
-MouseListener mouseListener;
-KeyListener keyListener;
-JoystickListener joystickListener;
-
 // State engine
-StateEngine gameStateManager;
+StateEngine stateManager;
 
 // Setup game
 void setup() {
@@ -104,7 +96,7 @@ void setup() {
 }
 
 // Handle events
-void handleEvents() {
+void processEvents() {
   ALLEGRO_EVENT ev;
   bool hasEvent = al_get_next_event(eventQueue, &ev);
 
@@ -115,21 +107,8 @@ void handleEvents() {
     }
 
     // Keyboard
-    else if (ev.type == ALLEGRO_EVENT_KEY_DOWN ||
-             ev.type == ALLEGRO_EVENT_KEY_UP) {
-      keyListener.onEvent(ev.type, ev.keyboard.keycode);
-    }
-
-    // Joystick Button
-    else if (ev.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN ||
-             ev.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_UP) {
-      joystickListener.onEvent(ev.type, ev.joystick.button);
-    }
-
-    // Joystick Axis
-    else if (ev.type == ALLEGRO_EVENT_JOYSTICK_AXIS) {
-      joystickListener.onEvent(ev.type, ev.joystick.stick, ev.joystick.axis,
-                               ev.joystick.pos);
+    else {
+      stateManager.processEvent(ev);
     }
 
     // Get next event
@@ -147,18 +126,13 @@ void update() {
 
   while (accumulator >= dt) {
     // Drain event queue
-    handleEvents();
-
-    // Update listeners
-    mouseListener.update();
-    keyListener.update();
-    joystickListener.update();
+    processEvents();
 
     // Update state
-    gameStateManager.update(dt);
+    stateManager.update(dt);
 
     // Exit
-    if (gameStateManager.getStateId() == ProgramState::EXIT) {
+    if (stateManager.getStateId() == ProgramState::EXIT) {
       closing = true;
     }
 
@@ -171,7 +145,7 @@ void update() {
   // Render a frame
   al_set_target_bitmap(buffer);
   al_clear_to_color(al_map_rgb(0, 0, 0));
-  gameStateManager.draw();
+  stateManager.draw();
 
   al_set_target_backbuffer(display);
   al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -194,7 +168,7 @@ int main(int argc, char** argv) {
   setup();
 
   // Set the current state ID
-  gameStateManager.changeState(ProgramState::MENU);
+  stateManager.changeState(ProgramState::MENU);
 
   // Run game
   while (!closing) {

@@ -3,72 +3,44 @@
 #include "../util/KeyListener.h"
 #include "../util/Logger.h"
 
-Player::Player() {
-  x = 128;
-  y = 128;
-
-  deathcount = 0;
-
-  canFall = false;
-  jumping = false;
-  jumping_animation_done = true;
-  dead = false;
-  shooting = false;
-
-  shooting_animation_sequence = 0;
-  walking_animation_sequence = 0;
-  jumping_animation_sequence = 0;
-
-  characterDir = 0;
-  jump_height = 0;
-  yVelocity = 0;
-
-  upKey = 0;
-  downKey = 0;
-  leftKey = 0;
-  rightKey = 0;
-  jumpKey = 0;
-  sprintSpeed = 8;
-
+Player::Player(KeyListener& keyboardListener)
+    : keyboardListener(keyboardListener) {
   newMap = new TileMap("blank");
 }
 
 // 0-3 left, 4-7 right, 8-11 up
-void Player::load_images(int newType) {
-  if (newType == 1) {
-    player_images[0] = Bitmap("images/character/left_1.png");
-    player_images[1] = Bitmap("images/character/left_2.png");
-    player_images[2] = Bitmap("images/character/left_3.png");
-    player_images[3] = Bitmap("images/character/left_4.png");
+void Player::load_images() {
+  player_images[0] = Bitmap("images/character/left_1.png");
+  player_images[1] = Bitmap("images/character/left_2.png");
+  player_images[2] = Bitmap("images/character/left_3.png");
+  player_images[3] = Bitmap("images/character/left_4.png");
 
-    player_images[4] = Bitmap("images/character/right_1.png");
-    player_images[5] = Bitmap("images/character/right_2.png");
-    player_images[6] = Bitmap("images/character/right_3.png");
-    player_images[7] = Bitmap("images/character/right_4.png");
+  player_images[4] = Bitmap("images/character/right_1.png");
+  player_images[5] = Bitmap("images/character/right_2.png");
+  player_images[6] = Bitmap("images/character/right_3.png");
+  player_images[7] = Bitmap("images/character/right_4.png");
 
-    player_images[8] = Bitmap("images/character/up_1.png");
-    player_images[9] = Bitmap("images/character/up_2.png");
-    player_images[10] = Bitmap("images/character/up_3.png");
-    player_images[11] = Bitmap("images/character/up_4.png");
+  player_images[8] = Bitmap("images/character/up_1.png");
+  player_images[9] = Bitmap("images/character/up_2.png");
+  player_images[10] = Bitmap("images/character/up_3.png");
+  player_images[11] = Bitmap("images/character/up_4.png");
 
-    player_images[12] = Bitmap("images/character/jump_left_1.png");
-    player_images[13] = Bitmap("images/character/jump_left_2.png");
-    player_images[14] = Bitmap("images/character/jump_left_3.png");
-    player_images[15] = Bitmap("images/character/jump_left_4.png");
-    player_images[16] = Bitmap("images/character/jump_left_5.png");
-    player_images[17] = Bitmap("images/character/jump_left_6.png");
+  player_images[12] = Bitmap("images/character/jump_left_1.png");
+  player_images[13] = Bitmap("images/character/jump_left_2.png");
+  player_images[14] = Bitmap("images/character/jump_left_3.png");
+  player_images[15] = Bitmap("images/character/jump_left_4.png");
+  player_images[16] = Bitmap("images/character/jump_left_5.png");
+  player_images[17] = Bitmap("images/character/jump_left_6.png");
 
-    player_images[18] = Bitmap("images/character/jump_right_1.png");
-    player_images[19] = Bitmap("images/character/jump_right_2.png");
-    player_images[20] = Bitmap("images/character/jump_right_3.png");
-    player_images[21] = Bitmap("images/character/jump_right_4.png");
-    player_images[22] = Bitmap("images/character/jump_right_5.png");
-    player_images[23] = Bitmap("images/character/jump_right_6.png");
+  player_images[18] = Bitmap("images/character/jump_right_1.png");
+  player_images[19] = Bitmap("images/character/jump_right_2.png");
+  player_images[20] = Bitmap("images/character/jump_right_3.png");
+  player_images[21] = Bitmap("images/character/jump_right_4.png");
+  player_images[22] = Bitmap("images/character/jump_right_5.png");
+  player_images[23] = Bitmap("images/character/jump_right_6.png");
 
-    player_images[24] = Bitmap("images/character/shoot_left.png");
-    player_images[25] = Bitmap("images/character/shoot_right.png");
-  } else if (newType == 2) {
-  }
+  player_images[24] = Bitmap("images/character/shoot_left.png");
+  player_images[25] = Bitmap("images/character/shoot_right.png");
 
   projectileSprites[0][0] = al_load_bitmap("images/laser.png");
   projectileSprites[0][1] = al_load_bitmap("images/laser.png");
@@ -115,12 +87,12 @@ void Player::load_sounds() {
 }
 
 // Set keys
-void Player::set_keys(int up,
-                      int down,
-                      int left,
-                      int right,
-                      int jump,
-                      int shoot) {
+void Player::set_keys(Key up,
+                      Key down,
+                      Key left,
+                      Key right,
+                      Key jump,
+                      Key shoot) {
   // Differentiate controls
   upKey = up;
   downKey = down;
@@ -182,7 +154,7 @@ void Player::draw(int tile_map_x, int tile_map_y) {
     // Jumping
     if (!jumping_animation_done) {
       // Left
-      if (characterDir == LEFT) {
+      if (characterDir == CHARACTER_LEFT) {
         player_images[12 + jumping_animation_sequence / 2].draw(x - tile_map_x,
                                                                 y - tile_map_y);
       }
@@ -195,7 +167,7 @@ void Player::draw(int tile_map_x, int tile_map_y) {
     // Falling
     else if (jumping || canFall) {
       // Left
-      if (characterDir == LEFT) {
+      if (characterDir == CHARACTER_LEFT) {
         player_images[17].draw(x - tile_map_x, y - tile_map_y);
       }
       // Right
@@ -212,7 +184,7 @@ void Player::draw(int tile_map_x, int tile_map_y) {
   // Shooting
   else {
     // Left
-    if (characterDir == LEFT) {
+    if (characterDir == CHARACTER_LEFT) {
       player_images[24].draw(x - tile_map_x, y - tile_map_y);
     }
     // Right
@@ -429,8 +401,8 @@ void Player::update(TileMap* fullMap, double delta) {
   }
 
   // Move up
-  if (KeyListener::key[upKey]) {
-    characterDir = UP;
+  if (keyboardListener.isDown(upKey)) {
+    characterDir = CHARACTER_UP;
     if (canClimbUp2 && canClimbUp) {
       y -= 16;
       walking_animation_sequence++;
@@ -438,8 +410,8 @@ void Player::update(TileMap* fullMap, double delta) {
   }
 
   // Move down
-  if (KeyListener::key[downKey]) {
-    characterDir = UP;
+  if (keyboardListener.isDown(downKey)) {
+    characterDir = CHARACTER_UP;
     if (canClimbDown2 && canClimbDown) {
       y += 16;
       walking_animation_sequence++;
@@ -447,7 +419,7 @@ void Player::update(TileMap* fullMap, double delta) {
   }
 
   // Move right
-  if ((KeyListener::key[rightKey]) && jumping_animation_done &&
+  if ((keyboardListener.isDown(rightKey)) && jumping_animation_done &&
       x < newMap->width * 64) {
     if (!sprinting) {
       sprinting = true;
@@ -455,7 +427,7 @@ void Player::update(TileMap* fullMap, double delta) {
     } else if (sprintSpeed < 16 && !jumping) {
       sprintSpeed *= 1.05;
     }
-    characterDir = RIGHT;
+    characterDir = CHARACTER_RIGHT;
     if (canMoveRight) {
       x += sprintSpeed;
       walking_animation_sequence++;
@@ -471,14 +443,14 @@ void Player::update(TileMap* fullMap, double delta) {
   }
 
   // Move left
-  if ((KeyListener::key[leftKey]) && jumping_animation_done && x > 0) {
+  if ((keyboardListener.isDown(leftKey)) && jumping_animation_done && x > 0) {
     if (!sprinting) {
       sprinting = true;
       sprintSpeed = 8;
     } else if (sprintSpeed < 16 && !jumping) {
       sprintSpeed *= 1.05;
     }
-    characterDir = LEFT;
+    characterDir = CHARACTER_LEFT;
     if (canMoveLeft) {
       x -= sprintSpeed;
       walking_animation_sequence++;
@@ -494,7 +466,7 @@ void Player::update(TileMap* fullMap, double delta) {
   }
 
   // Stop sprinting
-  if (!KeyListener::key[leftKey] && !KeyListener::key[rightKey]) {
+  if (!keyboardListener.isDown(leftKey) && !keyboardListener.isDown(rightKey)) {
     sprinting = false;
     sprintSpeed = 0;
   }
@@ -536,7 +508,7 @@ void Player::update(TileMap* fullMap, double delta) {
     if (inLiquid) {
       y += 2;
     } else {
-      if (KeyListener::key[downKey]) {
+      if (keyboardListener.isDown(downKey)) {
         y += 32;
       } else {
         y += 16;
@@ -569,7 +541,7 @@ void Player::update(TileMap* fullMap, double delta) {
   }
 
   // Jump
-  if (KeyListener::key[jumpKey]) {
+  if (keyboardListener.isDown(jumpKey)) {
     if (inLiquid) {
       y -= 4;
     } else if (!canFall && canJump && !jumping && jumping_animation_done) {
@@ -583,7 +555,7 @@ void Player::update(TileMap* fullMap, double delta) {
   // Increase jump animation sequence
   if (!jumping_animation_done) {
     jumping_animation_sequence++;
-    if (KeyListener::key[jumpKey]) {
+    if (keyboardListener.isDown(jumpKey)) {
       if (jumping_animation_sequence < 7) {
         jump_height = 32;
       } else if (jumping_animation_sequence < 11) {
@@ -604,7 +576,8 @@ void Player::update(TileMap* fullMap, double delta) {
     walking_animation_sequence = 0;
   }
   // Prevents getting stuck through an animation
-  else if (!KeyListener::key[rightKey] && !KeyListener::key[leftKey]) {
+  else if (!keyboardListener.isDown(rightKey) &&
+           !keyboardListener.isDown(leftKey)) {
     walking_animation_sequence = 0;
   }
 
@@ -618,11 +591,11 @@ void Player::update(TileMap* fullMap, double delta) {
   }
 
   // Shoot
-  if (KeyListener::key[shootKey] && !shooting) {
-    if (characterDir == RIGHT) {
+  if (keyboardListener.isDown(shootKey) && !shooting) {
+    if (characterDir == CHARACTER_RIGHT) {
       Projectile newBullet(0, x + 57, y + 70, 100);
       bullets.push_back(newBullet);
-    } else if (characterDir == LEFT) {
+    } else if (characterDir == CHARACTER_LEFT) {
       Projectile newBullet(0, x - 64, y + 70, -100);
       bullets.push_back(newBullet);
     }
@@ -639,8 +612,8 @@ void Player::update(TileMap* fullMap, double delta) {
   }
 
   // Prevents getting stuck through an animation
-  if (!KeyListener::key[leftKey] && !KeyListener::key[rightKey] &&
-      !KeyListener::key[upKey] && !KeyListener::key[downKey]) {
+  if (!keyboardListener.isDown(leftKey) && !keyboardListener.isDown(rightKey) &&
+      !keyboardListener.isDown(upKey) && !keyboardListener.isDown(downKey)) {
     walking_animation_sequence = 0;
   }
 

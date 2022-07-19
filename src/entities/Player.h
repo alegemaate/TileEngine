@@ -9,6 +9,7 @@
 #include "../tile/TileMap.h"
 #include "../tools.h"
 #include "../util/Bitmap.h"
+#include "../util/KeyListener.h"
 #include "./Projectile.h"
 
 #define ANIMATION_SPEED 5
@@ -16,12 +17,12 @@
 
 class Player {
  public:
-  Player();
+  Player(KeyListener& keyboardListener);
   ~Player();
 
-  void load_images(int newType);
+  void load_images();
   void load_sounds();
-  void set_keys(int up, int down, int left, int right, int jump, int shoot);
+  void set_keys(Key up, Key down, Key left, Key right, Key jump, Key shoot);
 
   int getX();
   int getY();
@@ -65,12 +66,12 @@ class Player {
   int yVelocity{0};
 
   // Keys
-  int upKey{0};
-  int downKey{0};
-  int leftKey{0};
-  int rightKey{0};
-  int jumpKey{0};
-  int shootKey{0};
+  Key upKey{Key::UNKNOWN};
+  Key downKey{Key::UNKNOWN};
+  Key leftKey{Key::UNKNOWN};
+  Key rightKey{Key::UNKNOWN};
+  Key jumpKey{Key::UNKNOWN};
+  Key shootKey{Key::UNKNOWN};
 
   std::vector<Projectile> bullets{};
   TileMap* newMap{nullptr};
@@ -87,6 +88,8 @@ class Player {
   ALLEGRO_SAMPLE* getItem{nullptr};
   ALLEGRO_SAMPLE* getBonus{nullptr};
   ALLEGRO_SAMPLE* win{nullptr};
+
+  KeyListener& keyboardListener;
 };
 
 #endif

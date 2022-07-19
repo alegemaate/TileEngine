@@ -7,11 +7,9 @@
 
 class Init : public State {
  public:
-  Init() = default;
-  ~Init() = default;
-
-  void update(double delta);
-  void draw();
+  void init() override;
+  void update(double delta) override;
+  void draw() override;
 };
 
 #endif  // INIT_H
