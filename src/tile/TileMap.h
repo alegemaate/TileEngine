@@ -4,10 +4,12 @@
 #define FRAME_SECONDS 0.10
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "./Tile.h"
+#include "./TileType.h"
 
 // Tile map is the container of all of the tiles
 // It loads the set of tiles from the tiles.xml file on creation
@@ -21,12 +23,14 @@ class TileMap {
   // Update map
   void update(double delta);
 
+  // Find a tile type by id
+  std::shared_ptr<TileType> findTileType(uint8_t id);
+
   // Holds all map tiles in the colliding layer
   std::vector<Tile> mapTiles;
+
   // Holds all map tiles in background layer
   std::vector<Tile> mapTilesBack;
-  // Filled on creation of tile map, holds 1 of each type of block
-  std::vector<Tile> tileIndex;
 
   // Position of map (for drawing)
   int x;
@@ -45,33 +49,32 @@ class TileMap {
   // Frame, for animations
   long getFrame();
 
-  // Get tileIndex generated from xml. If it has not been loaded it will
-  // Return NULL!
-  std::vector<Tile>* getIndex();
-
   // Draw map
   void draw_map();
 
  private:
-  const std::map<std::string, int> TILE_TYPE_LOOKUP{
-      {"gas", 0},
-      {"solid", 1},
-      {"liquid", 2},
-      {"climb", 3},
-      {"harmful", 4},
-      {"interactive", 5},
-      {"item", 6},
-      {"spawn", 7},
-      {"half_block_top", 8},
-      {"half_block_bottom", 9},
-      {"quarter_block_top", 10},
-      {"quarter_block_bottom", 11},
-      {"light", 12},
-      {"finish", 13},
-  };
-
   // Load starting tiles
   void load_tiles();
+
+  const std::map<std::string, TileAttribute> TILE_TYPE_LOOKUP{
+      {"gas", TileAttribute::GAS},
+      {"solid", TileAttribute::SOLID},
+      {"liquid", TileAttribute::LIQUID},
+      {"climb", TileAttribute::CLIMB},
+      {"harmful", TileAttribute::HARMFUL},
+      {"interactive", TileAttribute::INTERACTIVE},
+      {"item", TileAttribute::ITEM},
+      {"spawn", TileAttribute::SPAWN},
+      {"half_block_top", TileAttribute::HALF_BLOCK_TOP},
+      {"half_block_bottom", TileAttribute::HALF_BLOCK_BOTTOM},
+      {"quarter_block_top", TileAttribute::QUARTER_BLOCK_TOP},
+      {"quarter_block_bottom", TileAttribute::QUARTER_BLOCK_BOTTOM},
+      {"light", TileAttribute::LIGHT},
+      {"finish", TileAttribute::FINISH},
+  };
+
+  // Filled on creation of tile map, holds 1 of each type of block
+  std::vector<std::shared_ptr<TileType>> tileTypes;
 
   double runningTime{0.0};
 };

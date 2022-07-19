@@ -239,7 +239,7 @@ void Enemy::update(TileMap* fullMap, Player* newPlayer) {
 
       // Check for collision
       for (uint32_t i = 0; i < newMap->mapTiles.size(); i++) {
-        if (newMap->mapTiles.at(i).containsAttribute(solid)) {
+        if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::SOLID)) {
           if (collisionAny(x - speed, x + width - speed,
                            newMap->mapTiles.at(i).getX(),
                            newMap->mapTiles.at(i).getX() + 64, y, y + height,
@@ -251,7 +251,7 @@ void Enemy::update(TileMap* fullMap, Player* newPlayer) {
             canMoveLeft = false;
           }
         }
-        if (newMap->mapTiles.at(i).containsAttribute(solid)) {
+        if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::SOLID)) {
           if (collisionAny(x + speed, x + width + speed,
                            newMap->mapTiles.at(i).getX(),
                            newMap->mapTiles.at(i).getX() + 64, y, y + height,
@@ -263,7 +263,7 @@ void Enemy::update(TileMap* fullMap, Player* newPlayer) {
             canMoveRight = false;
           }
         }
-        if (newMap->mapTiles.at(i).containsAttribute(climb)) {
+        if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::CLIMB)) {
           if (collisionAny(x, x + width, newMap->mapTiles.at(i).getX(),
                            newMap->mapTiles.at(i).getX() + 64, y, y + height,
                            newMap->mapTiles.at(i).getY(),
@@ -271,7 +271,7 @@ void Enemy::update(TileMap* fullMap, Player* newPlayer) {
             canClimbUp2 = true;
           }
         }
-        if (newMap->mapTiles.at(i).containsAttribute(climb)) {
+        if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::CLIMB)) {
           if (collisionAny(x, x + width, newMap->mapTiles.at(i).getX(),
                            newMap->mapTiles.at(i).getX() + 64, y,
                            y + height + 16, newMap->mapTiles.at(i).getY(),
@@ -279,7 +279,7 @@ void Enemy::update(TileMap* fullMap, Player* newPlayer) {
             canClimbDown2 = true;
           }
         }
-        if (newMap->mapTiles.at(i).containsAttribute(solid)) {
+        if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::SOLID)) {
           if (collisionAny(x, x + width, newMap->mapTiles.at(i).getX(),
                            newMap->mapTiles.at(i).getX() + 64, y - 16, y,
                            newMap->mapTiles.at(i).getY(),
@@ -287,7 +287,7 @@ void Enemy::update(TileMap* fullMap, Player* newPlayer) {
             canClimbUp = false;
           }
         }
-        if (newMap->mapTiles.at(i).containsAttribute(solid)) {
+        if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::SOLID)) {
           if (collisionAny(x, x + width, newMap->mapTiles.at(i).getX(),
                            newMap->mapTiles.at(i).getX() + 64, y,
                            y + height + 16, newMap->mapTiles.at(i).getY(),
@@ -295,8 +295,8 @@ void Enemy::update(TileMap* fullMap, Player* newPlayer) {
             canClimbDown = false;
           }
         }
-        if (!newMap->mapTiles.at(i).containsAttribute(gas) &&
-            !newMap->mapTiles.at(i).containsAttribute(liquid)) {
+        if (!newMap->mapTiles.at(i).hasAttribute(TileAttribute::GAS) &&
+            !newMap->mapTiles.at(i).hasAttribute(TileAttribute::LIQUID)) {
           if (collisionAny(x, x + width, newMap->mapTiles.at(i).getX(),
                            newMap->mapTiles.at(i).getX() + 64, y, y + height,
                            newMap->mapTiles.at(i).getY(),
@@ -304,8 +304,8 @@ void Enemy::update(TileMap* fullMap, Player* newPlayer) {
             canJump = false;
           }
         }
-        if (!newMap->mapTiles.at(i).containsAttribute(gas) &&
-            !newMap->mapTiles.at(i).containsAttribute(liquid)) {
+        if (!newMap->mapTiles.at(i).hasAttribute(TileAttribute::GAS) &&
+            !newMap->mapTiles.at(i).hasAttribute(TileAttribute::LIQUID)) {
           if (collisionAny(x, x + width, newMap->mapTiles.at(i).getX(),
                            newMap->mapTiles.at(i).getX() + 64,
                            newMap->mapTiles.at(i).getY(),
@@ -316,7 +316,7 @@ void Enemy::update(TileMap* fullMap, Player* newPlayer) {
             canJumpUp = false;
           }
         }
-        if (!newMap->mapTiles.at(i).containsAttribute(liquid)) {
+        if (!newMap->mapTiles.at(i).hasAttribute(TileAttribute::LIQUID)) {
           if (collisionAny(x, x + width, newMap->mapTiles.at(i).getX(),
                            newMap->mapTiles.at(i).getX() + 64, y - 16,
                            y + height, newMap->mapTiles.at(i).getY(),
@@ -348,7 +348,7 @@ void Enemy::update(TileMap* fullMap, Player* newPlayer) {
           // }
 
           // Die
-          if (newMap->mapTiles.at(i).containsAttribute(harmful)) {
+          if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::HARMFUL)) {
             if (collisionAny(x, x + width, newMap->mapTiles.at(i).getX(),
                              newMap->mapTiles.at(i).getX() + 64, y - 16,
                              y + height, newMap->mapTiles.at(i).getY(),
@@ -475,8 +475,8 @@ void Enemy::update(TileMap* fullMap, Player* newPlayer) {
                        newMap->mapTiles.at(i).getX() + 64, y - height * 2,
                        y + height * 2, newMap->mapTiles.at(i).getY(),
                        newMap->mapTiles.at(i).getY() + 64)) {
-        if (newMap->mapTiles.at(i).containsAttribute(solid) ||
-            newMap->mapTiles.at(i).containsAttribute(climb)) {
+        if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::SOLID) ||
+            newMap->mapTiles.at(i).hasAttribute(TileAttribute::CLIMB)) {
           if (collisionAny(x, x + 96, newMap->mapTiles.at(i).getX(),
                            newMap->mapTiles.at(i).getX() + 64, y, y + 144,
                            newMap->mapTiles.at(i).getY(),

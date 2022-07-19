@@ -202,7 +202,7 @@ void Player::draw(int tile_map_x, int tile_map_y) {
 // Spawn
 void Player::spawncommand(TileMap* fullMap) {
   for (uint32_t i = 0; i < fullMap->mapTiles.size(); i++) {
-    if (fullMap->mapTiles.at(i).containsAttribute(spawn)) {
+    if (fullMap->mapTiles.at(i).hasAttribute(TileAttribute::SPAWN)) {
       x = fullMap->mapTiles.at(i).getX();
       y = fullMap->mapTiles.at(i).getY();
     }
@@ -241,7 +241,7 @@ void Player::update(TileMap* fullMap, double delta) {
   // Check for collision
   for (uint32_t i = 0; i < newMap->mapTiles.size(); i++) {
     // Check moving LEFT
-    if (newMap->mapTiles.at(i).containsAttribute(solid)) {
+    if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::SOLID)) {
       if (collisionAny(
               x - 4, x + 60, newMap->mapTiles.at(i).getX(),
               newMap->mapTiles.at(i).getX() + newMap->mapTiles.at(i).getWidth(),
@@ -255,7 +255,7 @@ void Player::update(TileMap* fullMap, double delta) {
     }
 
     // Check moving RIGHT
-    if (newMap->mapTiles.at(i).containsAttribute(solid)) {
+    if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::SOLID)) {
       if (collisionAny(
               x + 4, x + 68, newMap->mapTiles.at(i).getX(),
               newMap->mapTiles.at(i).getX() + newMap->mapTiles.at(i).getWidth(),
@@ -268,7 +268,7 @@ void Player::update(TileMap* fullMap, double delta) {
       }
     }
     // Check 2 for climbing up
-    if (newMap->mapTiles.at(i).containsAttribute(climb)) {
+    if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::CLIMB)) {
       if (collisionAny(
               x + 16, x + 48, newMap->mapTiles.at(i).getX(),
               newMap->mapTiles.at(i).getX() + newMap->mapTiles.at(i).getWidth(),
@@ -279,7 +279,7 @@ void Player::update(TileMap* fullMap, double delta) {
       }
     }
     // Check 2 for climbing down
-    if (newMap->mapTiles.at(i).containsAttribute(climb)) {
+    if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::CLIMB)) {
       if (collisionAny(
               x + 16, x + 48, newMap->mapTiles.at(i).getX(),
               newMap->mapTiles.at(i).getX() + newMap->mapTiles.at(i).getWidth(),
@@ -290,7 +290,7 @@ void Player::update(TileMap* fullMap, double delta) {
       }
     }
     // Check 1 for climbing up
-    if (newMap->mapTiles.at(i).containsAttribute(solid)) {
+    if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::SOLID)) {
       if (collisionAny(
               x + 16, x + 48, newMap->mapTiles.at(i).getX(),
               newMap->mapTiles.at(i).getX() + newMap->mapTiles.at(i).getWidth(),
@@ -301,7 +301,7 @@ void Player::update(TileMap* fullMap, double delta) {
       }
     }
     // Check 2 for climbing down
-    if (newMap->mapTiles.at(i).containsAttribute(solid)) {
+    if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::SOLID)) {
       if (collisionAny(
               x + 16, x + 48, newMap->mapTiles.at(i).getX(),
               newMap->mapTiles.at(i).getX() + newMap->mapTiles.at(i).getWidth(),
@@ -312,8 +312,8 @@ void Player::update(TileMap* fullMap, double delta) {
       }
     }
     // Check jump
-    if (!(newMap->mapTiles.at(i).containsAttribute(gas)) &&
-        newMap->mapTiles.at(i).containsAttribute(liquid)) {
+    if (!(newMap->mapTiles.at(i).hasAttribute(TileAttribute::GAS)) &&
+        newMap->mapTiles.at(i).hasAttribute(TileAttribute::LIQUID)) {
       if (collisionAny(
               x + 16, x + 48, newMap->mapTiles.at(i).getX(),
               newMap->mapTiles.at(i).getX() + newMap->mapTiles.at(i).getWidth(),
@@ -324,8 +324,8 @@ void Player::update(TileMap* fullMap, double delta) {
       }
     }
     // Can if you will not hit your head
-    if (!(newMap->mapTiles.at(i).containsAttribute(gas)) ||
-        newMap->mapTiles.at(i).containsAttribute(liquid)) {
+    if (!(newMap->mapTiles.at(i).hasAttribute(TileAttribute::GAS)) ||
+        newMap->mapTiles.at(i).hasAttribute(TileAttribute::LIQUID)) {
       if (collisionAny(
               x + 16, x + 48, newMap->mapTiles.at(i).getX(),
               newMap->mapTiles.at(i).getX() + newMap->mapTiles.at(i).getWidth(),
@@ -339,7 +339,7 @@ void Player::update(TileMap* fullMap, double delta) {
     }
 
     // If you are swimming
-    if (newMap->mapTiles.at(i).containsAttribute(liquid)) {
+    if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::LIQUID)) {
       if (collisionAny(
               x + 16, x + 48, newMap->mapTiles.at(i).getX(),
               newMap->mapTiles.at(i).getX() + newMap->mapTiles.at(i).getWidth(),
@@ -353,7 +353,7 @@ void Player::update(TileMap* fullMap, double delta) {
   // Check for points and dangers
   for (uint32_t i = 0; i < fullMap->mapTiles.size(); i++) {
     // Get point
-    if (fullMap->mapTiles.at(i).containsAttribute(item)) {
+    if (fullMap->mapTiles.at(i).hasAttribute(TileAttribute::ITEM)) {
       if (collisionAny(x + 16, x + 48, fullMap->mapTiles.at(i).getX(),
                        fullMap->mapTiles.at(i).getX() +
                            fullMap->mapTiles.at(i).getWidth(),
@@ -361,14 +361,14 @@ void Player::update(TileMap* fullMap, double delta) {
                        fullMap->mapTiles.at(i).getY() +
                            fullMap->mapTiles.at(i).getHeight())) {
         al_play_sample(getItem, 1.0f, 0, 1.0f, ALLEGRO_PLAYMODE_ONCE, nullptr);
-        fullMap->mapTiles.at(i).setType(0);
+        fullMap->mapTiles.at(i).setType(fullMap->findTileType(0));
       }
     }
   }
 
   for (uint32_t i = 0; i < newMap->mapTiles.size(); i++) {
     // Die
-    if (newMap->mapTiles.at(i).containsAttribute(finish)) {
+    if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::FINISH)) {
       if (collisionAny(
               x + 16, x + 48, newMap->mapTiles.at(i).getX(),
               newMap->mapTiles.at(i).getX() + newMap->mapTiles.at(i).getWidth(),
@@ -379,7 +379,7 @@ void Player::update(TileMap* fullMap, double delta) {
         finished = true;
       }
     }
-    if (newMap->mapTiles.at(i).containsAttribute(harmful)) {
+    if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::HARMFUL)) {
       if (collisionAny(
               x + 16, x + 48, newMap->mapTiles.at(i).getX(),
               newMap->mapTiles.at(i).getX() + newMap->mapTiles.at(i).getWidth(),
@@ -476,8 +476,8 @@ void Player::update(TileMap* fullMap, double delta) {
 
   // Falling (calculated seperately to ensure collision accurate)
   for (uint32_t i = 0; i < newMap->mapTiles.size(); i++) {
-    if (newMap->mapTiles.at(i).containsAttribute(solid) ||
-        newMap->mapTiles.at(i).containsAttribute(climb)) {
+    if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::SOLID) ||
+        newMap->mapTiles.at(i).hasAttribute(TileAttribute::CLIMB)) {
       if (collisionAny(
               x + 16, x + 48, newMap->mapTiles.at(i).getX(),
               newMap->mapTiles.at(i).getX() + newMap->mapTiles.at(i).getWidth(),

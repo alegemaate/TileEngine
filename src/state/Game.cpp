@@ -33,11 +33,6 @@ void Game::init() {
 
 // Init game state
 void Game::initGame() {
-  // Timer
-  // LOCK_VARIABLE(timer1);
-  // LOCK_FUNCTION(gameTicker);
-  // install_int_ex(gameTicker, BPS_TO_TIMER(100));
-
   tile_map = new TileMap("blank");
 
   // Create map
@@ -64,7 +59,7 @@ void Game::initGame() {
       newBadGuy.load_images();
       newBadGuy.load_sounds();
       badGuy.push_back(newBadGuy);
-      tile_map->mapTiles.at(i).setType(0);
+      tile_map->mapTiles.at(i).setType(tile_map->findTileType(0));
     }
   }
 }
@@ -77,7 +72,7 @@ void Game::update(double delta) {
   player1->update(tile_map, delta);
 
   for (uint32_t i = 0; i < badGuy.size(); i++) {
-    // badGuy.at(i).update(tile_map, &player1);
+    badGuy.at(i).update(tile_map, player1);
   }
 
   // Scroll Map
@@ -205,7 +200,7 @@ void Game::draw() {
                            DisplayMode::getDrawHeight(), al_map_rgb(0, 0, 0));
 
   // Draw enemies
-  // for (uint32_t i = 0; i < badGuy.size(); i++) {
-  //   badGuy.at(i).draw(tile_map->x, tile_map->y);
-  // }
+  for (uint32_t i = 0; i < badGuy.size(); i++) {
+    badGuy.at(i).draw(tile_map->x, tile_map->y);
+  }
 }

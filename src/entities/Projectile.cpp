@@ -31,7 +31,7 @@ int Projectile::getContactFrameCounter() {
 bool Projectile::getContact(TileMap* newMap) {
   // Check for collision
   for (uint32_t i = 0; i < newMap->mapTiles.size(); i++) {
-    if (newMap->mapTiles.at(i).containsAttribute(solid)) {
+    if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::SOLID)) {
       if (collisionAny(x, x + al_get_bitmap_width(image[0]),
                        newMap->mapTiles.at(i).getX(),
                        newMap->mapTiles.at(i).getX() + 64, y,

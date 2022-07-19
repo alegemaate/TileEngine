@@ -21,7 +21,8 @@ void Editor::init() {
   tile_map = new TileMap("data/templates/blank64x48.txt");
 
   // Create example tile
-  exampleTile = new Tile(0, tile_map->getIndex());
+  auto type = tile_map->findTileType(selectedTileType);
+  exampleTile = new Tile(type);
   exampleTile->setX(0);
   exampleTile->setY(0);
 
@@ -42,7 +43,6 @@ void Editor::saveMap() {
 
   if (al_show_native_file_dialog(nullptr, chooser)) {
     const char* fileName = al_get_native_file_dialog_path(chooser, 0);
-    Logger::log(fileName);
 
     // You also need to check for cancel Button here too
     if (fileName != nullptr) {
@@ -57,7 +57,6 @@ void Editor::openMap() {
 
   if (al_show_native_file_dialog(nullptr, chooser)) {
     const char* fileName = al_get_native_file_dialog_path(chooser, 0);
-    Logger::log(fileName);
 
     // You also need to check for cancel Button here too
     if (fileName != nullptr) {
@@ -68,8 +67,6 @@ void Editor::openMap() {
 
 void Editor::update(double delta) {
   tile_map->update(delta);
-
-  Logger::log(selectedTileType);
 
   // Back to menu
   if (keyboardListener.wasPressed(Key::M)) {
@@ -94,11 +91,11 @@ void Editor::update(double delta) {
 
   // Change selected
   if (keyboardListener.wasPressed(Key::UP)) {
-    exampleTile->changeType(1);
+    // exampleTile->changeType(1);
     selectedTileType = exampleTile->getType();
   }
   if (keyboardListener.wasPressed(Key::DOWN)) {
-    exampleTile->changeType(-1);
+    // exampleTile->changeType(-1);
     selectedTileType = exampleTile->getType();
   }
 
@@ -120,7 +117,8 @@ void Editor::update(double delta) {
                          mouseListener.getY() + tile_map->y,
                          tile_map->mapTiles.at(i).getY(),
                          tile_map->mapTiles.at(i).getY() + 64)) {
-          tile_map->mapTiles.at(i).setType(selectedTileType);
+          auto type = tile_map->findTileType(selectedTileType);
+          tile_map->mapTiles.at(i).setType(type);
         }
       }
     } else {
@@ -133,7 +131,8 @@ void Editor::update(double delta) {
                          mouseListener.getY() + tile_map->y,
                          tile_map->mapTilesBack.at(i).getY(),
                          tile_map->mapTilesBack.at(i).getY() + 64)) {
-          tile_map->mapTilesBack.at(i).setType(selectedTileType);
+          auto type = tile_map->findTileType(selectedTileType);
+          tile_map->mapTilesBack.at(i).setType(type);
         }
       }
     }
@@ -152,9 +151,10 @@ void Editor::update(double delta) {
                          mouseListener.getY() + tile_map->y,
                          tile_map->mapTiles.at(i).getY(),
                          tile_map->mapTiles.at(i).getY() + 64)) {
+          auto type = tile_map->findTileType(selectedTileType);
+          exampleTile->setType(type);
           exampleTile->setX(0);
           exampleTile->setY(0);
-          exampleTile->setType(selectedTileType);
         }
       }
     } else {
@@ -167,9 +167,10 @@ void Editor::update(double delta) {
                          mouseListener.getY() + tile_map->y,
                          tile_map->mapTilesBack.at(i).getY(),
                          tile_map->mapTilesBack.at(i).getY() + 64)) {
+          auto type = tile_map->findTileType(selectedTileType);
+          exampleTile->setType(type);
           exampleTile->setX(0);
           exampleTile->setY(0);
-          exampleTile->setType(selectedTileType);
         }
       }
     }
@@ -188,7 +189,8 @@ void Editor::update(double delta) {
                          mouseListener.getY() + tile_map->y,
                          tile_map->mapTiles.at(i).getY(),
                          tile_map->mapTiles.at(i).getY() + 64)) {
-          tile_map->mapTiles.at(i).setType(0);
+          auto type = tile_map->findTileType(0);
+          tile_map->mapTiles.at(i).setType(type);
         }
       }
     } else {
@@ -201,7 +203,8 @@ void Editor::update(double delta) {
                          mouseListener.getY() + tile_map->y,
                          tile_map->mapTilesBack.at(i).getY(),
                          tile_map->mapTilesBack.at(i).getY() + 64)) {
-          tile_map->mapTilesBack.at(i).setType(0);
+          auto type = tile_map->findTileType(0);
+          tile_map->mapTilesBack.at(i).setType(type);
         }
       }
     }
@@ -219,13 +222,15 @@ void Editor::update(double delta) {
 
   // Fill map
   if (keyboardListener.isDown(Key::F)) {
+    auto type = tile_map->findTileType(selectedTileType);
     for (uint32_t i = 0; i < tile_map->mapTilesBack.size(); i++) {
-      tile_map->mapTilesBack.at(i).setType(selectedTileType);
+      tile_map->mapTilesBack.at(i).setType(type);
     }
   }
   if (keyboardListener.isDown(Key::G)) {
+    auto type = tile_map->findTileType(selectedTileType);
     for (uint32_t i = 0; i < tile_map->mapTiles.size(); i++) {
-      tile_map->mapTiles.at(i).setType(selectedTileType);
+      tile_map->mapTiles.at(i).setType(type);
     }
   }
 }

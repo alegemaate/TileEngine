@@ -34,6 +34,17 @@ void TileMap::update(double delta) {
   runningTime += delta;
 }
 
+std::shared_ptr<TileType> TileMap::findTileType(uint8_t id) {
+  for (auto& tileType : tileTypes) {
+    if (tileType->id == id) {
+      return tileType;
+    }
+  }
+
+  // TODO: Fix unsafe return
+  return tileTypes.at(0);
+}
+
 // Manually load new file
 void TileMap::load_tiles() {
   // Read tiles
@@ -51,12 +62,14 @@ void TileMap::load_tiles() {
 
   // Load blocks
   for (auto& tileData : tiles) {
-    Tile tile(tileData["id"].get<int>(), tileData["particles"].get<bool>(),
-              tileData["lighting"].get<bool>(),
-              tileData["name"].get<std::string>());
+    auto tile = std::make_shared<TileType>();
+    tile->id = tileData["id"].get<int>();
+    tile->name = tileData["name"].get<std::string>();
+    tile->lighting = tileData["lighting"].get<bool>();
+    tile->particles = tileData["particles"].get<bool>();
 
     // Attributes
-    for (auto& tileDataType : tileData["types"]) {
+    for (const auto& tileDataType : tileData["types"]) {
       std::string tileTypeStr = tileDataType.get<std::string>();
 
       // Check if type is valid
@@ -67,21 +80,16 @@ void TileMap::load_tiles() {
       }
 
       // Add type
-      tile.addAttribute(TILE_TYPE_LOOKUP.at(tileTypeStr));
+      tile->attributes.push_back(TILE_TYPE_LOOKUP.at(tileTypeStr));
     }
 
     // Set images
-    std::vector<Bitmap> images;
     for (const auto& tileDataImage : tileData["images"]) {
-      images.push_back(Bitmap(tileDataImage.get<std::string>()));
-    }
-
-    if (images.size() > 0) {
-      tile.setFrames(images);
+      tile->frames.emplace_back(tileDataImage.get<std::string>());
     }
 
     // Index for other tiles to reference
-    tileIndex.push_back(tile);
+    tileTypes.push_back(tile);
   }
 }
 
@@ -118,12 +126,11 @@ void TileMap::load(std::string fileName) {
 
     for (int t = 0; t < height; t++) {
       for (int i = 0; i < width; i++) {
-        int newTileType;
-        read >> newTileType;
+        int intType;
+        read >> intType;
+
         // Set tile type
-        Tile newTile(newTileType, &tileIndex);
-        newTile.setX(i * 64);
-        newTile.setY(t * 64);
+        Tile newTile(findTileType(intType), i * 64, t * 64);
 
         // First time, set tile set
         mapTiles.push_back(newTile);
@@ -136,15 +143,12 @@ void TileMap::load(std::string fileName) {
 
     for (int t = 0; t < height; t++) {
       for (int i = 0; i < width; i++) {
-        int newTileType;
-        read2 >> newTileType;
         // Set tile type
-        Tile newTile(newTileType, &tileIndex);
-        newTile.setX(i * 64);
-        newTile.setY(t * 64);
+        int intType;
+        read2 >> intType;
 
         // First time, set tile set
-        mapTilesBack.push_back(newTile);
+        mapTilesBack.emplace_back(findTileType(intType), i * 64, t * 64);
       }
     }
     read2.close();
@@ -192,12 +196,6 @@ long TileMap::getFrame() {
   return static_cast<long>(runningTime * (1.0 / FRAME_SECONDS));
 }
 
-// Get tileIndex generated from xml. If it has not been loaded it will
-// Return NULL!
-std::vector<Tile>* TileMap::getIndex() {
-  return &tileIndex;
-}
-
 // Draw tile map to its x and y
 void TileMap::draw_map() {
   auto frame = getFrame();
@@ -215,7 +213,7 @@ void TileMap::draw_map() {
         (mapTiles.at(i).getX() < x + DisplayMode::getDrawWidth()) &&
         (mapTiles.at(i).getY() >= y - mapTiles.at(i).getHeight()) &&
         (mapTiles.at(i).getY() < y + DisplayMode::getDrawHeight())) {
-      if (!mapTiles.at(i).containsAttribute(spawn)) {
+      if (!mapTiles.at(i).hasAttribute(TileAttribute::SPAWN)) {
         mapTiles.at(i).draw(x, y, frame);
       }
     }
