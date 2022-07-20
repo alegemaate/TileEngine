@@ -1,11 +1,11 @@
 #ifndef TILE_H
 #define TILE_H
 
-#include <allegro5/allegro.h>
 #include <memory>
 #include <vector>
 
-#include "../util/Bitmap.h"
+#include "../lib/assets/Bitmap.h"
+#include "../lib/util/BoundingBox.h"
 #include "./TileType.h"
 
 class Tile {
@@ -23,6 +23,9 @@ class Tile {
   // Get size
   int getWidth();
   int getHeight();
+
+  // Get bounds
+  BoundingBox getBounds();
 
   // Set new coordinates
   void setX(int newX);
@@ -48,12 +51,7 @@ class Tile {
   std::shared_ptr<TileType> type;
 
   // Position
-  int x{0};
-  int y{0};
-
-  // Size
-  int width{0};
-  int height{0};
+  BoundingBox bounds{0, 0, 0, 0};
 
   // Sets dimensions to frame[0]'s dimensions
   void setDimensions();

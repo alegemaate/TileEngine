@@ -14,12 +14,10 @@
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_ttf.h>
 
-#include "util/DisplayMode.h"
-#include "util/Logger.h"
-
+#include "lib/display/DisplayMode.h"
+#include "lib/state/StateEngine.h"
+#include "lib/util/Logger.h"
 #include "tools.h"
-
-#include "./state/engine/StateEngine.h"
 
 // FPS system variables
 double t = 0.0;
@@ -30,7 +28,6 @@ double accumulator = 0.0;
 
 // Closing or naw
 bool closing = false;
-bool joystickEnabled = false;
 
 // Allegro events
 ALLEGRO_EVENT_QUEUE* eventQueue = nullptr;
@@ -89,8 +86,6 @@ void setup() {
   al_set_window_title(display, "Tile Engine");
 
   Logger::systemInformation();
-
-  joystickEnabled = al_get_num_joysticks() > 0;
 
   currentTime = al_get_time();
 }

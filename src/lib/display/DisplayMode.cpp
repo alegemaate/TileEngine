@@ -2,7 +2,7 @@
 
 #include <allegro5/allegro.h>
 
-#include "./Logger.h"
+#include "../util/Logger.h"
 
 // Initialize
 int DisplayMode::window_w = 1280;

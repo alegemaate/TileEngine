@@ -1,16 +1,16 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_audio.h>
 #include <vector>
 
-#include "../globals.h"
+#include "./CharacterDirection.h"
+#include "./Projectile.h"
+
+#include "../lib/assets/Bitmap.h"
+#include "../lib/assets/Sound.h"
+#include "../lib/input/KeyListener.h"
 #include "../tile/TileMap.h"
 #include "../tools.h"
-#include "../util/Bitmap.h"
-#include "../util/KeyListener.h"
-#include "./Projectile.h"
 
 #define ANIMATION_SPEED 5
 #define JUMPING_HEIGHT 192
@@ -18,15 +18,14 @@
 class Player {
  public:
   Player(KeyListener& keyboardListener);
-  ~Player();
+  ~Player() = default;
 
   void load_images();
   void load_sounds();
-  void set_keys(Key up, Key down, Key left, Key right, Key jump, Key shoot);
+  void setKeys(Key up, Key down, Key left, Key right, Key jump, Key shoot);
 
   int getX();
   int getY();
-  int getDeathcount();
 
   bool getFinished();
 
@@ -46,14 +45,11 @@ class Player {
   int x{0};
   int y{0};
 
-  int deathcount{0};
-  int idle_timer{0};
-
   float sprintSpeed{0.0f};
 
   bool canFall{false};
   bool jumping{false};
-  bool jumping_animation_done{false};
+  bool jumping_animation_done{true};
   bool dead{false};
   bool sprinting{false};
   bool finished{false};
@@ -62,8 +58,8 @@ class Player {
   int walking_animation_sequence{0};
   int jumping_animation_sequence{0};
   int jump_height{0};
-  int characterDir{0};
   int yVelocity{0};
+  CharacterDirection characterDir{CharacterDirection::RIGHT};
 
   // Keys
   Key upKey{Key::UNKNOWN};
@@ -74,20 +70,19 @@ class Player {
   Key shootKey{Key::UNKNOWN};
 
   std::vector<Projectile> bullets{};
-  TileMap* newMap{nullptr};
 
   // 0-3 left, 4-7 right, 8-11 up 12-17 jump left 18-23 jump right 24-27 slide
   // 28-19 is idle
   Bitmap player_images[30]{};
 
   // Sounds
-  ALLEGRO_SAMPLE* walk1{nullptr};
-  ALLEGRO_SAMPLE* walk2{nullptr};
-  ALLEGRO_SAMPLE* jump{nullptr};
-  ALLEGRO_SAMPLE* die{nullptr};
-  ALLEGRO_SAMPLE* getItem{nullptr};
-  ALLEGRO_SAMPLE* getBonus{nullptr};
-  ALLEGRO_SAMPLE* win{nullptr};
+  Sound walk1{};
+  Sound walk2{};
+  Sound jump{};
+  Sound die{};
+  Sound getItem{};
+  Sound getBonus{};
+  Sound win{};
 
   KeyListener& keyboardListener;
 };

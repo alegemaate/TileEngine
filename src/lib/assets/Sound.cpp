@@ -1,6 +1,6 @@
 #include "./Sound.h"
 
-#include "./Logger.h"
+#include "../util/Logger.h"
 
 Sound::Sound(const std::string& path) {
   this->load(path);
@@ -18,6 +18,11 @@ void Sound::play(const float volume,
                  const float panning,
                  const float speed,
                  const bool loop) const {
+  if (!sample) {
+    Logger::warn("Sample not loaded");
+    return;
+  }
+
   al_play_sample(sample.get(), volume, panning, speed,
                  loop ? ALLEGRO_PLAYMODE_LOOP : ALLEGRO_PLAYMODE_ONCE, 0);
 }

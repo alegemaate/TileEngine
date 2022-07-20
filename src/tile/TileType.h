@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "../util/Bitmap.h"
+#include "../lib/assets/Bitmap.h"
 
 enum class TileAttribute {
   GAS = 0,

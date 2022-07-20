@@ -11,12 +11,11 @@
 #ifndef INTRO_H
 #define INTRO_H
 
-#include "./engine/State.h"
-
-#include "../util/Bitmap.h"
-#include "../util/KeyListener.h"
-#include "../util/Sound.h"
-#include "../util/Timer.h"
+#include "../lib/assets/Bitmap.h"
+#include "../lib/assets/Sound.h"
+#include "../lib/input/KeyListener.h"
+#include "../lib/state/State.h"
+#include "../lib/util/Timer.h"
 
 /**
  * @brief Intro state

@@ -1,8 +1,9 @@
 #include "MouseListener.h"
-#include "DisplayMode.h"
 
 #include <allegro5/allegro.h>
 #include <type_traits>
+
+#include "../display/DisplayMode.h"
 
 // Check those buttons!
 void MouseListener::update() {

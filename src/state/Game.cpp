@@ -2,10 +2,12 @@
 
 #include <allegro5/allegro_primitives.h>
 
-#include "../util/DisplayMode.h"
-#include "../util/KeyListener.h"
-#include "../util/Logger.h"
-#include "../util/MouseListener.h"
+#include "../lib/display/DisplayMode.h"
+#include "../lib/input/KeyListener.h"
+#include "../lib/input/MouseListener.h"
+#include "../lib/util/Logger.h"
+
+int Game::level = 0;
 
 // Constructor
 Game::Game(KeyListener& keyboardListener,
@@ -22,10 +24,8 @@ void Game::init() {
 
   // Player
   player1 = new Player(keyboardListener);
-  player1->load_images();
-  player1->load_sounds();
-  player1->set_keys(Key::UP, Key::DOWN, Key::LEFT, Key::RIGHT, Key::LCTRL,
-                    Key::ALT);
+  player1->setKeys(Key::UP, Key::DOWN, Key::LEFT, Key::RIGHT, Key::SPACE,
+                   Key::LSHIFT);
 
   // Init
   initGame();
@@ -36,11 +36,11 @@ void Game::initGame() {
   tile_map = new TileMap("blank");
 
   // Create map
-  if (levelOn == 0) {
+  if (level == 0) {
     tile_map->load("data/levels/level_01.txt");
-  } else if (levelOn == 1) {
+  } else if (level == 1) {
     tile_map->load("data/levels/level_test.txt");
-  } else if (levelOn == 2) {
+  } else if (level == 2) {
     tile_map->load("data/saves/danny.txt");
   } else {
     tile_map->load("data/saves/dannyII.txt");
@@ -51,15 +51,18 @@ void Game::initGame() {
   player1->spawncommand(tile_map);
 
   // Load enemies
-  for (uint32_t i = 0; i < tile_map->mapTiles.size(); i++) {
-    if (tile_map->mapTiles.at(i).getType() > 199) {
-      Enemy newBadGuy(tile_map->mapTiles.at(i).getX(),
-                      tile_map->mapTiles.at(i).getY(),
-                      tile_map->mapTiles.at(i).getType() - 200);
-      newBadGuy.load_images();
-      newBadGuy.load_sounds();
+  for (auto& tile : tile_map->mapTiles) {
+    if (tile->getType() > 199) {
+      EnemyType type = EnemyType::VORTICON;
+      if (tile->getType() == 201) {
+        type = EnemyType::ROBOT;
+      } else if (tile->getType() == 202) {
+        type = EnemyType::DANNY;
+      }
+
+      Enemy newBadGuy(tile->getX(), tile->getY(), type);
       badGuy.push_back(newBadGuy);
-      tile_map->mapTiles.at(i).setType(tile_map->findTileType(0));
+      tile->setType(tile_map->findTileType(0));
     }
   }
 }
@@ -71,8 +74,8 @@ void Game::update(double delta) {
   // Character movements (runs only every 2nd loop)
   player1->update(tile_map, delta);
 
-  for (uint32_t i = 0; i < badGuy.size(); i++) {
-    badGuy.at(i).update(tile_map, player1);
+  for (auto& guy : badGuy) {
+    guy.update(tile_map, player1);
   }
 
   // Scroll Map
@@ -150,21 +153,15 @@ void Game::update(double delta) {
         keyboardListener.wasPressed(Key::NUM_2) ||
         keyboardListener.wasPressed(Key::NUM_3)) {
       if (keyboardListener.wasPressed(Key::NUM_1)) {
-        Enemy newBadGuy(player1->getX(), player1->getY(), enemy_vorticon);
-        newBadGuy.load_images();
-        newBadGuy.load_sounds();
+        Enemy newBadGuy(player1->getX(), player1->getY(), EnemyType::VORTICON);
         badGuy.push_back(newBadGuy);
       }
       if (keyboardListener.wasPressed(Key::NUM_2)) {
-        Enemy newBadGuy(player1->getX(), player1->getY(), enemy_robot);
-        newBadGuy.load_images();
-        newBadGuy.load_sounds();
+        Enemy newBadGuy(player1->getX(), player1->getY(), EnemyType::ROBOT);
         badGuy.push_back(newBadGuy);
       }
       if (keyboardListener.wasPressed(Key::NUM_3)) {
-        Enemy newBadGuy(player1->getX(), player1->getY(), enemy_vorticon);
-        newBadGuy.load_images();
-        newBadGuy.load_sounds();
+        Enemy newBadGuy(player1->getX(), player1->getY(), EnemyType::DANNY);
         badGuy.push_back(newBadGuy);
       }
     }
@@ -200,7 +197,7 @@ void Game::draw() {
                            DisplayMode::getDrawHeight(), al_map_rgb(0, 0, 0));
 
   // Draw enemies
-  for (uint32_t i = 0; i < badGuy.size(); i++) {
-    badGuy.at(i).draw(tile_map->x, tile_map->y);
+  for (auto& guy : badGuy) {
+    guy.draw(tile_map->x, tile_map->y);
   }
 }

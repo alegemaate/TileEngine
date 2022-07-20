@@ -1,13 +1,12 @@
 #ifndef EDITOR_H
 #define EDITOR_H
 
-#include "./engine/State.h"
+#include "../lib/state/State.h"
 
-#include <allegro5/allegro_ttf.h>
 #include <string>
 #include <vector>
 
-#include "../globals.h"
+#include "../lib/assets/Font.h"
 #include "../tile/Tile.h"
 #include "../tile/TileMap.h"
 #include "../tools.h"
@@ -33,7 +32,7 @@ class Editor : public State {
   TileMap* tile_map{nullptr};
   Tile* exampleTile{nullptr};
 
-  ALLEGRO_FONT* font{nullptr};
+  Font font{};
 
   KeyListener& keyboardListener;
   MouseListener& mouseListener;

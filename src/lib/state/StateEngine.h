@@ -1,9 +1,9 @@
 #ifndef STATE_STATE_ENGINE_H_
 #define STATE_STATE_ENGINE_H_
 
-#include "../../util/JoystickListener.h"
-#include "../../util/KeyListener.h"
-#include "../../util/MouseListener.h"
+#include "../../lib/input/JoystickListener.h"
+#include "../../lib/input/KeyListener.h"
+#include "../../lib/input/MouseListener.h"
 
 class State;
 
@@ -20,19 +20,38 @@ enum class ProgramState {
 
 class StateEngine {
  public:
-  // Process events
+  /**
+   * @brief Process allegro events
+   *
+   * @param event Allegro event
+   */
   void processEvent(const ALLEGRO_EVENT& event);
 
-  // Update
+  /**
+   * @brief Update the state
+   *
+   * @param delta Time passed since last update
+   */
   void update(double delta);
 
-  // Draw
+  /**
+   * @brief Draw state
+   *
+   */
   void draw();
 
-  // Get state id
+  /**
+   * @brief Get the active State Id
+   *
+   * @return ProgramState Active state id
+   */
   ProgramState getStateId() const;
 
-  // Change state
+  /**
+   * @brief Change the state
+   *
+   * @param nextState Next program state id
+   */
   void changeState(ProgramState nextState);
 
  private:

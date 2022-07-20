@@ -1,9 +1,7 @@
 #ifndef INIT_H
 #define INIT_H
 
-#include <allegro5/allegro.h>
-
-#include "./engine/State.h"
+#include "../lib/state/State.h"
 
 class Init : public State {
  public:

@@ -1,6 +1,6 @@
 #include "./Bitmap.h"
 
-#include "./Logger.h"
+#include "../util/Logger.h"
 
 Bitmap::Bitmap(const std::string& path) {
   this->load(path);

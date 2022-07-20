@@ -3,36 +3,41 @@
 #include <algorithm>
 
 // Automatic tile creator, when in doubt, use this one
-Tile::Tile(std::shared_ptr<TileType> type, int x, int y)
-    : type(type), x(x), y(y) {
+Tile::Tile(std::shared_ptr<TileType> type, int x, int y) : type(type) {
+  bounds.x = x;
+  bounds.y = y;
   setDimensions();
 }
 
 // Get coordinates
 int Tile::getX() {
-  return x;
+  return bounds.x;
 }
 
 int Tile::getY() {
-  return y;
+  return bounds.y;
 }
 
 // Get size
 int Tile::getWidth() {
-  return width;
+  return bounds.width;
 }
 
 int Tile::getHeight() {
-  return height;
+  return bounds.height;
+}
+
+BoundingBox Tile::getBounds() {
+  return bounds;
 }
 
 // Set new coordinates
 void Tile::setX(int newX) {
-  x = newX;
+  bounds.x = newX;
 }
 
 void Tile::setY(int newY) {
-  y = newY;
+  bounds.y = newY;
 }
 
 // Get tile type
@@ -66,7 +71,8 @@ void Tile::draw(int xOffset, int yOffset, int frame) {
     return;
   }
 
-  type->frames[frame % type->frames.size()].draw(x - xOffset, y - yOffset);
+  type->frames[frame % type->frames.size()].draw(bounds.x - xOffset,
+                                                 bounds.y - yOffset);
 }
 
 // Sets dimensions to images[0]'s dimensions
@@ -75,18 +81,18 @@ void Tile::setDimensions() {
     return;
   }
 
-  width = type->frames[0].getWidth();
-  height = type->frames[0].getHeight();
+  bounds.width = type->frames[0].getWidth();
+  bounds.height = type->frames[0].getHeight();
 
   if (hasAttribute(TileAttribute::HALF_BLOCK_TOP)) {
-    height = 32;
+    bounds.height = 32;
   } else if (hasAttribute(TileAttribute::HALF_BLOCK_BOTTOM)) {
-    height = 32;
-    y += height;
+    bounds.height = 32;
+    bounds.y += bounds.height;
   } else if (hasAttribute(TileAttribute::QUARTER_BLOCK_TOP)) {
-    height = 16;
+    bounds.height = 16;
   } else if (hasAttribute(TileAttribute::QUARTER_BLOCK_BOTTOM)) {
-    height = 16;
-    y += 48;
+    bounds.height = 16;
+    bounds.y += 48;
   }
 }

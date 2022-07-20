@@ -1,4 +1,4 @@
-#include "./Logger.h"
+#include "../util/Logger.h"
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_native_dialog.h>

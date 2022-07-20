@@ -1,6 +1,6 @@
 #include "./Font.h"
 
-#include "./Logger.h"
+#include "../util/Logger.h"
 
 Font::Font(const std::string& path, const int size) {
   this->load(path, size);

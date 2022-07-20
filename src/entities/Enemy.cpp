@@ -1,45 +1,10 @@
 #include "Enemy.h"
 
-#include <allegro5/allegro_audio.h>
+#include "../lib/display/DisplayMode.h"
+#include "../lib/util/Logger.h"
 
-#include "../util/DisplayMode.h"
-#include "../util/Logger.h"
-
-Enemy::Enemy(int newX, int newY, int newType) {
-  width = 0;
-  height = 0;
-
-  speed = 0;
-
-  jumpChance = 0;
-  maxSteps = 0;
-  minSteps = 0;
-  jumpHeight = 0;
-  walkChance = 0;
-  jumpSpeed = 0;
-
-  canFall = false;
-  jumping = false;
-  dead = false;
-  walking_animation_sequence = 0;
-  jumping_animation_sequence = 0;
-  jump_height = 0;
-  characterDir = 0;
-  yVelocity = 0;
-  walking_counter = 0;
-
-  x = newX;
-  y = newY;
-  type = newType;
-
-  newMap = new TileMap("blank");
-}
-
-Enemy::~Enemy() {}
-
-// 0-3 left, 4-7 right, 8-11 up
-void Enemy::load_images() {
-  if (type == enemy_vorticon) {
+Enemy::Enemy(int x, int y, EnemyType type) : x(x), y(y), type(type) {
+  if (type == EnemyType::VORTICON) {
     enemy_images[0] = Bitmap("images/enemys/vorticon/left_1.png");
     enemy_images[1] = Bitmap("images/enemys/vorticon/left_2.png");
     enemy_images[2] = Bitmap("images/enemys/vorticon/left_3.png");
@@ -62,7 +27,7 @@ void Enemy::load_images() {
     walkChance = 20;
     jumpSpeed = 2;
     speed = 3;
-  } else if (type == enemy_robot) {
+  } else if (type == EnemyType::ROBOT) {
     enemy_images[0] = Bitmap("images/enemys/robot/left_1.png");
     enemy_images[1] = Bitmap("images/enemys/robot/left_2.png");
     enemy_images[2] = Bitmap("images/enemys/robot/left_3.png");
@@ -85,7 +50,7 @@ void Enemy::load_images() {
     walkChance = 1;
     jumpSpeed = 0;
     speed = 2;
-  } else if (type == enemy_danny) {
+  } else if (type == EnemyType::DANNY) {
     enemy_images[0] = Bitmap("images/enemys/danny/left_1.png");
     enemy_images[1] = Bitmap("images/enemys/danny/left_2.png");
     enemy_images[2] = Bitmap("images/enemys/danny/left_3.png");
@@ -109,42 +74,16 @@ void Enemy::load_images() {
     jumpSpeed = 3;
     speed = 4;
   }
+
   width = enemy_images[0].getWidth();
   height = enemy_images[0].getHeight();
-}
 
-// Load sounds
-void Enemy::load_sounds() {
-  if (!(walk1 = al_load_sample("sounds/keen_walk_1.wav"))) {
-    Logger::fatal(
-        "Cannot find sound sounds/walk_1.wav \n Please check your files and "
-        "try again");
-  }
-  if (!(walk2 = al_load_sample("sounds/keen_walk_2.wav"))) {
-    Logger::fatal(
-        "Cannot find sound sounds/walk_2.wav \n Please check your files and "
-        "try again");
-  }
-  if (!(jump = al_load_sample("sounds/keen_jump.wav"))) {
-    Logger::fatal(
-        "Cannot find sound sounds/jump.wav \n Please check your files and try "
-        "again");
-  }
-  if (!(die = al_load_sample("sounds/keen_die.wav"))) {
-    Logger::fatal(
-        "Cannot find sound sounds/die.wav \n Please check your files and try "
-        "again");
-  }
-  if (!(getItem = al_load_sample("sounds/get_item.wav"))) {
-    Logger::fatal(
-        "Cannot find sound sounds/getItem.wav \n Please check your files and "
-        "try again");
-  }
-  if (!(getBonus = al_load_sample("sounds/get_bonus.wav"))) {
-    Logger::fatal(
-        "Cannot find sound sounds/getBonus.wav \n Please check your files and "
-        "try again");
-  }
+  walk1 = Sound("sounds/keen_walk_1.wav");
+  walk2 = Sound("sounds/keen_walk_2.wav");
+  jump = Sound("sounds/keen_jump.wav");
+  die = Sound("sounds/keen_die.wav");
+  getItem = Sound("sounds/get_item.wav");
+  getBonus = Sound("sounds/get_bonus.wav");
 }
 
 // Return X
@@ -171,19 +110,20 @@ void Enemy::setDead(bool newDead) {
 void Enemy::draw(int tile_map_x, int tile_map_y) {
   if (!dead) {
     if (jumping || canFall) {
-      if (characterDir == CHARACTER_LEFT) {
+      if (characterDir == CharacterDirection::LEFT) {
         enemy_images[8].draw(x - tile_map_x, y - tile_map_y);
       } else {
         enemy_images[9].draw(x - tile_map_x, y - tile_map_y);
       }
     } else {
-      enemy_images[characterDir + walking_animation_sequence / ANIMATION_SPEED]
+      enemy_images[static_cast<int>(characterDir) +
+                   walking_animation_sequence / ANIMATION_SPEED]
           .draw(x - tile_map_x, y - tile_map_y);
     }
 
     // Draw bullets
-    for (uint32_t i = 0; i < bullets.size(); i++) {
-      bullets.at(i).draw(tile_map_x, tile_map_y);
+    for (auto& bullet : bullets) {
+      bullet.draw(tile_map_x, tile_map_y);
     }
   } else {
     enemy_images[10].draw(x - tile_map_x, y - tile_map_y);
@@ -217,155 +157,103 @@ void Enemy::update(TileMap* fullMap, Player* newPlayer) {
       bool canJumpUp = true;
       bool inLiquid = false;
 
-      Logger::log("here 1");
-
-      newMap->mapTiles.clear();
-      newMap->width = fullMap->width;
-      newMap->height = fullMap->height;
-
-      // Add close elements
-      for (uint32_t i = 0; i < fullMap->mapTiles.size(); i++) {
-        if (collisionAny(x - 140, x + 140, fullMap->mapTiles.at(i).getX(),
-                         fullMap->mapTiles.at(i).getX() +
-                             fullMap->mapTiles.at(i).getWidth(),
-                         y - 140, y + 140, fullMap->mapTiles.at(i).getY(),
-                         fullMap->mapTiles.at(i).getY() +
-                             fullMap->mapTiles.at(i).getHeight())) {
-          newMap->mapTiles.push_back(fullMap->mapTiles.at(i));
-        }
-      }
-
-      Logger::log("here 2");
-
       // Check for collision
-      for (uint32_t i = 0; i < newMap->mapTiles.size(); i++) {
-        if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::SOLID)) {
-          if (collisionAny(x - speed, x + width - speed,
-                           newMap->mapTiles.at(i).getX(),
-                           newMap->mapTiles.at(i).getX() + 64, y, y + height,
-                           newMap->mapTiles.at(i).getY(),
-                           newMap->mapTiles.at(i).getY() + 64) &&
-              collisionLeft(x - speed, x + width - speed,
-                            newMap->mapTiles.at(i).getX(),
-                            newMap->mapTiles.at(i).getX() + 64)) {
+      for (auto& tile : fullMap->mapTiles) {
+        if (tile->hasAttribute(TileAttribute::SOLID)) {
+          if (collisionAny(x - speed, x + width - speed, tile->getX(),
+                           tile->getX() + 64, y, y + height, tile->getY(),
+                           tile->getY() + 64) &&
+              collisionLeft(x - speed, x + width - speed, tile->getX(),
+                            tile->getX() + 64)) {
             canMoveLeft = false;
           }
         }
-        if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::SOLID)) {
-          if (collisionAny(x + speed, x + width + speed,
-                           newMap->mapTiles.at(i).getX(),
-                           newMap->mapTiles.at(i).getX() + 64, y, y + height,
-                           newMap->mapTiles.at(i).getY(),
-                           newMap->mapTiles.at(i).getY() + 64) &&
-              collisionRight(x + speed, x + width + speed,
-                             newMap->mapTiles.at(i).getX(),
-                             newMap->mapTiles.at(i).getX() + 64)) {
+        if (tile->hasAttribute(TileAttribute::SOLID)) {
+          if (collisionAny(x + speed, x + width + speed, tile->getX(),
+                           tile->getX() + 64, y, y + height, tile->getY(),
+                           tile->getY() + 64) &&
+              collisionRight(x + speed, x + width + speed, tile->getX(),
+                             tile->getX() + 64)) {
             canMoveRight = false;
           }
         }
-        if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::CLIMB)) {
-          if (collisionAny(x, x + width, newMap->mapTiles.at(i).getX(),
-                           newMap->mapTiles.at(i).getX() + 64, y, y + height,
-                           newMap->mapTiles.at(i).getY(),
-                           newMap->mapTiles.at(i).getY() + 64)) {
+        if (tile->hasAttribute(TileAttribute::CLIMB)) {
+          if (collisionAny(x, x + width, tile->getX(), tile->getX() + 64, y,
+                           y + height, tile->getY(), tile->getY() + 64)) {
             canClimbUp2 = true;
           }
         }
-        if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::CLIMB)) {
-          if (collisionAny(x, x + width, newMap->mapTiles.at(i).getX(),
-                           newMap->mapTiles.at(i).getX() + 64, y,
-                           y + height + 16, newMap->mapTiles.at(i).getY(),
-                           newMap->mapTiles.at(i).getY() + 64)) {
+        if (tile->hasAttribute(TileAttribute::CLIMB)) {
+          if (collisionAny(x, x + width, tile->getX(), tile->getX() + 64, y,
+                           y + height + 16, tile->getY(), tile->getY() + 64)) {
             canClimbDown2 = true;
           }
         }
-        if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::SOLID)) {
-          if (collisionAny(x, x + width, newMap->mapTiles.at(i).getX(),
-                           newMap->mapTiles.at(i).getX() + 64, y - 16, y,
-                           newMap->mapTiles.at(i).getY(),
-                           newMap->mapTiles.at(i).getY() + 64)) {
+        if (tile->hasAttribute(TileAttribute::SOLID)) {
+          if (collisionAny(x, x + width, tile->getX(), tile->getX() + 64,
+                           y - 16, y, tile->getY(), tile->getY() + 64)) {
             canClimbUp = false;
           }
         }
-        if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::SOLID)) {
-          if (collisionAny(x, x + width, newMap->mapTiles.at(i).getX(),
-                           newMap->mapTiles.at(i).getX() + 64, y,
-                           y + height + 16, newMap->mapTiles.at(i).getY(),
-                           newMap->mapTiles.at(i).getY() + 64)) {
+        if (tile->hasAttribute(TileAttribute::SOLID)) {
+          if (collisionAny(x, x + width, tile->getX(), tile->getX() + 64, y,
+                           y + height + 16, tile->getY(), tile->getY() + 64)) {
             canClimbDown = false;
           }
         }
-        if (!newMap->mapTiles.at(i).hasAttribute(TileAttribute::GAS) &&
-            !newMap->mapTiles.at(i).hasAttribute(TileAttribute::LIQUID)) {
-          if (collisionAny(x, x + width, newMap->mapTiles.at(i).getX(),
-                           newMap->mapTiles.at(i).getX() + 64, y, y + height,
-                           newMap->mapTiles.at(i).getY(),
-                           newMap->mapTiles.at(i).getY() + 64)) {
+        if (!tile->hasAttribute(TileAttribute::GAS) &&
+            !tile->hasAttribute(TileAttribute::LIQUID)) {
+          if (collisionAny(x, x + width, tile->getX(), tile->getX() + 64, y,
+                           y + height, tile->getY(), tile->getY() + 64)) {
             canJump = false;
           }
         }
-        if (!newMap->mapTiles.at(i).hasAttribute(TileAttribute::GAS) &&
-            !newMap->mapTiles.at(i).hasAttribute(TileAttribute::LIQUID)) {
-          if (collisionAny(x, x + width, newMap->mapTiles.at(i).getX(),
-                           newMap->mapTiles.at(i).getX() + 64,
-                           newMap->mapTiles.at(i).getY(),
-                           newMap->mapTiles.at(i).getY() + 64, y, y + 144) &&
-              collisionTop(newMap->mapTiles.at(i).getY(),
-                           newMap->mapTiles.at(i).getY() + 128, y + yVelocity,
+        if (!tile->hasAttribute(TileAttribute::GAS) &&
+            !tile->hasAttribute(TileAttribute::LIQUID)) {
+          if (collisionAny(x, x + width, tile->getX(), tile->getX() + 64,
+                           tile->getY(), tile->getY() + 64, y, y + 144) &&
+              collisionTop(tile->getY(), tile->getY() + 128, y + yVelocity,
                            y + height + 16 + yVelocity)) {
             canJumpUp = false;
           }
         }
-        if (!newMap->mapTiles.at(i).hasAttribute(TileAttribute::LIQUID)) {
-          if (collisionAny(x, x + width, newMap->mapTiles.at(i).getX(),
-                           newMap->mapTiles.at(i).getX() + 64, y - 16,
-                           y + height, newMap->mapTiles.at(i).getY(),
-                           newMap->mapTiles.at(i).getY() + 64)) {
+        if (!tile->hasAttribute(TileAttribute::LIQUID)) {
+          if (collisionAny(x, x + width, tile->getX(), tile->getX() + 64,
+                           y - 16, y + height, tile->getY(),
+                           tile->getY() + 64)) {
             inLiquid = true;
           }
         }
-      }
-      Logger::log("here 3");
 
-      // Check for points and dangers
-      for (uint32_t i = 0; i < newMap->mapTiles.size(); i++) {
-        if (collisionAny(x - width * 2, x + width * 2,
-                         newMap->mapTiles.at(i).getX(),
-                         newMap->mapTiles.at(i).getX() + 64, y - height * 2,
-                         y + height * 2, newMap->mapTiles.at(i).getY(),
-                         newMap->mapTiles.at(i).getY() + 64)) {
+        if (collisionAny(x - width * 2, x + width * 2, tile->getX(),
+                         tile->getX() + 64, y - height * 2, y + height * 2,
+                         tile->getY(), tile->getY() + 64)) {
           // Get point
-          // if (newMap->mapTiles.at(i).getType() == tile_lollypop) {
-          //   if (collisionAny(x, x + width, newMap->mapTiles.at(i).getX(),
-          //                    newMap->mapTiles.at(i).getX() + 64, y - 16,
-          //                    y + height, newMap->mapTiles.at(i).getY(),
-          //                    newMap->mapTiles.at(i).getY() + 128)) {
-          //     al_play_sample(getBonus, 1.0f, 0.0f, 1.0f,
-          //     ALLEGRO_PLAYMODE_ONCE,
-          //                    0);
-          //     newMap->mapTiles.at(i).setType(0);
+          // if (tile->getType() == tile_lollypop) {
+          //   if (collisionAny(x, x + width, tile->getX(),
+          //                    tile->getX() + 64, y - 16,
+          //                    y + height, tile->getY(),
+          //                    tile->getY() + 128)) {
+          //     getBonus.play();
+          //     tile->setType(0);
           //   }
           // }
 
           // Die
-          if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::HARMFUL)) {
-            if (collisionAny(x, x + width, newMap->mapTiles.at(i).getX(),
-                             newMap->mapTiles.at(i).getX() + 64, y - 16,
-                             y + height, newMap->mapTiles.at(i).getY(),
-                             newMap->mapTiles.at(i).getY() + 128)) {
+          if (tile->hasAttribute(TileAttribute::HARMFUL)) {
+            if (collisionAny(x, x + width, tile->getX(), tile->getX() + 64,
+                             y - 16, y + height, tile->getY(),
+                             tile->getY() + 128)) {
               dead = true;
             }
           }
         }
       }
-      Logger::log("here 4");
 
       // Check collision with bullets
-      for (uint32_t i = 0; i < newPlayer->getBullets().size(); i++) {
-        if (collisionAny(x, x + width, newPlayer->getBullets().at(i).getX(),
-                         newPlayer->getBullets().at(i).getX() + 64, y,
-                         y + height, newPlayer->getBullets().at(i).getY(),
-                         newPlayer->getBullets().at(i).getY() + 64)) {
+      for (auto& bullet : newPlayer->getBullets()) {
+        if (collisionAny(x, x + width, bullet.getX(), bullet.getX() + 64, y,
+                         y + height, bullet.getY(), bullet.getY() + 64)) {
           dead = true;
         }
       }
@@ -374,9 +262,9 @@ void Enemy::update(TileMap* fullMap, Player* newPlayer) {
       if (walking_counter == 0) {
         if (random(0, walkChance) == 0 && walkChance != 0) {
           if (random(0, 1) == 0) {
-            characterDir = CHARACTER_RIGHT;
+            characterDir = CharacterDirection::RIGHT;
           } else {
-            characterDir = CHARACTER_LEFT;
+            characterDir = CharacterDirection::LEFT;
           }
           walking_counter = random(minSteps, maxSteps);
         }
@@ -385,40 +273,37 @@ void Enemy::update(TileMap* fullMap, Player* newPlayer) {
         walking_counter--;
       }
 
-      Logger::log("here 5");
       // Move right
-      if (characterDir == CHARACTER_RIGHT && walking_counter > 0) {
+      if (characterDir == CharacterDirection::RIGHT && walking_counter > 0) {
         if (canMoveRight) {
           x += speed;
           walking_animation_sequence++;
           if (walking_animation_sequence % (ANIMATION_SPEED * 2) == 0 &&
               !canFall && !jumping) {
             if (random(0, 1)) {
-              al_play_sample(walk1, 1.0f, 0, 1.0f, ALLEGRO_PLAYMODE_ONCE, 0);
+              walk1.play();
             } else {
-              al_play_sample(walk2, 1.0f, 0, 1.0f, ALLEGRO_PLAYMODE_ONCE, 0);
+              walk2.play();
             }
           }
         }
       }
 
       // Move left
-      if (characterDir == CHARACTER_LEFT && walking_counter > 0) {
+      if (characterDir == CharacterDirection::LEFT && walking_counter > 0) {
         if (canMoveLeft) {
           x -= speed;
           walking_animation_sequence++;
           if (walking_animation_sequence % (ANIMATION_SPEED * 2) == 0 &&
               !canFall && !jumping) {
             if (random(0, 1)) {
-              al_play_sample(walk1, 1.0f, 0, 1.0f, ALLEGRO_PLAYMODE_ONCE, 0);
+              walk1.play();
             } else {
-              al_play_sample(walk2, 1.0f, 0, 1.0f, ALLEGRO_PLAYMODE_ONCE, 0);
+              walk2.play();
             }
           }
         }
       }
-
-      Logger::log("here 6");
 
       // Jumping
       if (jumping && canJumpUp) {
@@ -457,39 +342,36 @@ void Enemy::update(TileMap* fullMap, Player* newPlayer) {
       }
 
       // Update bullets
-      for (uint32_t i = 0; i < bullets.size(); i++) {
-        bullets.at(i).update();
-        if (bullets.at(i).getContact(newMap) &&
-            bullets.at(i).getContactFrameCounter() == 10) {
-          bullets.erase(bullets.begin() + i);
+      for (auto& bullet : bullets) {
+        bullet.update();
+      }
+
+      for (auto it = std::begin(bullets); it != std::end(bullets);) {
+        if ((*it).getContact(fullMap) && (*it).getContactFrameCounter() == 10) {
+          it = bullets.erase(it);
+        } else {
+          ++it;
         }
       }
     }
 
     canFall = true;
     bool smoothFall = false;
+
     // Falling (calculated seperately to ensure collision accurate)
-    for (uint32_t i = 0; i < newMap->mapTiles.size(); i++) {
-      if (collisionAny(x - width * 2, x + width * 2,
-                       newMap->mapTiles.at(i).getX(),
-                       newMap->mapTiles.at(i).getX() + 64, y - height * 2,
-                       y + height * 2, newMap->mapTiles.at(i).getY(),
-                       newMap->mapTiles.at(i).getY() + 64)) {
-        if (newMap->mapTiles.at(i).hasAttribute(TileAttribute::SOLID) ||
-            newMap->mapTiles.at(i).hasAttribute(TileAttribute::CLIMB)) {
-          if (collisionAny(x, x + 96, newMap->mapTiles.at(i).getX(),
-                           newMap->mapTiles.at(i).getX() + 64, y, y + 144,
-                           newMap->mapTiles.at(i).getY(),
-                           newMap->mapTiles.at(i).getY() + 64) &&
-              collisionTop(y, y + 144, newMap->mapTiles.at(i).getY(),
-                           newMap->mapTiles.at(i).getY() + 128)) {
+    for (auto& tile : fullMap->mapTiles) {
+      if (collisionAny(x - width * 2, x + width * 2, tile->getX(),
+                       tile->getX() + 64, y - height * 2, y + height * 2,
+                       tile->getY(), tile->getY() + 64)) {
+        if (tile->hasAttribute(TileAttribute::SOLID) ||
+            tile->hasAttribute(TileAttribute::CLIMB)) {
+          if (collisionAny(x, x + 96, tile->getX(), tile->getX() + 64, y,
+                           y + 144, tile->getY(), tile->getY() + 64) &&
+              collisionTop(y, y + 144, tile->getY(), tile->getY() + 128)) {
             canFall = false;
-            if (!collisionAny(x, x + 96, newMap->mapTiles.at(i).getX(),
-                              newMap->mapTiles.at(i).getX() + 64, y, y + 129,
-                              newMap->mapTiles.at(i).getY(),
-                              newMap->mapTiles.at(i).getY() + 64) &&
-                !collisionTop(y, y + 129, newMap->mapTiles.at(i).getY(),
-                              newMap->mapTiles.at(i).getY() + 129)) {
+            if (!collisionAny(x, x + 96, tile->getX(), tile->getX() + 64, y,
+                              y + 129, tile->getY(), tile->getY() + 64) &&
+                !collisionTop(y, y + 129, tile->getY(), tile->getY() + 129)) {
               smoothFall = true;
             }
           }

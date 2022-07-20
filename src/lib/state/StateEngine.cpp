@@ -1,14 +1,14 @@
 
 #include "StateEngine.h"
 
-#include "../../util/Logger.h"
+#include "../../lib/util/Logger.h"
 #include "./State.h"
 
-#include "../Editor.h"
-#include "../Game.h"
-#include "../Init.h"
-#include "../Intro.h"
-#include "../Menu.h"
+#include "../../state/Editor.h"
+#include "../../state/Game.h"
+#include "../../state/Init.h"
+#include "../../state/Intro.h"
+#include "../../state/Menu.h"
 
 // Process events
 void StateEngine::processEvent(const ALLEGRO_EVENT& event) {

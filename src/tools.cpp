@@ -45,6 +45,15 @@ bool collisionLeft(int xMin1, int xMax1, int xMin2, int xMax2) {
   return false;
 }
 
+bool bbCollisionPoint(int x, int y, BoundingBox b) {
+  return collisionAny(b.x, b.x + b.width, x, x, b.y, b.y + b.height, y, y);
+};
+
+bool bbCollision(BoundingBox b1, BoundingBox b2) {
+  return collisionAny(b1.x, b1.x + b1.width, b2.x, b2.x + b2.width, b1.y,
+                      b1.y + b1.height, b2.y, b2.y + b2.height);
+}
+
 // Random number generator. Use int random(lowest,highest);
 int random(int newLowest, int newHighest) {
   int lowest = newLowest, highest = newHighest;

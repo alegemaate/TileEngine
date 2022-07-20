@@ -1,0 +1,10 @@
+#ifndef ENTITIES_CHARACTERDIRECTION_H_
+#define ENTITIES_CHARACTERDIRECTION_H_
+
+enum class CharacterDirection {
+  LEFT = 0,
+  RIGHT = 4,
+  UP = 8,
+};
+
+#endif  // ENTITIES_CHARACTERDIRECTION_H_

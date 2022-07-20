@@ -4,10 +4,10 @@
 #include <allegro5/allegro_primitives.h>
 #include <fstream>
 
-#include "../util/DisplayMode.h"
-#include "../util/KeyListener.h"
-#include "../util/Logger.h"
-#include "../util/MouseListener.h"
+#include "../lib/display/DisplayMode.h"
+#include "../lib/input/KeyListener.h"
+#include "../lib/input/MouseListener.h"
+#include "../lib/util/Logger.h"
 
 Editor::Editor(KeyListener& keyboardListener,
                MouseListener& mouseListener,
@@ -27,14 +27,7 @@ void Editor::init() {
   exampleTile->setY(0);
 
   // Load font
-  font = al_load_ttf_font("fonts/opensans.ttf", 24, 0);
-
-  // Sets Font
-  if (!font) {
-    Logger::fatal(
-        "Cannot find font fonts/opensans.ttf \n Please check your files and "
-        "try again");
-  }
+  font = Font("fonts/opensans.ttf", 24);
 }
 
 void Editor::saveMap() {
@@ -108,31 +101,25 @@ void Editor::update(double delta) {
   if (mouseListener.isDown(MouseButton::Left)) {
     // Check for collision
     if (layer == 1) {
-      for (uint32_t i = 0; i < tile_map->mapTiles.size(); i++) {
+      for (auto& tile : tile_map->mapTiles) {
         if (collisionAny(mouseListener.getX() + tile_map->x,
-                         mouseListener.getX() + tile_map->x,
-                         tile_map->mapTiles.at(i).getX(),
-                         tile_map->mapTiles.at(i).getX() + 64,
-                         mouseListener.getY() + tile_map->y,
-                         mouseListener.getY() + tile_map->y,
-                         tile_map->mapTiles.at(i).getY(),
-                         tile_map->mapTiles.at(i).getY() + 64)) {
+                         mouseListener.getX() + tile_map->x, tile->getX(),
+                         tile->getX() + 64, mouseListener.getY() + tile_map->y,
+                         mouseListener.getY() + tile_map->y, tile->getY(),
+                         tile->getY() + 64)) {
           auto type = tile_map->findTileType(selectedTileType);
-          tile_map->mapTiles.at(i).setType(type);
+          tile->setType(type);
         }
       }
     } else {
-      for (uint32_t i = 0; i < tile_map->mapTilesBack.size(); i++) {
+      for (auto& tile : tile_map->mapTilesBack) {
         if (collisionAny(mouseListener.getX() + tile_map->x,
-                         mouseListener.getX() + tile_map->x,
-                         tile_map->mapTilesBack.at(i).getX(),
-                         tile_map->mapTilesBack.at(i).getX() + 64,
-                         mouseListener.getY() + tile_map->y,
-                         mouseListener.getY() + tile_map->y,
-                         tile_map->mapTilesBack.at(i).getY(),
-                         tile_map->mapTilesBack.at(i).getY() + 64)) {
+                         mouseListener.getX() + tile_map->x, tile->getX(),
+                         tile->getX() + 64, mouseListener.getY() + tile_map->y,
+                         mouseListener.getY() + tile_map->y, tile->getY(),
+                         tile->getY() + 64)) {
           auto type = tile_map->findTileType(selectedTileType);
-          tile_map->mapTilesBack.at(i).setType(type);
+          tile->setType(type);
         }
       }
     }
@@ -142,15 +129,12 @@ void Editor::update(double delta) {
   if (keyboardListener.isDown(Key::K)) {
     // Check for collision
     if (layer == 1) {
-      for (uint32_t i = 0; i < tile_map->mapTiles.size(); i++) {
+      for (auto& tile : tile_map->mapTiles) {
         if (collisionAny(mouseListener.getX() + tile_map->x,
-                         mouseListener.getX() + tile_map->x,
-                         tile_map->mapTiles.at(i).getX(),
-                         tile_map->mapTiles.at(i).getX() + 64,
-                         mouseListener.getY() + tile_map->y,
-                         mouseListener.getY() + tile_map->y,
-                         tile_map->mapTiles.at(i).getY(),
-                         tile_map->mapTiles.at(i).getY() + 64)) {
+                         mouseListener.getX() + tile_map->x, tile->getX(),
+                         tile->getX() + 64, mouseListener.getY() + tile_map->y,
+                         mouseListener.getY() + tile_map->y, tile->getY(),
+                         tile->getY() + 64)) {
           auto type = tile_map->findTileType(selectedTileType);
           exampleTile->setType(type);
           exampleTile->setX(0);
@@ -158,15 +142,12 @@ void Editor::update(double delta) {
         }
       }
     } else {
-      for (uint32_t i = 0; i < tile_map->mapTilesBack.size(); i++) {
+      for (auto& tile : tile_map->mapTilesBack) {
         if (collisionAny(mouseListener.getX() + tile_map->x,
-                         mouseListener.getX() + tile_map->x,
-                         tile_map->mapTilesBack.at(i).getX(),
-                         tile_map->mapTilesBack.at(i).getX() + 64,
-                         mouseListener.getY() + tile_map->y,
-                         mouseListener.getY() + tile_map->y,
-                         tile_map->mapTilesBack.at(i).getY(),
-                         tile_map->mapTilesBack.at(i).getY() + 64)) {
+                         mouseListener.getX() + tile_map->x, tile->getX(),
+                         tile->getX() + 64, mouseListener.getY() + tile_map->y,
+                         mouseListener.getY() + tile_map->y, tile->getY(),
+                         tile->getY() + 64)) {
           auto type = tile_map->findTileType(selectedTileType);
           exampleTile->setType(type);
           exampleTile->setX(0);
@@ -180,31 +161,25 @@ void Editor::update(double delta) {
   if (mouseListener.isDown(MouseButton::Right)) {
     // Check for collision
     if (layer == 1) {
-      for (uint32_t i = 0; i < tile_map->mapTiles.size(); i++) {
+      for (auto& tile : tile_map->mapTiles) {
         if (collisionAny(mouseListener.getX() + tile_map->x,
-                         mouseListener.getX() + tile_map->x,
-                         tile_map->mapTiles.at(i).getX(),
-                         tile_map->mapTiles.at(i).getX() + 64,
-                         mouseListener.getY() + tile_map->y,
-                         mouseListener.getY() + tile_map->y,
-                         tile_map->mapTiles.at(i).getY(),
-                         tile_map->mapTiles.at(i).getY() + 64)) {
+                         mouseListener.getX() + tile_map->x, tile->getX(),
+                         tile->getX() + 64, mouseListener.getY() + tile_map->y,
+                         mouseListener.getY() + tile_map->y, tile->getY(),
+                         tile->getY() + 64)) {
           auto type = tile_map->findTileType(0);
-          tile_map->mapTiles.at(i).setType(type);
+          tile->setType(type);
         }
       }
     } else {
-      for (uint32_t i = 0; i < tile_map->mapTilesBack.size(); i++) {
+      for (auto& tile : tile_map->mapTilesBack) {
         if (collisionAny(mouseListener.getX() + tile_map->x,
-                         mouseListener.getX() + tile_map->x,
-                         tile_map->mapTilesBack.at(i).getX(),
-                         tile_map->mapTilesBack.at(i).getX() + 64,
-                         mouseListener.getY() + tile_map->y,
-                         mouseListener.getY() + tile_map->y,
-                         tile_map->mapTilesBack.at(i).getY(),
-                         tile_map->mapTilesBack.at(i).getY() + 64)) {
+                         mouseListener.getX() + tile_map->x, tile->getX(),
+                         tile->getX() + 64, mouseListener.getY() + tile_map->y,
+                         mouseListener.getY() + tile_map->y, tile->getY(),
+                         tile->getY() + 64)) {
           auto type = tile_map->findTileType(0);
-          tile_map->mapTilesBack.at(i).setType(type);
+          tile->setType(type);
         }
       }
     }
@@ -223,14 +198,14 @@ void Editor::update(double delta) {
   // Fill map
   if (keyboardListener.isDown(Key::F)) {
     auto type = tile_map->findTileType(selectedTileType);
-    for (uint32_t i = 0; i < tile_map->mapTilesBack.size(); i++) {
-      tile_map->mapTilesBack.at(i).setType(type);
+    for (auto& tile : tile_map->mapTilesBack) {
+      tile->setType(type);
     }
   }
   if (keyboardListener.isDown(Key::G)) {
     auto type = tile_map->findTileType(selectedTileType);
-    for (uint32_t i = 0; i < tile_map->mapTiles.size(); i++) {
-      tile_map->mapTiles.at(i).setType(type);
+    for (auto& tile : tile_map->mapTiles) {
+      tile->setType(type);
     }
   }
 }
@@ -246,15 +221,14 @@ void Editor::draw() {
   exampleTile->draw(0, 0, 0);
 
   // Map info
-  al_draw_textf(font, al_map_rgb(255, 255, 255), 0, 80, 0,
-                "height: %i width: %i", tile_map->height, tile_map->width);
+  font.draw(10, 10, al_map_rgb(255, 255, 255),
+            "height:" + std::to_string(tile_map->height) +
+                " width:" + std::to_string(tile_map->width));
 
   if (layer == 1) {
-    al_draw_text(font, al_map_rgb(255, 255, 255), 0, 130, 0,
-                 "Layer: Foreground");
+    font.draw(10, 40, al_map_rgb(255, 255, 255), "Layer: Foreground");
   } else if (layer == 0) {
-    al_draw_text(font, al_map_rgb(255, 255, 255), 0, 130, 0,
-                 "Layer: Background");
+    font.draw(10, 40, al_map_rgb(255, 255, 255), "Layer: Background");
   }
 
   // Cursor

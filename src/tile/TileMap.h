@@ -27,10 +27,10 @@ class TileMap {
   std::shared_ptr<TileType> findTileType(uint8_t id);
 
   // Holds all map tiles in the colliding layer
-  std::vector<Tile> mapTiles;
+  std::vector<std::shared_ptr<Tile>> mapTiles;
 
   // Holds all map tiles in background layer
-  std::vector<Tile> mapTilesBack;
+  std::vector<std::shared_ptr<Tile>> mapTilesBack;
 
   // Position of map (for drawing)
   int x;
@@ -51,6 +51,18 @@ class TileMap {
 
   // Draw map
   void draw_map();
+
+  // Check if is tile at
+  bool isTileAt(int x, int y);
+
+  // Check if is  anytile at
+  bool isTileAt(BoundingBox area);
+
+  // Get tile at position
+  std::shared_ptr<Tile> getTileAt(int x, int y);
+
+  // Get tiles at position
+  std::vector<std::shared_ptr<Tile>> getTilesAt(BoundingBox area);
 
  private:
   // Load starting tiles

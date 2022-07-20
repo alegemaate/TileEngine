@@ -1,17 +1,14 @@
 #ifndef PROJECTILE_H
 #define PROJECTILE_H
 
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_audio.h>
-
-#include "../globals.h"
-#include "../tools.h"
-
+#include "../lib/assets/Bitmap.h"
+#include "../lib/assets/Sound.h"
 #include "../tile/TileMap.h"
+#include "../tools.h"
 
 class Projectile {
  public:
-  Projectile(int newType, int newX, int newY, int newSpeed);
+  Projectile(int type, int x, int y, int speed);
   ~Projectile();
 
   int getX();
@@ -19,28 +16,22 @@ class Projectile {
 
   int getType();
   int getContactFrameCounter();
-  bool getContact(TileMap* newMap);
-
-  void setType(int newType);
-  void setImage(ALLEGRO_BITMAP* image1,
-                ALLEGRO_BITMAP* image2,
-                ALLEGRO_BITMAP* image3);
-  void setSounds(int newType);
+  bool getContact(TileMap* fullMap);
 
   void update();
   void draw(int xOffset, int yOffset);
 
  private:
-  int x;
-  int y;
-  int speed;
-  int type;
-  int contact_counter;
+  int x{0};
+  int y{0};
+  int speed{0};
+  int type{0};
+  int contactCounter{0};
 
-  bool contact;
+  bool contact{false};
 
-  ALLEGRO_BITMAP* image[3];
-  ALLEGRO_SAMPLE* sound[2];
+  Bitmap image[3];
+  Sound sound[2];
 };
 
 #endif

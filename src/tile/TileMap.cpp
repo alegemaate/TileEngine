@@ -3,9 +3,8 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 
-#include "../globals.h"
-#include "../util/DisplayMode.h"
-#include "../util/Logger.h"
+#include "../lib/display/DisplayMode.h"
+#include "../lib/util/Logger.h"
 
 // Creates map and loads level from fileName
 TileMap::TileMap(std::string fileName) {
@@ -130,7 +129,8 @@ void TileMap::load(std::string fileName) {
         read >> intType;
 
         // Set tile type
-        Tile newTile(findTileType(intType), i * 64, t * 64);
+        auto newTile =
+            std::make_shared<Tile>(findTileType(intType), i * 64, t * 64);
 
         // First time, set tile set
         mapTiles.push_back(newTile);
@@ -147,8 +147,11 @@ void TileMap::load(std::string fileName) {
         int intType;
         read2 >> intType;
 
+        auto newTile =
+            std::make_shared<Tile>(findTileType(intType), i * 64, t * 64);
+
         // First time, set tile set
-        mapTilesBack.emplace_back(findTileType(intType), i * 64, t * 64);
+        mapTilesBack.push_back(newTile);
       }
     }
     read2.close();
@@ -163,13 +166,13 @@ void TileMap::save(std::string fileName) {
   std::ofstream saveRaw1(finalFile.c_str());
 
   widthCounter = 0;
-  for (uint32_t i = 0; i < mapTiles.size(); i++) {
+  for (auto& tile : mapTiles) {
     widthCounter++;
     if (widthCounter == width) {
-      saveRaw1 << mapTiles.at(i).getType() << "\n";
+      saveRaw1 << tile->getType() << "\n";
       widthCounter = 0;
     } else {
-      saveRaw1 << mapTiles.at(i).getType() << " ";
+      saveRaw1 << tile->getType() << " ";
     }
   }
   saveRaw1.close();
@@ -179,13 +182,13 @@ void TileMap::save(std::string fileName) {
   std::ofstream saveRaw2(finalFile.c_str());
 
   widthCounter = 0;
-  for (uint32_t i = 0; i < mapTilesBack.size(); i++) {
+  for (auto& tile : mapTilesBack) {
     widthCounter++;
     if (widthCounter == width) {
-      saveRaw2 << mapTilesBack.at(i).getType() << "\n";
+      saveRaw2 << tile->getType() << "\n";
       widthCounter = 0;
     } else {
-      saveRaw2 << mapTilesBack.at(i).getType() << " ";
+      saveRaw2 << tile->getType() << " ";
     }
   }
   saveRaw2.close();
@@ -200,22 +203,65 @@ long TileMap::getFrame() {
 void TileMap::draw_map() {
   auto frame = getFrame();
 
-  for (uint32_t i = 0; i < mapTilesBack.size(); i++) {
-    if ((mapTilesBack.at(i).getX() >= x - mapTilesBack.at(i).getWidth()) &&
-        (mapTilesBack.at(i).getX() < x + DisplayMode::getDrawWidth()) &&
-        (mapTilesBack.at(i).getY() >= y - mapTilesBack.at(i).getHeight()) &&
-        (mapTilesBack.at(i).getY() < y + DisplayMode::getDrawHeight())) {
-      mapTilesBack.at(i).draw(x, y, frame);
+  for (const auto& tile : mapTilesBack) {
+    if ((tile->getX() >= x - tile->getWidth()) &&
+        (tile->getX() < x + DisplayMode::getDrawWidth()) &&
+        (tile->getY() >= y - tile->getHeight()) &&
+        (tile->getY() < y + DisplayMode::getDrawHeight())) {
+      tile->draw(x, y, frame);
     }
   }
-  for (uint32_t i = 0; i < mapTiles.size(); i++) {
-    if ((mapTiles.at(i).getX() >= x - mapTiles.at(i).getWidth()) &&
-        (mapTiles.at(i).getX() < x + DisplayMode::getDrawWidth()) &&
-        (mapTiles.at(i).getY() >= y - mapTiles.at(i).getHeight()) &&
-        (mapTiles.at(i).getY() < y + DisplayMode::getDrawHeight())) {
-      if (!mapTiles.at(i).hasAttribute(TileAttribute::SPAWN)) {
-        mapTiles.at(i).draw(x, y, frame);
-      }
+  for (const auto& tile : mapTiles) {
+    if ((tile->getX() >= x - tile->getWidth()) &&
+        (tile->getX() < x + DisplayMode::getDrawWidth()) &&
+        (tile->getY() >= y - tile->getHeight()) &&
+        (tile->getY() < y + DisplayMode::getDrawHeight())) {
+      tile->draw(x, y, frame);
     }
   }
+}
+
+// Check if is tile at
+bool TileMap::isTileAt(int x, int y) {
+  for (const auto& tile : mapTiles) {
+    if (tile->getBounds().collidesPoint(x, y)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Check if is tile at bb
+bool TileMap::isTileAt(BoundingBox area) {
+  for (const auto& tile : mapTiles) {
+    if (tile->getBounds().collides(area)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Get tile at position
+std::shared_ptr<Tile> TileMap::getTileAt(int x, int y) {
+  for (auto tile : mapTiles) {
+    if (tile->getBounds().collidesPoint(x, y)) {
+      return tile;
+    }
+  }
+
+  throw new std::runtime_error("No tile found at " + std::to_string(x) + "," +
+                               std::to_string(y));
+}
+
+// Get tile at position
+std::vector<std::shared_ptr<Tile>> TileMap::getTilesAt(BoundingBox area) {
+  std::vector<std::shared_ptr<Tile>> tiles;
+
+  for (auto tile : mapTiles) {
+    if (tile->getBounds().collides(area)) {
+      tiles.push_back(tile);
+    }
+  }
+
+  return tiles;
 }

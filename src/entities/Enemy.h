@@ -1,27 +1,24 @@
 #ifndef ENEMY_H
 #define ENEMY_H
 
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_audio.h>
 #include <vector>
 
-#include "../globals.h"
-#include "../tile/TileMap.h"
-#include "../tools.h"
-#include "../util/Bitmap.h"
+#include "./CharacterDirection.h"
+#include "./EnemyType.h"
 #include "./Player.h"
 #include "./Projectile.h"
+
+#include "../lib/assets/Bitmap.h"
+#include "../lib/assets/Sound.h"
+#include "../tile/TileMap.h"
+#include "../tools.h"
 
 #define ANIMATION_SPEED 5
 #define JUMPING_HEIGHT 192
 
 class Enemy {
  public:
-  Enemy(int newX, int newY, int newType);
-  ~Enemy();
-
-  void load_images();
-  void load_sounds();
+  Enemy(int newX, int newY, EnemyType newType);
 
   int getX();
   int getY();
@@ -30,50 +27,50 @@ class Enemy {
 
   void setDead(bool newDead);
 
-  void update(TileMap* newMap, Player* newPlayer);
+  void update(TileMap* fullMap, Player* newPlayer);
   void draw(int tile_map_x, int tile_map_y);
 
  private:
-  int x;
-  int y;
+  int x{0};
+  int y{0};
 
-  int width;
-  int height;
+  int width{0};
+  int height{0};
 
-  int speed;
-  int type;
+  int speed{0};
+  EnemyType type{EnemyType::VORTICON};
 
   // Cusomize!
-  int jumpChance;
-  int maxSteps;
-  int minSteps;
-  int jumpHeight;
-  int walkChance;
-  int jumpSpeed;
+  int jumpChance{0};
+  int maxSteps{0};
+  int minSteps{0};
+  int jumpHeight{0};
+  int walkChance{0};
+  int jumpSpeed{0};
 
-  bool canFall;
-  bool jumping;
-  bool dead;
-  int walking_animation_sequence;
-  int jumping_animation_sequence;
-  int jump_height;
-  int characterDir;
-  int yVelocity;
-  int walking_counter;
+  bool canFall{false};
+  bool jumping{false};
+  bool dead{false};
+  int walking_animation_sequence{0};
+  int jumping_animation_sequence{0};
+  int jump_height{0};
+  int yVelocity{0};
+  int walking_counter{0};
 
-  std::vector<Projectile> bullets;
-  TileMap* newMap;
+  CharacterDirection characterDir{CharacterDirection::RIGHT};
+
+  std::vector<Projectile> bullets{};
 
   // 0-3 left, 4-7 right, 8 jump left 9 jump right 10 dead
-  Bitmap enemy_images[11];
+  Bitmap enemy_images[11]{};
 
   // Sounds
-  ALLEGRO_SAMPLE* walk1;
-  ALLEGRO_SAMPLE* walk2;
-  ALLEGRO_SAMPLE* jump;
-  ALLEGRO_SAMPLE* die;
-  ALLEGRO_SAMPLE* getItem;
-  ALLEGRO_SAMPLE* getBonus;
+  Sound walk1;
+  Sound walk2;
+  Sound jump;
+  Sound die;
+  Sound getItem;
+  Sound getBonus;
 };
 
 #endif

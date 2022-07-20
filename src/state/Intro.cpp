@@ -3,8 +3,8 @@
 #include <allegro5/allegro_primitives.h>
 #include <string>
 
-#include "../util/DisplayMode.h"
-#include "../util/KeyListener.h"
+#include "../lib/display/DisplayMode.h"
+#include "../lib/input/KeyListener.h"
 
 Intro::Intro(KeyListener& keyboardListener)
     : keyboardListener(keyboardListener) {}
